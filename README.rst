@@ -1,13 +1,18 @@
-pylaston
-
+pylastic
 ========
 
-A python package for calculating elastic constants from first principles
+A python package for calculating elastic constants from first principles.
+
 
 Introduction
 ------------
+
 comming soon
 
-Usage
------
+
+Basic usage
+-----------
+
 comming soon
+
+derivate of `ElaStic <http://exciting-code.org/elastic/>`_
