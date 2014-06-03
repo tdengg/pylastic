@@ -4,7 +4,7 @@ Class for getting DEFORMATION MATRIX for given spacegroup number and Lagranian s
 Methods:
 get_eta        : returns Lagrangian strain
 get_sgn        : returns spacegroup number
-get_strainType : returns current strain(deformation) type
+get_strainType : returns current strain (deformation) type
 get_defMatrix  : returns deformation matrix
 get_strainList : returns list of deformation types for specific crystal symmetry
 get_V0

@@ -4,15 +4,16 @@ import os
 
 
 class Sgroup(object):
-    def __init__(self, poscar):
+    def __init__(self, poscar, fname):
         self.i = 0
         self.__sgn = None
         self.poscar = poscar
+        self.fname = fname
         self.set_sgroup()
         
     def set_sgroup(self):
         
-        o_poscar = vaspIO.POS('POSCAR')
+        o_poscar = vaspIO.POS(self.fname)
         o_poscar.write_sgroup(self.poscar)                # --"--
         os.system('sgroup sgroup.in 1> sgroup.out 2> sgroup.err')
         #%%%--- Calculate Space-group number and classify it ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

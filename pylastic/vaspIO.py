@@ -2,12 +2,13 @@ import numpy as np
 import os
 
 class POS(object):
-    def __init__(self, file):
-        self.car = open(file)
+    def __init__(self, fname):
+        self.car = open(fname)
         
     def read_pos(self):
         p_dict = {}
         p_dict["name"] = self.car.readline()
+        p_dict["path"] = os.getcwd()+'/POSCAR'
         
         scale = self.lta()[0]
         print scale
@@ -98,7 +99,7 @@ class POS(object):
         f = open('sgroup.in','w')
         
         f.write('P\n')
-        print pos["vlatt_2"], pos["scale"]
+        
         a = np.sqrt((pos["vlatt_1"][0])**2. + (pos["vlatt_1"][1])**2. + (pos["vlatt_1"][2])**2.) * pos["scale"]
         b = np.sqrt((pos["vlatt_2"][0])**2. + (pos["vlatt_2"][1])**2. + (pos["vlatt_2"][2])**2.) * pos["scale"]
         c = np.sqrt((pos["vlatt_3"][0])**2. + (pos["vlatt_3"][1])**2. + (pos["vlatt_3"][2])**2.) * pos["scale"]
@@ -118,5 +119,31 @@ class POS(object):
                     f.write('Species_' + str(i+1) + '\n')
         else: print 'Basis vectors in Cartesian coordinates not supported yet!!! \n NOT WRITTEN TO sgroup.in!!!!!'
         f.close()
+    
+#    def write_sgroup_ase(self, atoms):
+#        
+#        f = open('sgroup.in','w')
+#        
+#        f.write('P\n')
+#        
+#        a = np.sqrt((atoms.cell[0][0])**2. + (atoms.cell[0][1])**2. + (atoms.cell[0][2])**2.) * pos["scale"]
+#        b = np.sqrt((atoms.cell[1][0])**2. + (atoms.cell[1][1])**2. + (atoms.cell[1][2])**2.) * pos["scale"]
+#        c = np.sqrt((atoms.cell[2][0])**2. + (atoms.cell[2][1])**2. + (atoms.cell[2][2])**2.) * pos["scale"]
+#        alpha = np.arccos(np.dot(atoms.cell[1]*pos["scale"],atoms.cell[2]*pos["scale"])/(b*c))*180./np.pi
+#        beta = np.arccos(np.dot(atoms.cell[2]*pos["scale"],atoms.cell[0]*pos["scale"])/(a*c))*180./np.pi
+#        gamma = np.arccos(np.dot(atoms.cell[0]*pos["scale"],atoms.cell[1]*pos["scale"])/(a*b))*180./np.pi
+#        
+#        f.write(str(a) +' '+ str(b) +' '+ str(c) +' '+ str(alpha) +' '+ str(beta) +' '+ str(gamma) + '\n')
+#        natom = 0
+#        for s in pos['natoms']: natom += s
+#        f.write(str(natom)+'\n')
+#        if pos["csystem"] in ['d','D']:
+#            for i in range(len(pos["natoms"])):
+#                for j in range(pos["natoms"][i]):
+#                    
+#                    f.write(pos["vbasis"]["species_" + str(i+1)][j][0] + ' ' + pos["vbasis"]["species_" + str(i+1)][j][1] + ' ' + pos["vbasis"]["species_" + str(i+1)][j][2] + '\n')
+#                    f.write('Species_' + str(i+1) + '\n')
+#        else: print 'Basis vectors in Cartesian coordinates not supported yet!!! \n NOT WRITTEN TO sgroup.in!!!!!'
+#        f.close()
     
 if __name__ == "__main__": POS('INCAR').read_in()
