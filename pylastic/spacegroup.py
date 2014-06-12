@@ -17,7 +17,7 @@ class Sgroup(object):
         o_poscar.write_sgroup(self.poscar)                # --"--
         os.system('sgroup sgroup.in 1> sgroup.out 2> sgroup.err')
         #%%%--- Calculate Space-group number and classify it ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        os.system('less sgroup.in ')
+        #os.system('less sgroup.in ')
         os.system('rm -f sgroup.in ')
         
         if (os.path.getsize('sgroup.err') != 0):

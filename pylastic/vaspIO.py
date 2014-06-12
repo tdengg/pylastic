@@ -2,8 +2,8 @@ import numpy as np
 import os
 
 class POS(object):
-    def __init__(self, fname):
-        self.car = open(fname)
+    def __init__(self, fname=None):
+        if fname: self.car = open(fname)
         
     def read_pos(self):
         p_dict = {}

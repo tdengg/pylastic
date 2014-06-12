@@ -52,7 +52,7 @@ class VASP(object):
     ##
     def set_freeEnergy(self, T):
         """Process PHONOPY free energy output"""
-        g = open(self.vfile)
+        g = open(self.__vfile)
         self.__freeEnergy = float(g.readlines()[T].split()[1])/96.47244
         g.close()
         

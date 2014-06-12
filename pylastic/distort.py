@@ -1,34 +1,47 @@
 """
-Class for getting DEFORMATION MATRIX for given spacegroup number and Lagranian strain.
+Get DEFORMATION MATRIX for given spacegroup number and Lagranian strain.
 
 Methods:
-get_eta        : returns Lagrangian strain
-get_sgn        : returns spacegroup number
-get_strainType : returns current strain (deformation) type
-get_defMatrix  : returns deformation matrix
-get_strainList : returns list of deformation types for specific crystal symmetry
-get_V0
+ get_eta        : returns Lagrangian strain
+ 
+ get_sgn        : returns spacegroup number
+ 
+ get_strainType : returns current strain (deformation) type
+ 
+ get_defMatrix  : returns deformation matrix
+ 
+ get_strainList : returns list of deformation types for specific crystal symmetry
+ 
+ get_V0
 
-set_eta        : set Lagrangian strain
-set_sgn        : set spacegroup number
-set_strainType : set current strain(deformation) type
-set_defMatrix  : calculates deformation matrix
-set_strainList : finds list of deformation types for specific crystal symmetry
-set_V0
+ set_eta        : set Lagrangian strain
+ 
+ set_sgn        : set spacegroup number
+ 
+ set_strainType : set current strain(deformation) type
+ 
+ set_defMatrix  : calculates deformation matrix
+ 
+ set_strainList : finds list of deformation types for specific crystal symmetry
+ 
+ set_V0
 
 
-Basic Example:
-import distort
+Example:
 
-dist = distort.Distort()                 # generate instance of distortion object
-dist.sgn = sgn                           # set spacegroup number (int)
-dist.set_strainList()                    # set strain list according to space group number
+.. code-block:: python
 
-strainType = next(dist.strainList_iter)  # when using the iterator property --> get first distortion type
-dist.eta = eta                           # define lagrangian strain (float)
-dist.set_strainType(strainType)          # set strain type (string)
-dist.set_defMatrix()                     # ste deformation matrix
-dist.get_defMatrix()                     # get deformation matrix
+    import distort
+
+    dist = distort.Distort()                 # generate instance of distortion object
+    dist.sgn = sgn                           # set spacegroup number (int)
+    dist.set_strainList()                    # set strain list according to space group number
+
+    strainType = next(dist.strainList_iter)  # when using the iterator property --> get first distortion type
+    dist.eta = eta                           # define lagrangian strain (float)
+    dist.set_strainType(strainType)          # set strain type (string)
+    dist.set_defMatrix()                     # ste deformation matrix
+    dist.get_defMatrix()                     # get deformation matrix
 """
 
 import numpy as np
@@ -38,7 +51,7 @@ import os
 
 
 class Distort(object):
-    """ Class for getting DEFORMATION MATRIX for given spacegroup number and Lagranian strain.
+    """ Generate DEFORMATION MATRIX for given spacegroup number and Lagranian strain.
     arguments:
         volumecoserving: (True/False)
         mthd: ('Energy'/'Stress') method of calculation
@@ -166,7 +179,6 @@ class Distort(object):
     
     def set_eta(self, eta):
         if eta <= 0.1:
-            print "eta = %f"%eta
             self.__eta = eta
         elif eta > 0.1:
             self.__eta = 0.1
@@ -182,11 +194,11 @@ class Distort(object):
         return self.__sgn
     
     def set_strainType(self, strainType = None):
-        if not self.__Lag_strain_list and not self.__Lag_strain_list_i: self.set_strainList()
+        if not self.__Lag_strain_list: self.set_strainList()
         if strainType in self.__Lag_strain_list:
             self.__strainType = strainType
-        elif strainType == None:
-            self.__strainType = next(self.__Lag_strain_list_i)      #DEBUG!! Iterator does not work....
+        #elif strainType == None:
+        #    self.__strainType = next(self.__Lag_strain_list_i)      #DEBUG!! Iterator does not work....
             
     def get_strainType(self):
         return self.__strainType
@@ -395,9 +407,10 @@ class Distort(object):
                     sys.exit('\n     ... Oops SORRY: Not implemented yet. \n')
                 if (LC == 'N'):
                     sys.exit('\n     ... Oops SORRY: Not implemented yet. \n')
-
+        
+        self.__LC = LC
         self.__Lag_strain_list   = Lag_strain_list
-        self.__Lag_strain_list_i = iter(Lag_strain_list)
+        #self.__Lag_strain_list_i = iter(Lag_strain_list)
         
     def get_strainList(self):
         if not self.__Lag_strain_list: self.set_strainList()
@@ -412,7 +425,11 @@ class Distort(object):
     
     def get_V0(self):
         return self.__V0
-        
+    
+    def get_LC(self):
+        return self.__LC
+    def set_LC(self, LC):
+        self.__LC = LC  
     
     def get_info(self, v=True):
         """Returns dictionary with object properties"""
@@ -431,11 +448,12 @@ class Distort(object):
         
     # object properties definition
     strainList      = property(fget = get_strainList      , fset= set_strainList)
-    strainList_iter = property(fget = get_strainList_iter , fset= set_strainList)
+    #strainList_iter = property(fget = get_strainList_iter , fset= set_strainList)
     defMatrix       = property(fget = get_defMatrix       , fset= set_defMatrix )
     strainType      = property(fget = get_strainType      , fset= set_strainType)
     sgn             = property(fget = get_sgn             , fset= set_sgn       )
     eta             = property(fget = get_eta             , fset= set_eta       )
+    LC = property(fget = get_LC             , fset= set_LC       )
     
 class NECs(object):
     def __init__(self, SGN):
@@ -508,7 +526,4 @@ class NECs(object):
     def get_LC(self):
         return self.__LC
 
-class Filestructure(Distort): 
-    def __init__(self):
-        print Distort.get_eta()
     

@@ -1,0 +1,30 @@
+\begin{theindex}
+\def\bigletter#1{{\Large\sffamily#1}\nopagebreak\vspace{1mm}}
+
+  \bigletter A
+  \item analyze (module), \hyperpage{2}
+
+  \indexspace
+  \bigletter D
+  \item Distort (class in distort), \hyperpage{1}
+  \item distort (module), \hyperpage{1}
+
+  \indexspace
+  \bigletter E
+  \item ElAtoms (class in elatoms), \hyperpage{1}
+  \item elatoms (module), \hyperpage{1}
+  \item Energy (class in analyze), \hyperpage{2}
+
+  \indexspace
+  \bigletter P
+  \item postprocess (module), \hyperpage{2}
+
+  \indexspace
+  \bigletter S
+  \item Structures (class in elatoms), \hyperpage{2}
+
+  \indexspace
+  \bigletter V
+  \item vaspIO (module), \hyperpage{2}
+
+\end{theindex}
