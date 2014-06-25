@@ -1,0 +1,196 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Module postprocess &mdash; pylastic 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="pylastic 0.1 documentation" href="../index.html" />
+    <link rel="up" title="pylastic’s modules" href="../modules.html" />
+    <link rel="next" title="Module vaspIO" href="vaspIO.html" />
+    <link rel="prev" title="Module analyze" href="analyze.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="vaspIO.html" title="Module vaspIO"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="analyze.html" title="Module analyze"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pylastic 0.1 documentation</a> &raquo;</li>
+          <li><a href="../modules.html" accesskey="U">pylastic&#8217;s modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-postprocess">
+<span id="module-postprocess"></span><h1>Module postprocess<a class="headerlink" href="#module-postprocess" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="postprocess.ECs">
+<em class="property">class </em><tt class="descclassname">postprocess.</tt><tt class="descname">ECs</tt><a class="headerlink" href="#postprocess.ECs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate elastic constants</p>
+<dl class="method">
+<dt id="postprocess.ECs.set_analytics">
+<tt class="descname">set_analytics</tt><big>(</big><big>)</big><a class="headerlink" href="#postprocess.ECs.set_analytics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Standard analysis including:
+Calculation of elastic constants, cross validation score and plot of the energy strain curves.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postprocess.ECs.set_gsenergy">
+<tt class="descname">set_gsenergy</tt><big>(</big><em>gsenergy=None</em><big>)</big><a class="headerlink" href="#postprocess.ECs.set_gsenergy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read groundstate energy for all atoms in structures.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postprocess.ECs.get_gsenergy">
+<tt class="descname">get_gsenergy</tt><big>(</big><big>)</big><a class="headerlink" href="#postprocess.ECs.get_gsenergy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="postprocess.ECs.set_structures">
+<tt class="descname">set_structures</tt><big>(</big><big>)</big><a class="headerlink" href="#postprocess.ECs.set_structures" title="Permalink to this definition">¶</a></dt>
+<dd><p>Import structures object from file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postprocess.ECs.get_structures">
+<tt class="descname">get_structures</tt><big>(</big><big>)</big><a class="headerlink" href="#postprocess.ECs.get_structures" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="postprocess.ECs.get_atomsByStraintype">
+<tt class="descname">get_atomsByStraintype</tt><big>(</big><em>strainType</em><big>)</big><a class="headerlink" href="#postprocess.ECs.get_atomsByStraintype" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sort structures by strain type to get an orddered list of distortions.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postprocess.ECs.set_fitorder">
+<tt class="descname">set_fitorder</tt><big>(</big><em>fitorder</em><big>)</big><a class="headerlink" href="#postprocess.ECs.set_fitorder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set fitorder of polynomial energy - strain fit.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postprocess.ECs.get_fitorder">
+<tt class="descname">get_fitorder</tt><big>(</big><big>)</big><a class="headerlink" href="#postprocess.ECs.get_fitorder" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="postprocess.ECs.set_etacalc">
+<tt class="descname">set_etacalc</tt><big>(</big><em>etacalc</em><big>)</big><a class="headerlink" href="#postprocess.ECs.set_etacalc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set maximum lagrangian strain for the fitting procedure.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postprocess.ECs.get_etacalc">
+<tt class="descname">get_etacalc</tt><big>(</big><big>)</big><a class="headerlink" href="#postprocess.ECs.get_etacalc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="postprocess.ECs.set_C">
+<tt class="descname">set_C</tt><big>(</big><em>A2</em>, <em>etacalc</em><big>)</big><a class="headerlink" href="#postprocess.ECs.set_C" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate elastic constants from polynomials.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postprocess.ECs.get_C">
+<tt class="descname">get_C</tt><big>(</big><em>A2</em>, <em>etacalc</em><big>)</big><a class="headerlink" href="#postprocess.ECs.get_C" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="analyze.html"
+                        title="previous chapter">Module analyze</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="vaspIO.html"
+                        title="next chapter">Module vaspIO</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/modules/postprocess.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="vaspIO.html" title="Module vaspIO"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="analyze.html" title="Module analyze"
+             >previous</a> |</li>
+        <li><a href="../index.html">pylastic 0.1 documentation</a> &raquo;</li>
+          <li><a href="../modules.html" >pylastic&#8217;s modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Dengg Thomas.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

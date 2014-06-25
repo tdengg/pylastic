@@ -26,7 +26,8 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="pylastic 0.1 documentation" href="#" /> 
+    <link rel="top" title="pylastic 0.1 documentation" href="#" />
+    <link rel="next" title="Introduction" href="intro.html" /> 
   </head>
   <body>
     <div class="related">
@@ -38,6 +39,9 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="intro.html" title="Introduction"
+             accesskey="N">next</a> |</li>
         <li><a href="#">pylastic 0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -49,122 +53,41 @@
             
   <div class="section" id="welcome-to-pylastic-s-documentation">
 <h1>Welcome to pylastic&#8217;s documentation!<a class="headerlink" href="#welcome-to-pylastic-s-documentation" title="Permalink to this headline">¶</a></h1>
-<p>Contents:</p>
-<div class="toctree-wrapper compound">
+<p><strong>pylastic</strong> is a python package for calculating elastic constants from first principles.</p>
+<div class="section" id="features">
+<h2>Features:<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
+<li>vasp input/output management</li>
+<li>Determination of 2nd and 3rd order elastic constants</li>
+<li>Process <strong>phonopy</strong> output to determine temperature dependence in the quasiharmonic approximation using vasp DFPT</li>
 </ul>
 </div>
-<span class="target" id="module-distort"></span><p>Get DEFORMATION MATRIX for given spacegroup number and Lagranian strain.</p>
-<dl class="docutils">
-<dt>Methods:</dt>
-<dd><p class="first">get_eta        : returns Lagrangian strain</p>
-<p>get_sgn        : returns spacegroup number</p>
-<p>get_strainType : returns current strain (deformation) type</p>
-<p>get_defMatrix  : returns deformation matrix</p>
-<p>get_strainList : returns list of deformation types for specific crystal symmetry</p>
-<p>get_V0</p>
-<p>set_eta        : set Lagrangian strain</p>
-<p>set_sgn        : set spacegroup number</p>
-<p>set_strainType : set current strain(deformation) type</p>
-<p>set_defMatrix  : calculates deformation matrix</p>
-<p>set_strainList : finds list of deformation types for specific crystal symmetry</p>
-<p class="last">set_V0</p>
-</dd>
-</dl>
-<p>Example:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">distort</span>
-
-<span class="n">dist</span> <span class="o">=</span> <span class="n">distort</span><span class="o">.</span><span class="n">Distort</span><span class="p">()</span>                 <span class="c"># generate instance of distortion object</span>
-<span class="n">dist</span><span class="o">.</span><span class="n">sgn</span> <span class="o">=</span> <span class="n">sgn</span>                           <span class="c"># set spacegroup number (int)</span>
-<span class="n">dist</span><span class="o">.</span><span class="n">set_strainList</span><span class="p">()</span>                    <span class="c"># set strain list according to space group number</span>
-
-<span class="n">strainType</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">dist</span><span class="o">.</span><span class="n">strainList_iter</span><span class="p">)</span>  <span class="c"># when using the iterator property --&gt; get first distortion type</span>
-<span class="n">dist</span><span class="o">.</span><span class="n">eta</span> <span class="o">=</span> <span class="n">eta</span>                           <span class="c"># define lagrangian strain (float)</span>
-<span class="n">dist</span><span class="o">.</span><span class="n">set_strainType</span><span class="p">(</span><span class="n">strainType</span><span class="p">)</span>          <span class="c"># set strain type (string)</span>
-<span class="n">dist</span><span class="o">.</span><span class="n">set_defMatrix</span><span class="p">()</span>                     <span class="c"># ste deformation matrix</span>
-<span class="n">dist</span><span class="o">.</span><span class="n">get_defMatrix</span><span class="p">()</span>                     <span class="c"># get deformation matrix</span>
-</pre></div>
+<div class="section" id="contents">
+<h2>Contents:<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_setup.html">Example: 2nd order elastic constants at the groundstate.</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="example_setup.html#setup">Setup:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_setup.html#postprocessing">Postprocessing:</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">pylastic&#8217;s modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="modules/elatoms.html">Module elatoms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/distort.html">Module distort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/analyze.html">Module analyze</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/postprocess.html">Module postprocess</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/vaspIO.html">Module vaspIO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/get_DFTdata.html">Module get_DFTdata</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/spacegroup.html">Module spacegroup</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Download and installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="theory.html">Theoretical background</a></li>
+</ul>
 </div>
-<dl class="class">
-<dt id="distort.Distort">
-<em class="property">class </em><tt class="descclassname">distort.</tt><tt class="descname">Distort</tt><big>(</big><em>volumeconserving=False</em>, <em>mthd='Energy'</em>, <em>order=2</em><big>)</big><a class="headerlink" href="#distort.Distort" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate DEFORMATION MATRIX for given spacegroup number and Lagranian strain.
-arguments:</p>
-<blockquote>
-<div>volumecoserving: (True/False)
-mthd: (&#8216;Energy&#8217;/&#8217;Stress&#8217;) method of calculation
-order: (2/3) specify order of elastic constants</div></blockquote>
-</dd></dl>
-
-<span class="target" id="module-elatoms"></span><p>Created on May 23, 2014</p>
-<p>&#64;author: t.dengg</p>
-<dl class="class">
-<dt id="elatoms.ElAtoms">
-<em class="property">class </em><tt class="descclassname">elatoms.</tt><tt class="descname">ElAtoms</tt><a class="headerlink" href="#elatoms.ElAtoms" title="Permalink to this definition">¶</a></dt>
-<dd><p>classdocs:
-ASE Atoms like object.</p>
-<dl class="docutils">
-<dt>Methods:</dt>
-<dd><p class="first">set_cell
-set_natom
-set_scale
-set_species
-set_workdir
-set_poscar
-set_poscarnew
-distort
-poscarToAtoms
-atomsToPoscar</p>
-<p class="last">get_cell
-get_natom
-get_scale
-get_species
-get_workdir
-get_poscar
-get_poscarnew</p>
-</dd>
-</dl>
-<p>Example:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">poscar</span> <span class="o">=</span> <span class="n">POS</span><span class="p">(</span><span class="s">&#39;POSCAR&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read_pos</span><span class="p">()</span>
-<span class="n">structures</span> <span class="o">=</span> <span class="n">Structures</span><span class="p">()</span>
-</pre></div>
 </div>
-<p>Generate distortion:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">atom1</span> <span class="o">=</span> <span class="n">ElAtoms</span><span class="p">()</span>
-<span class="n">atom1</span><span class="o">.</span><span class="n">poscarToAtoms</span><span class="p">(</span><span class="n">poscar</span><span class="p">)</span>
-<span class="n">atom1</span><span class="o">.</span><span class="n">distort</span><span class="p">(</span><span class="n">eta</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">strainType_index</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
-<span class="n">structures</span><span class="o">.</span><span class="n">append_structure</span><span class="p">(</span><span class="n">atom1</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Generate another distortion:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">atom2</span> <span class="o">=</span> <span class="n">ElAtoms</span><span class="p">()</span>
-<span class="n">atom2</span><span class="o">.</span><span class="n">poscarToAtoms</span><span class="p">(</span><span class="n">poscar</span><span class="p">)</span>
-<span class="n">atom2</span><span class="o">.</span><span class="n">distort</span><span class="p">(</span><span class="n">eta</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">strainType_index</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
-<span class="n">structures</span><span class="o">.</span><span class="n">append_structure</span><span class="p">(</span><span class="n">atom2</span><span class="p">)</span>
-
-<span class="n">structures</span><span class="o">.</span><span class="n">write_structures</span><span class="p">()</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="class">
-<dt id="elatoms.Structures">
-<em class="property">class </em><tt class="descclassname">elatoms.</tt><tt class="descname">Structures</tt><a class="headerlink" href="#elatoms.Structures" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate a series of distorted structures.</p>
-<dl class="docutils">
-<dt>Methods:</dt>
-<dd>set_fname
-write_structures
-append_structure
-get_structures</dd>
-</dl>
-</dd></dl>
-
-<span class="target" id="module-vaspIO"></span><span class="target" id="module-postprocess"></span><span class="target" id="module-analyze"></span><dl class="class">
-<dt id="analyze.Energy">
-<em class="property">class </em><tt class="descclassname">analyze.</tt><tt class="descname">Energy</tt><big>(</big><em>strain</em>, <em>energy</em>, <em>V0</em><big>)</big><a class="headerlink" href="#analyze.Energy" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 </div>
 <div class="section" id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
@@ -184,11 +107,18 @@ get_structures</dd>
   <h3><a href="#">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Welcome to pylastic&#8217;s documentation!</a><ul>
+<li><a class="reference internal" href="#features">Features:</a></li>
+<li><a class="reference internal" href="#contents">Contents:</a><ul>
+</ul>
+</li>
 </ul>
 </li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
 </ul>
 
+  <h4>Next topic</h4>
+  <p class="topless"><a href="intro.html"
+                        title="next chapter">Introduction</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/index.txt"
@@ -220,6 +150,9 @@ get_structures</dd>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="intro.html" title="Introduction"
+             >next</a> |</li>
         <li><a href="#">pylastic 0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>

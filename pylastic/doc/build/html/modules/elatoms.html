@@ -1,0 +1,320 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Module elatoms &mdash; pylastic 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="pylastic 0.1 documentation" href="../index.html" />
+    <link rel="up" title="pylastic’s modules" href="../modules.html" />
+    <link rel="next" title="Module distort" href="distort.html" />
+    <link rel="prev" title="pylastic’s modules" href="../modules.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="distort.html" title="Module distort"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../modules.html" title="pylastic’s modules"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pylastic 0.1 documentation</a> &raquo;</li>
+          <li><a href="../modules.html" accesskey="U">pylastic&#8217;s modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-elatoms">
+<span id="module-elatoms"></span><h1>Module elatoms<a class="headerlink" href="#module-elatoms" title="Permalink to this headline">¶</a></h1>
+<p>Created on May 23, 2014</p>
+<p>&#64;author: t.dengg</p>
+<dl class="class">
+<dt id="elatoms.ElAtoms">
+<em class="property">class </em><tt class="descclassname">elatoms.</tt><tt class="descname">ElAtoms</tt><a class="headerlink" href="#elatoms.ElAtoms" title="Permalink to this definition">¶</a></dt>
+<dd><p>ASE Atoms like object.</p>
+<dl class="docutils">
+<dt>Methods:</dt>
+<dd><p class="first">set_cell
+set_natom
+set_scale
+set_species
+set_workdir
+set_poscar
+set_poscarnew
+distort
+poscarToAtoms
+atomsToPoscar</p>
+<p class="last">get_cell
+get_natom
+get_scale
+get_species
+get_workdir
+get_poscar
+get_poscarnew</p>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">poscar</span> <span class="o">=</span> <span class="n">POS</span><span class="p">(</span><span class="s">&#39;POSCAR&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read_pos</span><span class="p">()</span>
+<span class="n">structures</span> <span class="o">=</span> <span class="n">Structures</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Generate distortion:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">atom1</span> <span class="o">=</span> <span class="n">ElAtoms</span><span class="p">()</span>
+<span class="n">atom1</span><span class="o">.</span><span class="n">poscarToAtoms</span><span class="p">(</span><span class="n">poscar</span><span class="p">)</span>
+<span class="n">atom1</span><span class="o">.</span><span class="n">distort</span><span class="p">(</span><span class="n">eta</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">strainType_index</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">structures</span><span class="o">.</span><span class="n">append_structure</span><span class="p">(</span><span class="n">atom1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Generate another distortion:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">atom2</span> <span class="o">=</span> <span class="n">ElAtoms</span><span class="p">()</span>
+<span class="n">atom2</span><span class="o">.</span><span class="n">poscarToAtoms</span><span class="p">(</span><span class="n">poscar</span><span class="p">)</span>
+<span class="n">atom2</span><span class="o">.</span><span class="n">distort</span><span class="p">(</span><span class="n">eta</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">strainType_index</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">structures</span><span class="o">.</span><span class="n">append_structure</span><span class="p">(</span><span class="n">atom2</span><span class="p">)</span>
+
+<span class="n">structures</span><span class="o">.</span><span class="n">write_structures</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="elatoms.ElAtoms.set_cell">
+<tt class="descname">set_cell</tt><big>(</big><em>cell</em><big>)</big><a class="headerlink" href="#elatoms.ElAtoms.set_cell" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="elatoms.ElAtoms.get_cell">
+<tt class="descname">get_cell</tt><big>(</big><big>)</big><a class="headerlink" href="#elatoms.ElAtoms.get_cell" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="elatoms.ElAtoms.set_natom">
+<tt class="descname">set_natom</tt><big>(</big><em>natom</em><big>)</big><a class="headerlink" href="#elatoms.ElAtoms.set_natom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="elatoms.ElAtoms.get_natom">
+<tt class="descname">get_natom</tt><big>(</big><big>)</big><a class="headerlink" href="#elatoms.ElAtoms.get_natom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="elatoms.ElAtoms.set_scale">
+<tt class="descname">set_scale</tt><big>(</big><em>scale</em><big>)</big><a class="headerlink" href="#elatoms.ElAtoms.set_scale" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="elatoms.ElAtoms.get_scale">
+<tt class="descname">get_scale</tt><big>(</big><big>)</big><a class="headerlink" href="#elatoms.ElAtoms.get_scale" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="elatoms.ElAtoms.set_species">
+<tt class="descname">set_species</tt><big>(</big><em>species</em><big>)</big><a class="headerlink" href="#elatoms.ElAtoms.set_species" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="elatoms.ElAtoms.get_species">
+<tt class="descname">get_species</tt><big>(</big><big>)</big><a class="headerlink" href="#elatoms.ElAtoms.get_species" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="elatoms.ElAtoms.set_path">
+<tt class="descname">set_path</tt><big>(</big><em>path</em><big>)</big><a class="headerlink" href="#elatoms.ElAtoms.set_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="elatoms.ElAtoms.get_path">
+<tt class="descname">get_path</tt><big>(</big><big>)</big><a class="headerlink" href="#elatoms.ElAtoms.get_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="elatoms.ElAtoms.set_poscar">
+<tt class="descname">set_poscar</tt><big>(</big><em>poscar</em><big>)</big><a class="headerlink" href="#elatoms.ElAtoms.set_poscar" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="elatoms.ElAtoms.get_poscar">
+<tt class="descname">get_poscar</tt><big>(</big><big>)</big><a class="headerlink" href="#elatoms.ElAtoms.get_poscar" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="elatoms.ElAtoms.set_poscarnew">
+<tt class="descname">set_poscarnew</tt><big>(</big><em>poscar</em><big>)</big><a class="headerlink" href="#elatoms.ElAtoms.set_poscarnew" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="elatoms.ElAtoms.get_poscarnew">
+<tt class="descname">get_poscarnew</tt><big>(</big><big>)</big><a class="headerlink" href="#elatoms.ElAtoms.get_poscarnew" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="elatoms.ElAtoms.set_V0">
+<tt class="descname">set_V0</tt><big>(</big><em>V0</em><big>)</big><a class="headerlink" href="#elatoms.ElAtoms.set_V0" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="elatoms.ElAtoms.get_V0">
+<tt class="descname">get_V0</tt><big>(</big><big>)</big><a class="headerlink" href="#elatoms.ElAtoms.get_V0" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="elatoms.ElAtoms.set_gsenergy">
+<tt class="descname">set_gsenergy</tt><big>(</big><em>gsenergy</em><big>)</big><a class="headerlink" href="#elatoms.ElAtoms.set_gsenergy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="elatoms.ElAtoms.get_gsenergy">
+<tt class="descname">get_gsenergy</tt><big>(</big><big>)</big><a class="headerlink" href="#elatoms.ElAtoms.get_gsenergy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="elatoms.ElAtoms.distort">
+<tt class="descname">distort</tt><big>(</big><em>eta=0.0</em>, <em>strainType_index=0</em><big>)</big><a class="headerlink" href="#elatoms.ElAtoms.distort" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="elatoms.ElAtoms.poscarToAtoms">
+<tt class="descname">poscarToAtoms</tt><big>(</big><em>poscar</em><big>)</big><a class="headerlink" href="#elatoms.ElAtoms.poscarToAtoms" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="elatoms.ElAtoms.atomsToPoscar">
+<tt class="descname">atomsToPoscar</tt><big>(</big><big>)</big><a class="headerlink" href="#elatoms.ElAtoms.atomsToPoscar" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="elatoms.Structures">
+<em class="property">class </em><tt class="descclassname">elatoms.</tt><tt class="descname">Structures</tt><a class="headerlink" href="#elatoms.Structures" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a series of distorted structures.</p>
+<dl class="docutils">
+<dt>Methods:</dt>
+<dd>set_fname
+write_structures
+append_structure
+get_structures</dd>
+</dl>
+<dl class="method">
+<dt id="elatoms.Structures.set_executable">
+<tt class="descname">set_executable</tt><big>(</big><em>executable</em><big>)</big><a class="headerlink" href="#elatoms.Structures.set_executable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="elatoms.Structures.set_fname">
+<tt class="descname">set_fname</tt><big>(</big><em>fnames</em><big>)</big><a class="headerlink" href="#elatoms.Structures.set_fname" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="elatoms.Structures.write_structures">
+<tt class="descname">write_structures</tt><big>(</big><big>)</big><a class="headerlink" href="#elatoms.Structures.write_structures" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="elatoms.Structures.append_structure">
+<tt class="descname">append_structure</tt><big>(</big><em>atoms</em><big>)</big><a class="headerlink" href="#elatoms.Structures.append_structure" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="elatoms.Structures.get_atomsByStraintype">
+<tt class="descname">get_atomsByStraintype</tt><big>(</big><em>strainType</em><big>)</big><a class="headerlink" href="#elatoms.Structures.get_atomsByStraintype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="elatoms.Structures.get_structures">
+<tt class="descname">get_structures</tt><big>(</big><big>)</big><a class="headerlink" href="#elatoms.Structures.get_structures" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../modules.html"
+                        title="previous chapter">pylastic&#8217;s modules</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="distort.html"
+                        title="next chapter">Module distort</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/modules/elatoms.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="distort.html" title="Module distort"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../modules.html" title="pylastic’s modules"
+             >previous</a> |</li>
+        <li><a href="../index.html">pylastic 0.1 documentation</a> &raquo;</li>
+          <li><a href="../modules.html" >pylastic&#8217;s modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Dengg Thomas.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

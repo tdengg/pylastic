@@ -1,6 +1,11 @@
+"""Get data from DFT calculations.
+"""
+
 import lxml.etree as et
 
 class VASP(object):
+    """VASP interface for collecting energies from vasprun.xml.
+    """
     def __init__(self):
         self.__vfile = None
         self.__cellsize = 1
@@ -15,11 +20,13 @@ class VASP(object):
     ##
     
     def set_gsEnergy(self):
+        """Get groundstate energy from vasprun.xml"""
         elem = self.__vasprun.xpath("//scstep[last()]/energy/i[@name = 'e_fr_energy']")
         self.__gsEnergy = float(elem[0].text)
         
     #####################################
     def set_cellsize(self, cells):
+        """Supercell size."""
         self.__cellsize = cells
         
     def get_cellsize(self):

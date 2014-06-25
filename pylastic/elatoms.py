@@ -14,7 +14,6 @@ from vaspIO import POS
 
 class ElAtoms(Distort, Sgroup, POS):
     '''
-    classdocs:
     ASE Atoms like object.
     
     
@@ -175,7 +174,7 @@ class ElAtoms(Distort, Sgroup, POS):
     def get_gsenergy(self):
         return self.__gsenergy
     
-    V0    = property( fget = get_V0       , fset = set_V0   )
+    V0      = property( fget = get_V0       , fset = set_V0   )
     cell    = property( fget = get_cell         , fset = set_cell    )
     natom   = property( fget = get_natom        , fset = set_natom   )
     scale   = property( fget = get_scale        , fset = set_scale   )
@@ -194,7 +193,6 @@ class Structures(ElAtoms, Sgroup, POS):
      write_structures
      append_structure
      get_structures
-     
     
     """
     def __init__(self):

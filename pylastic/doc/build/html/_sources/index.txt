@@ -6,28 +6,31 @@
 Welcome to pylastic's documentation!
 ====================================
 
+**pylastic** is a python package for calculating elastic constants from first principles.
+
+
+Features:
+---------
+
+- vasp input/output management
+- Determination of 2nd and 3rd order elastic constants
+- Process **phonopy** output to determine temperature dependence in the quasiharmonic approximation using vasp DFPT
+
+
 Contents:
+---------
+
+.. include:: ../../README.rst
 
 .. toctree::
    :maxdepth: 2
-
-.. automodule:: distort
-
-.. autoclass:: distort.Distort
-
-.. automodule:: elatoms
-
-.. autoclass:: elatoms.ElAtoms
-
-.. autoclass:: elatoms.Structures
-
-.. automodule:: vaspIO
-
-.. automodule:: postprocess
-
-.. automodule:: analyze
-
-.. autoclass:: analyze.Energy
+   
+   intro
+   tutorial
+   example_setup
+   modules
+   install
+   theory
 
 Indices and tables
 ==================

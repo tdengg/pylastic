@@ -1,0 +1,179 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Module get_DFTdata &mdash; pylastic 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="pylastic 0.1 documentation" href="../index.html" />
+    <link rel="up" title="pylastic’s modules" href="../modules.html" />
+    <link rel="next" title="Module spacegroup" href="spacegroup.html" />
+    <link rel="prev" title="Module vaspIO" href="vaspIO.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="spacegroup.html" title="Module spacegroup"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="vaspIO.html" title="Module vaspIO"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pylastic 0.1 documentation</a> &raquo;</li>
+          <li><a href="../modules.html" accesskey="U">pylastic&#8217;s modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-get_DFTdata">
+<span id="module-get-dftdata"></span><h1>Module get_DFTdata<a class="headerlink" href="#module-get_DFTdata" title="Permalink to this headline">¶</a></h1>
+<p>Get data from DFT calculations.</p>
+<dl class="class">
+<dt id="get_DFTdata.VASP">
+<em class="property">class </em><tt class="descclassname">get_DFTdata.</tt><tt class="descname">VASP</tt><a class="headerlink" href="#get_DFTdata.VASP" title="Permalink to this definition">¶</a></dt>
+<dd><p>VASP interface for gettting energies.</p>
+<dl class="method">
+<dt id="get_DFTdata.VASP.set_gsEnergy">
+<tt class="descname">set_gsEnergy</tt><big>(</big><big>)</big><a class="headerlink" href="#get_DFTdata.VASP.set_gsEnergy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get groundstate energy from vasprun.xml</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="get_DFTdata.VASP.get_gsEnergy">
+<tt class="descname">get_gsEnergy</tt><big>(</big><big>)</big><a class="headerlink" href="#get_DFTdata.VASP.get_gsEnergy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="get_DFTdata.VASP.set_cellsize">
+<tt class="descname">set_cellsize</tt><big>(</big><em>cells</em><big>)</big><a class="headerlink" href="#get_DFTdata.VASP.set_cellsize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Supercell size.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="get_DFTdata.VASP.get_cellsize">
+<tt class="descname">get_cellsize</tt><big>(</big><big>)</big><a class="headerlink" href="#get_DFTdata.VASP.get_cellsize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="get_DFTdata.VASP.set_ERange">
+<tt class="descname">set_ERange</tt><big>(</big><em>ERange</em><big>)</big><a class="headerlink" href="#get_DFTdata.VASP.set_ERange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set expected energy range to filter VASP output: as tuple (emin,emax)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="get_DFTdata.VASP.set_gsEnergy_DFPT">
+<tt class="descname">set_gsEnergy_DFPT</tt><big>(</big><big>)</big><a class="headerlink" href="#get_DFTdata.VASP.set_gsEnergy_DFPT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compensate for VASP&#8217;s messy output</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="get_DFTdata.VASP.set_freeEnergy">
+<tt class="descname">set_freeEnergy</tt><big>(</big><em>T</em><big>)</big><a class="headerlink" href="#get_DFTdata.VASP.set_freeEnergy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process PHONOPY free energy output</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="get_DFTdata.VASP.get_freeEnergy">
+<tt class="descname">get_freeEnergy</tt><big>(</big><big>)</big><a class="headerlink" href="#get_DFTdata.VASP.get_freeEnergy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="get_DFTdata.VASP.get_outfile">
+<tt class="descname">get_outfile</tt><big>(</big><big>)</big><a class="headerlink" href="#get_DFTdata.VASP.get_outfile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="vaspIO.html"
+                        title="previous chapter">Module vaspIO</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="spacegroup.html"
+                        title="next chapter">Module spacegroup</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/modules/get_DFTdata.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="spacegroup.html" title="Module spacegroup"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="vaspIO.html" title="Module vaspIO"
+             >previous</a> |</li>
+        <li><a href="../index.html">pylastic 0.1 documentation</a> &raquo;</li>
+          <li><a href="../modules.html" >pylastic&#8217;s modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Dengg Thomas.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

@@ -1,3 +1,6 @@
+"""
+"""
+
 import analyze
 import get_DFTdata
 import json
@@ -20,7 +23,7 @@ class ECs_old(object):
         self.__cod = 'vasp'
         
     def set_CVS(self):
-        
+        """Cross validation score."""
         getData = get_DFTdata.VASP()
         f=open('info.json')
         dic = json.load(f)
@@ -41,12 +44,13 @@ class ECs_old(object):
             print ans.get_2nd()
             
 class ECs(object):
+    """Calculate elastic constants"""
     def __init__(self):
         self.__V0 = None
         self.__structures = None
         self.__cod = 'vasp'
-        self.__fitorder = 6
-        self.__etacalc = '0.03'
+        self.__fitorder = 4
+        self.__etacalc = '0.04'
         #%%%%%%%%--- CONSTANTS ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         _e     = 1.602176565e-19              # elementary charge
         #Bohr   = 5.291772086e-11              # a.u. to meter
@@ -56,6 +60,7 @@ class ECs(object):
         #--------------------------------------------------------------------------------------------------------------------------------
         
     def set_gsenergy(self, gsenergy=None):
+        """Read groundstate energy for all atoms in structures."""
         if not gsenergy:
             getData = get_DFTdata.VASP()
             for atoms in self.__structures.items():
@@ -71,6 +76,7 @@ class ECs(object):
     
         
     def set_structures(self):
+        """Import structures object from file."""
         if not self.__structures: 
             with open('structures.pkl', 'rb') as input:
                 self.__structures = pickle.load(input)
@@ -83,6 +89,7 @@ class ECs(object):
             return self.__structures
     
     def get_atomsByStraintype(self, strainType):
+        """Sort structures by strain type to get an ordered list of distortions."""
         atomslist = []
         for dic in sorted(self.__structures):
             if dic[0] == strainType: 
@@ -90,7 +97,10 @@ class ECs(object):
         return atomslist
     
     def set_analytics(self):
+        """Standard analysis including:
+        Calculation of elastic constants, cross validation score and plot of the energy strain curves."""
         A2 = []
+        CVS = []
         
         strainList= self.__structures.items()[0][1].strainList
         n=1
@@ -104,29 +114,33 @@ class ECs(object):
             ans = analyze.Energy(strain,energy,self.__V0)
             ans.set_2nd(self.__fitorder)
             ans.set_cvs(self.__fitorder)
+            CVS.append(ans.get_cvs())
             A2.append(ans.get_2nd())
             
             spl = str(len(strainList))+'1'+str(n)
             plt.subplot(int(spl))
             ans.plot_energy()
             n+=1
-        print A2
-        self.set_ECs(A2, self.__etacalc)
+        
+        self.set_C(A2, self.__etacalc)
         plt.show()
         
     def set_fitorder(self, fitorder):
+        """Set fitorder of polynomial energy - strain fit."""
         self.__fitorder = fitorder
     
     def get_etacalc(self):
         return self.__etacalc
     
     def set_etacalc(self, etacalc):
+        """Set maximum lagrangian strain for the fitting procedure."""
         self.__etacalc = etacalc
     
     def get_fitorder(self):
         return self.__fitorder
     
-    def set_ECs(self, A2, etacalc):
+    def set_C(self, A2, etacalc):
+        """Evaluate elastic constants from polynomials."""
         C = np.zeros((6,6))
         
         LC = self.__structures.items()[0][1].LC
@@ -279,39 +293,37 @@ class ECs(object):
             C[5,5] = .5*A2[5]
         #--------------------------------------------------------------------------------------------------------------------------------
         
-        #%%%--- Calculating the elastic moduli ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        if (self.__cod == 'WIEN2k'):
-            CONV = self.__cnvrtr * 1.
-        if (self.__cod == 'exciting'):
-            CONV = self.__cnvrtr * 1.
-        if (self.__cod == 'ESPRESSO'):
-            CONV = self.__cnvrtr * 1.
-        if (self.__cod == 'vasp') or (self.__cod == 'vasp_T'):
-            CONV = self.__cnvrtr * 1.
+        
         for i in range(5):
             for j in range(i+1,6):
                 C[j,i] = C[i,j] 
+        #%%%--- Calculating the elastic moduli ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
-        C = C * CONV/self.__V0
-        
-        BV = (C[0,0]+C[1,1]+C[2,2]+2*(C[0,1]+C[0,2]+C[1,2]))/9
-        GV = ((C[0,0]+C[1,1]+C[2,2])-(C[0,1]+C[0,2]+C[1,2])+3*(C[3,3]+C[4,4]+C[5,5]))/15
-        EV = (9*BV*GV)/(3*BV+GV)
-        nuV= (1.5*BV-GV)/(3*BV+GV)
-        S  = np.linalg.inv(C)
-        BR = 1/(S[0,0]+S[1,1]+S[2,2]+2*(S[0,1]+S[0,2]+S[1,2]))
-        GR =15/(4*(S[0,0]+S[1,1]+S[2,2])-4*(S[0,1]+S[0,2]+S[1,2])+3*(S[3,3]+S[4,4]+S[5,5]))
-        ER = (9*BR*GR)/(3*BR+GR)
-        nuR= (1.5*BR-GR)/(3*BR+GR)
-        BH = 0.50*(BV+BR)
-        GH = 0.50*(GV+GR)
-        EH = (9.*BH*GH)/(3.*BH+GH)
-        nuH= (1.5*BH-GH)/(3.*BH+GH)
-        AVR= 100.*(GV-GR)/(GV+GR)
+        self.BV = (C[0,0]+C[1,1]+C[2,2]+2*(C[0,1]+C[0,2]+C[1,2]))/9
+        self.GV = ((C[0,0]+C[1,1]+C[2,2])-(C[0,1]+C[0,2]+C[1,2])+3*(C[3,3]+C[4,4]+C[5,5]))/15
+        self.EV = (9*self.BV*self.GV)/(3*self.BV+self.GV)
+        self.nuV= (1.5*self.BV-self.GV)/(3*self.BV+self.GV)
+        self.S  = np.linalg.inv(C)
+        self.BR = 1/(self.S[0,0]+self.S[1,1]+self.S[2,2]+2*(self.S[0,1]+self.S[0,2]+self.S[1,2]))
+        self.GR =15/(4*(self.S[0,0]+self.S[1,1]+self.S[2,2])-4*(self.S[0,1]+self.S[0,2]+self.S[1,2])+3*(self.S[3,3]+self.S[4,4]+self.S[5,5]))
+        self.ER = (9*self.BR*self.GR)/(3*self.BR+self.GR)
+        self.nuR= (1.5*self.BR-self.GR)/(3*self.BR+self.GR)
+        self.BH = 0.50*(self.BV+self.BR)
+        self.GH = 0.50*(self.GV+self.GR)
+        self.EH = (9.*self.BH*self.GH)/(3.*self.BH+self.GH)
+        self.nuH= (1.5*self.BH-self.GH)/(3.*self.BH+self.GH)
+        self.AVR= 100.*(self.GV-self.GR)/(self.GV+self.GR)
         #--------------------------------------------------------------------------------------------------------------------------------
-        print C[0,0], C[0,1], C[3,3]
+        self.__C = C
+        
+    def get_C(self, A2, etacalc):
+        return self.__C
     
     structures    = property( fget = get_structures         , fset = set_structures    )
+    fitorder    = property( fget = get_fitorder        , fset = set_fitorder    )
+    etacalc    = property( fget = get_etacalc        , fset = set_etacalc    )
+    C = property( fget = get_C        , fset = set_C    )
+    gsenergy = property( fget = get_gsenergy        , fset = set_gsenergy    )
     
     
 if __name__ == '__main__':

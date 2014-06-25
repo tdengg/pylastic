@@ -1,10 +1,14 @@
+""" Determination of elastic constant and cross validation score.
+"""
+
 import numpy as np
 import math
 from copy import copy
 import matplotlib.pyplot as plt
 
 class Energy(object):
-    
+    """ Implementation of the energy aproach for determination of elastic constants.
+    """
     def __init__(self, strain, energy, V0):
         _e        =  1.602176565e-19              # elementary charge
         Bohr      =  5.291772086e-11              # a.u. to meter
@@ -19,18 +23,19 @@ class Energy(object):
         
         
     def set_2nd(self, fitorder):
-        self.__CONV = self.__vToGPa * math.factorial(2)*2.
+        """Fit energy strain curve and evaluate 2nd derivative in order to get 2nd order elastic constants."""
+        self.__CONV = self.__vToGPa #* math.factorial(2)*2.
         strain = copy(self.__strain)
         energy = copy(self.__energy)
         while (len(strain) > fitorder): 
-            #print len(strain)
+            
             emax  = max(strain)
             emin  = min(strain)
             emax  = max(abs(emin),abs(emax))
             coeffs= np.polyfit(strain, energy, fitorder)
             
             self.__Cij2nd[str(emax)]  = coeffs[fitorder-2]*self.__CONV/self.__V0         # in GPa units 
-            #print self.__Cij2nd
+            
             if (abs(strain[0]+emax) < 1.e-7):
                 strain.pop(0); energy.pop(0)
             if (abs(strain[len(strain)-1]-emax) < 1.e-7):
@@ -42,6 +47,7 @@ class Energy(object):
     
     
     def set_3rd(self, fitorder):
+        """Evaluate 3rd order elastic constants from energy strain curves"""
         self.__CONV = self.__vToGPa * math.factorial(3)*2.
         strain = copy(self.__strain)
         energy = copy(self.__energy)
@@ -64,6 +70,7 @@ class Energy(object):
     
     
     def set_cvs(self, fitorder):
+        """Evaluation of cross validation score for fitorder n."""
         strain = copy(self.__strain)
         energy = copy(self.__energy)
         
@@ -102,6 +109,7 @@ class Energy(object):
         return self.__CV
     
     def plot_energy(self):
+        """Return matplotlib axis instance for energy-strain curve.  """
         
         ax = plt.plot(self.__strain, self.__energy)
         return ax

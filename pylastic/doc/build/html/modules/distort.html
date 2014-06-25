@@ -1,0 +1,234 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Module distort &mdash; pylastic 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="pylastic 0.1 documentation" href="../index.html" />
+    <link rel="up" title="pylastic’s modules" href="../modules.html" />
+    <link rel="next" title="Module analyze" href="analyze.html" />
+    <link rel="prev" title="Module elatoms" href="elatoms.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="analyze.html" title="Module analyze"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="elatoms.html" title="Module elatoms"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pylastic 0.1 documentation</a> &raquo;</li>
+          <li><a href="../modules.html" accesskey="U">pylastic&#8217;s modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-distort">
+<span id="module-distort"></span><h1>Module distort<a class="headerlink" href="#module-distort" title="Permalink to this headline">¶</a></h1>
+<p>Get DEFORMATION MATRIX for given spacegroup number and Lagranian strain.</p>
+<dl class="docutils">
+<dt>Methods:</dt>
+<dd><p class="first">get_eta        : returns Lagrangian strain</p>
+<p>get_sgn        : returns spacegroup number</p>
+<p>get_strainType : returns current strain (deformation) type</p>
+<p>get_defMatrix  : returns deformation matrix</p>
+<p>get_strainList : returns list of deformation types for specific crystal symmetry</p>
+<p>get_V0</p>
+<p>set_eta        : set Lagrangian strain</p>
+<p>set_sgn        : set spacegroup number</p>
+<p>set_strainType : set current strain(deformation) type</p>
+<p>set_defMatrix  : calculates deformation matrix</p>
+<p>set_strainList : finds list of deformation types for specific crystal symmetry</p>
+<p class="last">set_V0</p>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">distort</span>
+
+<span class="n">dist</span> <span class="o">=</span> <span class="n">distort</span><span class="o">.</span><span class="n">Distort</span><span class="p">()</span>                 <span class="c"># generate instance of distortion object</span>
+<span class="n">dist</span><span class="o">.</span><span class="n">sgn</span> <span class="o">=</span> <span class="n">sgn</span>                           <span class="c"># set spacegroup number (int)</span>
+<span class="n">dist</span><span class="o">.</span><span class="n">set_strainList</span><span class="p">()</span>                    <span class="c"># set strain list according to space group number</span>
+
+<span class="n">strainType</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">dist</span><span class="o">.</span><span class="n">strainList_iter</span><span class="p">)</span>  <span class="c"># when using the iterator property --&gt; get first distortion type</span>
+<span class="n">dist</span><span class="o">.</span><span class="n">eta</span> <span class="o">=</span> <span class="n">eta</span>                           <span class="c"># define lagrangian strain (float)</span>
+<span class="n">dist</span><span class="o">.</span><span class="n">set_strainType</span><span class="p">(</span><span class="n">strainType</span><span class="p">)</span>          <span class="c"># set strain type (string)</span>
+<span class="n">dist</span><span class="o">.</span><span class="n">set_defMatrix</span><span class="p">()</span>                     <span class="c"># ste deformation matrix</span>
+<span class="n">dist</span><span class="o">.</span><span class="n">get_defMatrix</span><span class="p">()</span>                     <span class="c"># get deformation matrix</span>
+</pre></div>
+</div>
+<dl class="class">
+<dt id="distort.Distort">
+<em class="property">class </em><tt class="descclassname">distort.</tt><tt class="descname">Distort</tt><big>(</big><em>volumeconserving=False</em>, <em>mthd='Energy'</em>, <em>order=2</em><big>)</big><a class="headerlink" href="#distort.Distort" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate DEFORMATION MATRIX for given spacegroup number and Lagranian strain.
+arguments:</p>
+<blockquote>
+<div>volumecoserving: (True/False)
+mthd: (&#8216;Energy&#8217;/&#8217;Stress&#8217;) method of calculation
+order: (2/3) specify order of elastic constants</div></blockquote>
+<dl class="method">
+<dt id="distort.Distort.set_eta">
+<tt class="descname">set_eta</tt><big>(</big><em>eta</em><big>)</big><a class="headerlink" href="#distort.Distort.set_eta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="distort.Distort.get_eta">
+<tt class="descname">get_eta</tt><big>(</big><big>)</big><a class="headerlink" href="#distort.Distort.get_eta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="distort.Distort.set_sgn">
+<tt class="descname">set_sgn</tt><big>(</big><em>sgn</em><big>)</big><a class="headerlink" href="#distort.Distort.set_sgn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="distort.Distort.get_sgn">
+<tt class="descname">get_sgn</tt><big>(</big><big>)</big><a class="headerlink" href="#distort.Distort.get_sgn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="distort.Distort.set_strainType">
+<tt class="descname">set_strainType</tt><big>(</big><em>strainType=None</em><big>)</big><a class="headerlink" href="#distort.Distort.set_strainType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="distort.Distort.get_strainType">
+<tt class="descname">get_strainType</tt><big>(</big><big>)</big><a class="headerlink" href="#distort.Distort.get_strainType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="distort.Distort.set_defMatrix">
+<tt class="descname">set_defMatrix</tt><big>(</big><big>)</big><a class="headerlink" href="#distort.Distort.set_defMatrix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="distort.Distort.get_defMatrix">
+<tt class="descname">get_defMatrix</tt><big>(</big><big>)</big><a class="headerlink" href="#distort.Distort.get_defMatrix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="distort.Distort.set_strainList">
+<tt class="descname">set_strainList</tt><big>(</big><big>)</big><a class="headerlink" href="#distort.Distort.set_strainList" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="distort.Distort.get_strainList">
+<tt class="descname">get_strainList</tt><big>(</big><big>)</big><a class="headerlink" href="#distort.Distort.get_strainList" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="distort.Distort.set_V0">
+<tt class="descname">set_V0</tt><big>(</big><em>V0</em><big>)</big><a class="headerlink" href="#distort.Distort.set_V0" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="distort.Distort.get_V0">
+<tt class="descname">get_V0</tt><big>(</big><big>)</big><a class="headerlink" href="#distort.Distort.get_V0" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="distort.Distort.set_LC">
+<tt class="descname">set_LC</tt><big>(</big><em>LC</em><big>)</big><a class="headerlink" href="#distort.Distort.set_LC" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="distort.Distort.get_LC">
+<tt class="descname">get_LC</tt><big>(</big><big>)</big><a class="headerlink" href="#distort.Distort.get_LC" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="elatoms.html"
+                        title="previous chapter">Module elatoms</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="analyze.html"
+                        title="next chapter">Module analyze</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/modules/distort.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="analyze.html" title="Module analyze"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="elatoms.html" title="Module elatoms"
+             >previous</a> |</li>
+        <li><a href="../index.html">pylastic 0.1 documentation</a> &raquo;</li>
+          <li><a href="../modules.html" >pylastic&#8217;s modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Dengg Thomas.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>
