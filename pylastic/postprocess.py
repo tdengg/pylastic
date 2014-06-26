@@ -118,12 +118,46 @@ class ECs(object):
             A2.append(ans.get_2nd())
             
             spl = str(len(strainList))+'1'+str(n)
-            plt.subplot(int(spl))
-            ans.plot_energy()
+            #plt.subplot(int(spl))
+            #ans.plot_energy()
             n+=1
         
         self.set_C(A2, self.__etacalc)
+        #plt.show()
+        
+    def plot_cvs(self):
+        CVS = []
+        strainList= self.__structures.items()[0][1].strainList
+        n=1
+        for stype in strainList:
+            atoms = self.get_atomsByStraintype(stype)
+            self.__V0 = atoms[0].V0
+            strainList = atoms[0].strainList
+            energy = [i.gsenergy for i in atoms]
+            strain = [i.eta for i in atoms]
+            
+            spl = '1'+str(len(strainList))+str(n)
+            plt.subplot(int(spl))
+            
+            j = 1
+            for i in [2,4,6]:
+                ans = analyze.Energy(strain,energy,self.__V0)
+                self.__fitorder = i
+                ans.set_cvs(self.__fitorder)
+                CVS.append(ans.get_cvs())
+                print n,j,(n-1)*3+j-1
+                plt.plot([cvs[1] for cvs in CVS[(n-1)*3+j-1]],[cvs[0] for cvs in CVS[(n-1)*3+j-1]], label=str(self.__fitorder))
+                plt.title(stype)
+                plt.xlabel('strain')
+                plt.ylabel('CVS')
+                
+                j+=1
+            
+            n+=1
+        plt.legend(title='Order of fit')
         plt.show()
+        
+        
         
     def set_fitorder(self, fitorder):
         """Set fitorder of polynomial energy - strain fit."""

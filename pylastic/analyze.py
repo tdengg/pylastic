@@ -20,6 +20,7 @@ class Energy(object):
         self.__strain = strain
         self.__energy = energy
         self.__Cij2nd  = {}
+        self.__CV = []
         
         
     def set_2nd(self, fitorder):
@@ -94,7 +95,7 @@ class Energy(object):
                 Yfit = np.polyval(np.polyfit(etatmp,enetmp, fitorder), strain[k])
                 S    = S + (Yfit-Y)**2
             
-            self.__CV = np.sqrt(S/len(strain))
+            self.__CV.append((np.sqrt(S/len(strain)),emax,fitorder))
             
     
             if (abs(strain[0]+emax) < 1.e-7):
