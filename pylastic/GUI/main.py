@@ -56,6 +56,8 @@ class pylasticGUI(Frame):
         self._create_analyze_tab(nb)
         
     def _create_setup_tab(self, nb):
+        frame1 = Frame(nb, name='entry1')
+        
         frame = Frame(nb, name='setup')
         
         self.e1 = Entry(frame)
@@ -63,6 +65,9 @@ class pylasticGUI(Frame):
         self.e1.pack()
         self.e1.delete(0, END)
         self.e1.insert(0, '21')
+        
+        self.label1 = Label(frame1, text='Lagrangian strain.')
+        self.label1.pack()
         
         self.e2 = Entry(frame)
         self.e2.bind()
@@ -100,6 +105,7 @@ class pylasticGUI(Frame):
         Radiobutton(frame, text="3rd", variable=w, value=2).pack()
         
         nb.add(frame, text='Setup', underline=0, padding=2)
+        
         return
     
     

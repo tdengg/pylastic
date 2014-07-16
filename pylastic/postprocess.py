@@ -24,7 +24,7 @@ class ECs_old(object):
         self.__cod = 'vasp'
         
     def set_CVS(self):
-        """Cross validation score."""
+        """Calculate cross validation score."""
         getData = get_DFTdata.VASP()
         f=open('info.json')
         dic = json.load(f)
@@ -45,7 +45,8 @@ class ECs_old(object):
             print ans.get_2nd()
             
 class ECs(object):
-    """Calculate elastic constants"""
+    """Calculate elastic constants, CVS calculation, post-processing."""
+    
     def __init__(self):
         self.__V0 = None
         self.__structures = None
@@ -61,7 +62,13 @@ class ECs(object):
         #--------------------------------------------------------------------------------------------------------------------------------
         
     def set_gsenergy(self, gsenergy=None):
-        """Read groundstate energy for all atoms in structures."""
+        """Read groundstate energy for all atoms in structures.
+        
+        Parameters
+        ----------
+            gsenergy : float???? DEBUG???? 
+                Groundstate energy.
+        """
         if not gsenergy:
             getData = get_DFTdata.VASP()
             for atoms in self.__structures.items():
@@ -90,7 +97,13 @@ class ECs(object):
             return self.__structures
     
     def get_atomsByStraintype(self, strainType):
-        """Sort structures by strain type to get an ordered list of distortions."""
+        """Sort structures by strain type to get an ordered list of distortions.
+        
+        Parameters
+        ----------
+            strainType : string 
+                Strain type.
+        """
         atomslist = []
         for dic in sorted(self.__structures):
             if dic[0] == strainType: 
@@ -99,7 +112,10 @@ class ECs(object):
     
     def set_analytics(self):
         """Standard analysis including:
-        Calculation of elastic constants, cross validation score and plot of the energy strain curves."""
+            * Calculation of elastic constants, 
+            * cross validation score and 
+            * plot of the energy strain curves.
+        """
         A2 = []
         CVS = []
         
@@ -127,7 +143,7 @@ class ECs(object):
         #plt.show()
         
     def plot_cvs(self):
-        
+        """Returns matplotlib axis instance of cross validation score plot."""
         f = Figure(figsize=(5,4), dpi=100)
         
         CVS = []
@@ -164,7 +180,7 @@ class ECs(object):
         return f
         
     def plot_2nd(self):
-        
+        """Returns matplotlib axis instance of d2E/d(eta) plot."""
         f = Figure(figsize=(5,4), dpi=100)
         
         A2 = []
@@ -204,21 +220,41 @@ class ECs(object):
         
         
     def set_fitorder(self, fitorder):
-        """Set fitorder of polynomial energy - strain fit."""
+        """Set fitorder of polynomial energy - strain fit.
+        
+        Parameters
+        ----------
+            fitorder : integer 
+                Order of polynomial energy-strain fit.
+        """
         self.__fitorder = fitorder
     
     def get_etacalc(self):
         return self.__etacalc
     
     def set_etacalc(self, etacalc):
-        """Set maximum lagrangian strain for the fitting procedure."""
+        """Set maximum lagrangian strain for the fitting procedure.
+        
+        Parameters
+        ----------
+            etacalc : float 
+                Maximum lagrangian strain.
+        """
         self.__etacalc = etacalc
     
     def get_fitorder(self):
         return self.__fitorder
     
     def set_C(self, A2, etacalc):
-        """Evaluate elastic constants from polynomials."""
+        """Evaluate elastic constants from polynomials.
+        
+        Parameters
+        ----------
+            etacalc : float 
+                Maximum lagrangian strain.
+            A2 : list
+                Coefficients of polynomial fit.
+        """
         C = np.zeros((6,6))
         
         LC = self.__structures.items()[0][1].LC

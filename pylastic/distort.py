@@ -1,33 +1,7 @@
 """
 Get DEFORMATION MATRIX for given spacegroup number and Lagranian strain.
 
-Methods:
- get_eta        : returns Lagrangian strain
- 
- get_sgn        : returns spacegroup number
- 
- get_strainType : returns current strain (deformation) type
- 
- get_defMatrix  : returns deformation matrix
- 
- get_strainList : returns list of deformation types for specific crystal symmetry
- 
- get_V0
-
- set_eta        : set Lagrangian strain
- 
- set_sgn        : set spacegroup number
- 
- set_strainType : set current strain(deformation) type
- 
- set_defMatrix  : calculates deformation matrix
- 
- set_strainList : finds list of deformation types for specific crystal symmetry
- 
- set_V0
-
-
-Example:
+**Example:**
 
 .. code-block:: python
 
@@ -52,10 +26,16 @@ import os
 
 class Distort(object):
     """ Generate DEFORMATION MATRIX for given spacegroup number and Lagranian strain.
-    arguments:
-        volumecoserving: (True/False)
-        mthd: ('Energy'/'Stress') method of calculation
-        order: (2/3) specify order of elastic constants
+    
+    Parameters:
+    -----------
+    volumecoserving : boolean
+        
+    mthd : string ('Energy'/'Stress') 
+        method of calculation
+        
+    order: integer (2 or 3) 
+        specify order of elastic constants
     """
     def __init__(self, volumeconserving = False, mthd = 'Energy', order = 2):
         self.__eta = 0.05
@@ -178,22 +158,43 @@ class Distort(object):
         
     
     def set_eta(self, eta):
+        """Set Lagrangian strain.
+        
+        Parameters
+        ----------
+        eta : float
+            Lagrangian strain value.
+        """
         if eta <= 0.1:
             self.__eta = eta
         elif eta > 0.1:
             self.__eta = 0.1
-            print "Warning: Maximum Lagrangian strain to high (should be in the range: 0.01<eta<0.1) --> Automatically set to 0.1"
+            print "Warning: sLagrangian strain to high (should be in the range: 0.01<eta<0.1) --> Automatically set to 0.1"
         
     def get_eta(self):
         return self.__eta
     
     def set_sgn(self, sgn):
+        """Set spacegroup number.
+        
+        Parameters
+        ----------
+        sgn : string
+            Space group number of parent crystal structure. 
+        """
         self.__sgn = sgn
         
     def get_sgn(self):
         return self.__sgn
     
     def set_strainType(self, strainType = None):
+        """Set current strain (deformation) type.
+        
+        Parameters
+        ----------
+        strainType : string
+            Strain type.
+        """
         if not self.__Lag_strain_list: self.set_strainList()
         if strainType in self.__Lag_strain_list:
             self.__strainType = strainType
@@ -204,6 +205,7 @@ class Distort(object):
         return self.__strainType
     
     def set_defMatrix(self):
+        """Calculate deformation matrix."""
         if not self.__strainType: self.set_strainType()
         
         if (self.__eta==0.):
@@ -257,6 +259,7 @@ class Distort(object):
         return self.__defMatrix
     
     def set_strainList(self):
+        """finds list of deformation types for specific crystal symmetry"""
         SGN = self.__sgn
         if not SGN: raise AttributeError("Please set the spacegroup number (e.g. yourinstance.sgn = 230) of the structure")
         if (1 <= SGN and SGN <= 2):      # Triclinic
@@ -417,10 +420,18 @@ class Distort(object):
         return self.__Lag_strain_list
     
     def get_strainList_iter(self):
+        """Returns strain list as iterator object."""
         if not self.__Lag_strain_list_i: self.set_strainList()
         return self.__Lag_strain_list_i
     
     def set_V0(self, V0):
+        """Set equilibrium volume of parent structure.
+        
+        Parameters
+        ----------
+        V0 : float
+            Equilibrium volume of supercell.
+        """
         self.__V0 = V0
     
     def get_V0(self):

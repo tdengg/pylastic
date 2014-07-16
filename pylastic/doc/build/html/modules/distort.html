@@ -60,23 +60,7 @@
   <div class="section" id="module-distort">
 <span id="module-distort"></span><h1>Module distort<a class="headerlink" href="#module-distort" title="Permalink to this headline">¶</a></h1>
 <p>Get DEFORMATION MATRIX for given spacegroup number and Lagranian strain.</p>
-<dl class="docutils">
-<dt>Methods:</dt>
-<dd><p class="first">get_eta        : returns Lagrangian strain</p>
-<p>get_sgn        : returns spacegroup number</p>
-<p>get_strainType : returns current strain (deformation) type</p>
-<p>get_defMatrix  : returns deformation matrix</p>
-<p>get_strainList : returns list of deformation types for specific crystal symmetry</p>
-<p>get_V0</p>
-<p>set_eta        : set Lagrangian strain</p>
-<p>set_sgn        : set spacegroup number</p>
-<p>set_strainType : set current strain(deformation) type</p>
-<p>set_defMatrix  : calculates deformation matrix</p>
-<p>set_strainList : finds list of deformation types for specific crystal symmetry</p>
-<p class="last">set_V0</p>
-</dd>
-</dl>
-<p>Example:</p>
+<p><strong>Example:</strong></p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">distort</span>
 
 <span class="n">dist</span> <span class="o">=</span> <span class="n">distort</span><span class="o">.</span><span class="n">Distort</span><span class="p">()</span>                 <span class="c"># generate instance of distortion object</span>
@@ -93,16 +77,23 @@
 <dl class="class">
 <dt id="distort.Distort">
 <em class="property">class </em><tt class="descclassname">distort.</tt><tt class="descname">Distort</tt><big>(</big><em>volumeconserving=False</em>, <em>mthd='Energy'</em>, <em>order=2</em><big>)</big><a class="headerlink" href="#distort.Distort" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate DEFORMATION MATRIX for given spacegroup number and Lagranian strain.
-arguments:</p>
-<blockquote>
-<div>volumecoserving: (True/False)
-mthd: (&#8216;Energy&#8217;/&#8217;Stress&#8217;) method of calculation
-order: (2/3) specify order of elastic constants</div></blockquote>
+<dd><p>Generate DEFORMATION MATRIX for given spacegroup number and Lagranian strain.</p>
+<p>volumecoserving : boolean</p>
+<dl class="docutils">
+<dt>mthd <span class="classifier-delimiter">:</span> <span class="classifier">string (&#8216;Energy&#8217;/&#8217;Stress&#8217;) </span></dt>
+<dd>method of calculation</dd>
+<dt>order: integer (2 or 3) </dt>
+<dd>specify order of elastic constants</dd>
+</dl>
 <dl class="method">
 <dt id="distort.Distort.set_eta">
 <tt class="descname">set_eta</tt><big>(</big><em>eta</em><big>)</big><a class="headerlink" href="#distort.Distort.set_eta" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Set Lagrangian strain.</p>
+<dl class="docutils">
+<dt>eta <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Lagrangian strain value.</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="distort.Distort.get_eta">
@@ -112,7 +103,12 @@ order: (2/3) specify order of elastic constants</div></blockquote>
 <dl class="method">
 <dt id="distort.Distort.set_sgn">
 <tt class="descname">set_sgn</tt><big>(</big><em>sgn</em><big>)</big><a class="headerlink" href="#distort.Distort.set_sgn" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Set spacegroup number.</p>
+<dl class="docutils">
+<dt>sgn <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Space group number of parent crystal structure.</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="distort.Distort.get_sgn">
@@ -122,7 +118,12 @@ order: (2/3) specify order of elastic constants</div></blockquote>
 <dl class="method">
 <dt id="distort.Distort.set_strainType">
 <tt class="descname">set_strainType</tt><big>(</big><em>strainType=None</em><big>)</big><a class="headerlink" href="#distort.Distort.set_strainType" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Set current strain (deformation) type.</p>
+<dl class="docutils">
+<dt>strainType <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Strain type.</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="distort.Distort.get_strainType">
@@ -132,7 +133,8 @@ order: (2/3) specify order of elastic constants</div></blockquote>
 <dl class="method">
 <dt id="distort.Distort.set_defMatrix">
 <tt class="descname">set_defMatrix</tt><big>(</big><big>)</big><a class="headerlink" href="#distort.Distort.set_defMatrix" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Calculate deformation matrix.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="distort.Distort.get_defMatrix">
@@ -142,7 +144,8 @@ order: (2/3) specify order of elastic constants</div></blockquote>
 <dl class="method">
 <dt id="distort.Distort.set_strainList">
 <tt class="descname">set_strainList</tt><big>(</big><big>)</big><a class="headerlink" href="#distort.Distort.set_strainList" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>finds list of deformation types for specific crystal symmetry</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="distort.Distort.get_strainList">
@@ -152,7 +155,12 @@ order: (2/3) specify order of elastic constants</div></blockquote>
 <dl class="method">
 <dt id="distort.Distort.set_V0">
 <tt class="descname">set_V0</tt><big>(</big><em>V0</em><big>)</big><a class="headerlink" href="#distort.Distort.set_V0" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Set equilibrium volume of parent structure.</p>
+<dl class="docutils">
+<dt>V0 <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Equilibrium volume of supercell.</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="distort.Distort.get_V0">

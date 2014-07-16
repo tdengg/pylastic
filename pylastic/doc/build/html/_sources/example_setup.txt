@@ -1,6 +1,13 @@
 Example: 2nd order elastic constants at the groundstate.
 --------
 
+The following example will show the procedure of calculating groundstate elastic constants using the GUI version as well as a python script doing the exact same thing.
+
+a.) Using the GUI
+^^^^^^^^^^^^^^^^^
+
+b.) Using python modules in a script
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Setup:
 ______
 

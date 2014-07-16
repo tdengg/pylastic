@@ -62,18 +62,26 @@
 <dl class="class">
 <dt id="postprocess.ECs">
 <em class="property">class </em><tt class="descclassname">postprocess.</tt><tt class="descname">ECs</tt><a class="headerlink" href="#postprocess.ECs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate elastic constants</p>
+<dd><p>Calculate elastic constants, CVS calculation, post-processing.</p>
 <dl class="method">
 <dt id="postprocess.ECs.set_analytics">
 <tt class="descname">set_analytics</tt><big>(</big><big>)</big><a class="headerlink" href="#postprocess.ECs.set_analytics" title="Permalink to this definition">¶</a></dt>
 <dd><p>Standard analysis including:
-Calculation of elastic constants, cross validation score and plot of the energy strain curves.</p>
+* Calculation of elastic constants, 
+* cross validation score and 
+* plot of the energy strain curves.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="postprocess.ECs.set_gsenergy">
 <tt class="descname">set_gsenergy</tt><big>(</big><em>gsenergy=None</em><big>)</big><a class="headerlink" href="#postprocess.ECs.set_gsenergy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read groundstate energy for all atoms in structures.</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>gsenergy <span class="classifier-delimiter">:</span> <span class="classifier">float???? DEBUG???? </span></dt>
+<dd>Groundstate energy.</dd>
+</dl>
+</div></blockquote>
 </dd></dl>
 
 <dl class="method">
@@ -96,12 +104,24 @@ Calculation of elastic constants, cross validation score and plot of the energy 
 <dt id="postprocess.ECs.get_atomsByStraintype">
 <tt class="descname">get_atomsByStraintype</tt><big>(</big><em>strainType</em><big>)</big><a class="headerlink" href="#postprocess.ECs.get_atomsByStraintype" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sort structures by strain type to get an ordered list of distortions.</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>strainType <span class="classifier-delimiter">:</span> <span class="classifier">string </span></dt>
+<dd>Strain type.</dd>
+</dl>
+</div></blockquote>
 </dd></dl>
 
 <dl class="method">
 <dt id="postprocess.ECs.set_fitorder">
 <tt class="descname">set_fitorder</tt><big>(</big><em>fitorder</em><big>)</big><a class="headerlink" href="#postprocess.ECs.set_fitorder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set fitorder of polynomial energy - strain fit.</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>fitorder <span class="classifier-delimiter">:</span> <span class="classifier">integer </span></dt>
+<dd>Order of polynomial energy-strain fit.</dd>
+</dl>
+</div></blockquote>
 </dd></dl>
 
 <dl class="method">
@@ -113,6 +133,12 @@ Calculation of elastic constants, cross validation score and plot of the energy 
 <dt id="postprocess.ECs.set_etacalc">
 <tt class="descname">set_etacalc</tt><big>(</big><em>etacalc</em><big>)</big><a class="headerlink" href="#postprocess.ECs.set_etacalc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set maximum lagrangian strain for the fitting procedure.</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>etacalc <span class="classifier-delimiter">:</span> <span class="classifier">float </span></dt>
+<dd>Maximum lagrangian strain.</dd>
+</dl>
+</div></blockquote>
 </dd></dl>
 
 <dl class="method">
@@ -124,6 +150,14 @@ Calculation of elastic constants, cross validation score and plot of the energy 
 <dt id="postprocess.ECs.set_C">
 <tt class="descname">set_C</tt><big>(</big><em>A2</em>, <em>etacalc</em><big>)</big><a class="headerlink" href="#postprocess.ECs.set_C" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate elastic constants from polynomials.</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>etacalc <span class="classifier-delimiter">:</span> <span class="classifier">float </span></dt>
+<dd>Maximum lagrangian strain.</dd>
+<dt>A2 <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
+<dd>Coefficients of polynomial fit.</dd>
+</dl>
+</div></blockquote>
 </dd></dl>
 
 <dl class="method">

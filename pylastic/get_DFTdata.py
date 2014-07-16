@@ -26,14 +26,26 @@ class VASP(object):
         
     #####################################
     def set_cellsize(self, cells):
-        """Supercell size."""
+        """Set supercell size.
+        
+        Parameters
+        ----------
+        cells : integer 
+            Number of atoms in the supercell.
+        """
         self.__cellsize = cells
         
     def get_cellsize(self):
         return self.__cellsize
     
     def set_ERange(self, ERange):
-        """Set expected energy range to filter VASP output: as tuple (emin,emax)"""
+        """Set expected energy range to filter VASP output.
+        
+        Parameters
+        ----------
+        ERange : tuple (emin,emax) 
+            Energy range
+        """
         self.__ERange = ERange
     def set_gsEnergy_DFPT(self):
         """Compensate for VASP's messy output"""
@@ -58,7 +70,13 @@ class VASP(object):
     
     ##
     def set_freeEnergy(self, T):
-        """Process PHONOPY free energy output"""
+        """Process PHONOPY free energy output
+        
+        Parameters
+        ----------
+        T : float
+            Temperature
+        """
         g = open(self.__vfile)
         self.__freeEnergy = float(g.readlines()[T].split()[1])/96.47244
         g.close()

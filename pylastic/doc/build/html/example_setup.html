@@ -26,7 +26,9 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="pylastic 0.1 documentation" href="index.html" /> 
+    <link rel="top" title="pylastic 0.1 documentation" href="index.html" />
+    <link rel="next" title="pylastic’s modules" href="modules.html" />
+    <link rel="prev" title="Tutorial" href="tutorial.html" /> 
   </head>
   <body>
     <div class="related">
@@ -38,6 +40,12 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="modules.html" title="pylastic’s modules"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="Tutorial"
+             accesskey="P">previous</a> |</li>
         <li><a href="index.html">pylastic 0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -49,8 +57,14 @@
             
   <div class="section" id="example-2nd-order-elastic-constants-at-the-groundstate">
 <h1>Example: 2nd order elastic constants at the groundstate.<a class="headerlink" href="#example-2nd-order-elastic-constants-at-the-groundstate" title="Permalink to this headline">¶</a></h1>
+<p>The following example will show the procedure of calculating groundstate elastic constants using the GUI version as well as a python script doing the exact same thing.</p>
+<div class="section" id="a-using-the-gui">
+<h2>a.) Using the GUI<a class="headerlink" href="#a-using-the-gui" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="b-using-python-modules-in-a-script">
+<h2>b.) Using python modules in a script<a class="headerlink" href="#b-using-python-modules-in-a-script" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="setup">
-<h2>Setup:<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h2>
+<h3>Setup:<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">elatoms</span> <span class="kn">import</span> <span class="n">Structures</span><span class="p">,</span> <span class="n">ElAtoms</span>
 <span class="kn">from</span> <span class="nn">vaspIO</span> <span class="kn">import</span> <span class="n">POS</span>
@@ -82,7 +96,7 @@
 </div>
 </div>
 <div class="section" id="postprocessing">
-<h2>Postprocessing:<a class="headerlink" href="#postprocessing" title="Permalink to this headline">¶</a></h2>
+<h3>Postprocessing:<a class="headerlink" href="#postprocessing" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">elatoms</span> <span class="kn">import</span> <span class="n">Structures</span><span class="p">,</span> <span class="n">ElAtoms</span>
 <span class="kn">from</span> <span class="nn">postprocess</span> <span class="kn">import</span> <span class="n">ECs</span>
 
@@ -91,6 +105,7 @@
 <span class="n">ec</span><span class="o">.</span><span class="n">set_gsenergy</span><span class="p">()</span>
 <span class="n">ec</span><span class="o">.</span><span class="n">set_analytics</span><span class="p">()</span>
 </pre></div>
+</div>
 </div>
 </div>
 </div>
@@ -104,12 +119,22 @@
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Example: 2nd order elastic constants at the groundstate.</a><ul>
+<li><a class="reference internal" href="#a-using-the-gui">a.) Using the GUI</a></li>
+<li><a class="reference internal" href="#b-using-python-modules-in-a-script">b.) Using python modules in a script</a><ul>
 <li><a class="reference internal" href="#setup">Setup:</a></li>
 <li><a class="reference internal" href="#postprocessing">Postprocessing:</a></li>
 </ul>
 </li>
 </ul>
+</li>
+</ul>
 
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="tutorial.html"
+                        title="previous chapter">Tutorial</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="modules.html"
+                        title="next chapter">pylastic&#8217;s modules</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/example_setup.txt"
@@ -141,6 +166,12 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="modules.html" title="pylastic’s modules"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="Tutorial"
+             >previous</a> |</li>
         <li><a href="index.html">pylastic 0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
