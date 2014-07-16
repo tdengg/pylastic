@@ -8,6 +8,7 @@ import os
 import pickle
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
 
 class ECs_old(object):
     def __init__(self):
@@ -126,6 +127,9 @@ class ECs(object):
         #plt.show()
         
     def plot_cvs(self):
+        
+        f = Figure(figsize=(5,4), dpi=100)
+        
         CVS = []
         strainList= self.__structures.items()[0][1].strainList
         n=1
@@ -137,8 +141,8 @@ class ECs(object):
             strain = [i.eta for i in atoms]
             
             spl = '1'+str(len(strainList))+str(n)
-            plt.subplot(int(spl))
-            
+            #plt.subplot(int(spl))
+            a = f.add_subplot(int(spl))
             j = 1
             for i in [2,4,6]:
                 ans = analyze.Energy(strain,energy,self.__V0)
@@ -146,17 +150,57 @@ class ECs(object):
                 ans.set_cvs(self.__fitorder)
                 CVS.append(ans.get_cvs())
                 print n,j,(n-1)*3+j-1
-                plt.plot([cvs[1] for cvs in CVS[(n-1)*3+j-1]],[cvs[0] for cvs in CVS[(n-1)*3+j-1]], label=str(self.__fitorder))
-                plt.title(stype)
-                plt.xlabel('strain')
-                plt.ylabel('CVS')
+                a.plot([cvs[1] for cvs in CVS[(n-1)*3+j-1]],[cvs[0] for cvs in CVS[(n-1)*3+j-1]], label=str(self.__fitorder))
+                a.set_title(stype)
+                a.set_xlabel('strain')
+                a.set_ylabel('CVS')
                 
                 j+=1
             
             n+=1
-        plt.legend(title='Order of fit')
-        plt.show()
+            
+        a.legend(title='Order of fit')
         
+        return f
+        
+    def plot_2nd(self):
+        
+        f = Figure(figsize=(5,4), dpi=100)
+        
+        A2 = []
+        
+        strainList= self.__structures.items()[0][1].strainList
+        n=1
+        for stype in strainList:
+            atoms = self.get_atomsByStraintype(stype)
+            self.__V0 = atoms[0].V0
+            strainList = atoms[0].strainList
+            energy = [i.gsenergy for i in atoms]
+            strain = [i.eta for i in atoms]
+            
+            spl = '1'+str(len(strainList))+str(n)
+            a = f.add_subplot(int(spl))
+            
+            j = 0
+            for i in [2,4,6]:
+                ans = analyze.Energy(strain,energy,self.__V0)
+                self.__fitorder = i
+                ans.set_2nd(self.__fitorder)
+                A2.append(ans.get_2nd())
+                strains = sorted(map(float,A2[j].keys()))
+                dE = [A2[j][str(s)] for s in strains]
+                
+                a.plot(strains, dE, label=str(self.__fitorder))
+                a.set_title(stype)
+                a.set_xlabel('strain')
+                a.set_ylabel('dE')
+                
+                j+=1
+            
+            n+=1
+            
+        a.legend(title='Order of fit')
+        return f
         
         
     def set_fitorder(self, fitorder):

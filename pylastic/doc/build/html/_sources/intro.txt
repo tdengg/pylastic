@@ -1,2 +1,37 @@
 Introduction
 ------------
+
+***pylastic*** is a python package for calculating elastic constants from first principles. Futhermore it is intended to serve as a fully automatic tool for elastic constants calculation.
+
+
+Importing vasp POSCAR files
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Two options are avalilable for importing atoms positions from vasp POSCAR file:
+
+*	using vaspIO module (pylastic package)
+
+	The following code sample imports the POSCAR file
+	
+	.. code-block:: python
+	
+		from vaspIO import POS
+		
+		poscar = POS.read_pos('POSCAR')
+		
+*	using ASE (external package ASE required)
+
+	.. code-block:: python
+	
+		from ase.io import vasp
+		
+		pos = vasp.read('POSCAR')
+
+Creating atoms class objects from vasp POSCAR
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The structures class
+^^^^^^^^^^^^^^^^^^^^
+
+Creating destortions
+^^^^^^^^^^^^^^^^^^^^

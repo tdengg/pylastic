@@ -26,6 +26,7 @@ Contents:
    :maxdepth: 2
    
    intro
+   userinterface
    tutorial
    example_setup
    modules

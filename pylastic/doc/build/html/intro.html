@@ -57,6 +57,37 @@
             
   <div class="section" id="introduction">
 <h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<p><strong>*pylastic*</strong> is a python package for calculating elastic constants from first principles. Futhermore it is intended to serve as a fully automatic tool for elastic constants calculation.</p>
+<div class="section" id="importing-vasp-poscar-files">
+<h2>Importing vasp POSCAR files<a class="headerlink" href="#importing-vasp-poscar-files" title="Permalink to this headline">¶</a></h2>
+<p>Two options are avalilable for importing atoms positions from vasp POSCAR file:</p>
+<ul>
+<li><p class="first">using vaspIO module (pylastic package)</p>
+<p>The following code sample imports the POSCAR file</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">vaspIO</span> <span class="kn">import</span> <span class="n">POS</span>
+
+<span class="n">poscar</span> <span class="o">=</span> <span class="n">POS</span><span class="o">.</span><span class="n">read_pos</span><span class="p">(</span><span class="s">&#39;POSCAR&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">using ASE (external package ASE required)</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">ase.io</span> <span class="kn">import</span> <span class="n">vasp</span>
+
+<span class="n">pos</span> <span class="o">=</span> <span class="n">vasp</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s">&#39;POSCAR&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<div class="section" id="creating-atoms-class-objects-from-vasp-poscar">
+<h2>Creating atoms class objects from vasp POSCAR<a class="headerlink" href="#creating-atoms-class-objects-from-vasp-poscar" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="the-structures-class">
+<h2>The structures class<a class="headerlink" href="#the-structures-class" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="creating-destortions">
+<h2>Creating destortions<a class="headerlink" href="#creating-destortions" title="Permalink to this headline">¶</a></h2>
+</div>
 </div>
 
 
@@ -65,6 +96,17 @@
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Introduction</a><ul>
+<li><a class="reference internal" href="#importing-vasp-poscar-files">Importing vasp POSCAR files</a></li>
+<li><a class="reference internal" href="#creating-atoms-class-objects-from-vasp-poscar">Creating atoms class objects from vasp POSCAR</a></li>
+<li><a class="reference internal" href="#the-structures-class">The structures class</a></li>
+<li><a class="reference internal" href="#creating-destortions">Creating destortions</a></li>
+</ul>
+</li>
+</ul>
+
   <h4>Previous topic</h4>
   <p class="topless"><a href="index.html"
                         title="previous chapter">Welcome to pylastic&#8217;s documentation!</a></p>

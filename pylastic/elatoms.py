@@ -81,6 +81,7 @@ class ElAtoms(Distort, Sgroup, POS):
         self.__executable = None
         self.__V0 = None
         
+        
     def set_cell(self, cell):
         self.__cell = cell
         
@@ -199,12 +200,20 @@ class Structures(ElAtoms, Sgroup, POS):
         ElAtoms.__init__(self)
         self.__structures = {}
         self.__fnames = []
+        self.__workdir = '.'
         
     def set_fname(self, fnames):
         self.__fnames = fnames
         
+    def set_workdir(self, workdir):
+        self.__workdir = workdir
+        
+    def get_workdir(self):
+        return self.__workdir
+        
     def write_structures(self):
         dirnames = []
+        os.chdir(self.__workdir)
         for atoms in self.__structures:
             try:
                 if not atoms[0] in dirnames: os.mkdir(atoms[0]) 
@@ -218,8 +227,9 @@ class Structures(ElAtoms, Sgroup, POS):
             os.system('cp INCAR %s/%s/INCAR'%(atoms[0],atoms[1]))
             os.system('cp POTCAR %s/%s/POTCAR'%(atoms[0],atoms[1]))
             POS().write_pos(self.__structures[atoms].poscarnew, fname+'/POSCAR')
-            
+            self.__structures[atoms].path = self.__workdir + fname
             obj = self.__structures[atoms]
+            
             with open(fname+'/atoms.pkl', 'wb') as output:
                 pickle.dump(obj, output, -1)
                 
@@ -258,5 +268,6 @@ class Structures(ElAtoms, Sgroup, POS):
     
     
     executable    = property( fget = get_executable        , fset = set_executable)
+    workdir = property( fget = get_workdir        , fset = set_workdir)
     
     

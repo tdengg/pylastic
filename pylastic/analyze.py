@@ -85,10 +85,10 @@ class Energy(object):
                 Y      = energy[k]
                 etatmp = []
                 enetmp = []
-    
+
                 for l in range(len(strain)):
                     if (l==k): pass
-                    else:            
+                    else:
                         etatmp.append(strain[l])
                         enetmp.append(energy[l])
     

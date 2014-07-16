@@ -3,12 +3,15 @@ import os
 
 class POS(object):
     def __init__(self, fname=None):
+        self.__fname = fname
         if fname: self.car = open(fname)
         
     def read_pos(self):
         p_dict = {}
         p_dict["name"] = self.car.readline()
-        p_dict["path"] = os.getcwd()+'/POSCAR'
+        if self.__fname: p_dict["path"] = self.__fname
+        else: p_dict["path"] = os.getcwd()+'/POSCAR'
+        
         
         scale = self.lta()[0]
         print scale
