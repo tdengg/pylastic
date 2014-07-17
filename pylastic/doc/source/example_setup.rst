@@ -14,8 +14,8 @@ ______
 .. code-block:: python
 
 	import numpy as np
-	from elatoms import Structures, ElAtoms
-	from vaspIO import POS
+	from pylastic.elatoms import Structures, ElAtoms
+	from pylastic.vaspIO import POS
 	
 	########################## Read in POSCAR file: ######################
 	poscar = POS('POSCAR').read_pos()

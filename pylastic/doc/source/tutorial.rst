@@ -14,7 +14,8 @@ Two options are available for importing atoms positions from vasp POSCAR file:
 	
 		from pylastic.vaspIO import POS
 		
-		poscar = POS.read_pos('POSCAR')
+		poscar = POS('POSCAR').read_pos()
+
 		
 *	using ASE (external package ASE required)
 
@@ -34,7 +35,7 @@ After importing the POSCAR file one can create an ASE like atoms object which ha
 	from pylastic.elatoms import ElAtoms
 	from pylastic.vaspIO import POS
 	
-	poscar = POS.read_pos('POSCAR')
+	poscar = POS('POSCAR').read_pos()
 	atom = ElAtoms()
 	atom.poscarToAtoms(poscar)
 

@@ -11,16 +11,16 @@ from matplotlib.figure import Figure
 
 import os
 import sys
-sys.path.append('/home/t.dengg/git/pylastic/pylastic')
-sys.path.append('../pylastic')
+#sys.path.append('/home/t.dengg/git/pylastic/pylastic')
+#sys.path.append('../pylastic')
 
 import pickle
 import numpy as np
 import lxml.etree as et
 
-from vaspIO import POS
-from elatoms import Structures, ElAtoms
-from postprocess import ECs
+from pylastic.vaspIO import POS
+from pylastic.elatoms import Structures, ElAtoms
+from pylastic.postprocess import ECs
 
 
 class pylasticGUI(Frame):
@@ -153,7 +153,7 @@ class pylasticGUI(Frame):
         status, paths = self.check_calc()
         
         for key in status.keys():
-            print paths[key].lstrip(self.__workdir).split('/')
+            #print paths[key].lstrip(self.__workdir).split('/')
             self.tree.insert(root, END, text = status[key], values=['text3','text4', paths[key]])
             
         
