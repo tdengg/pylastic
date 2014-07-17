@@ -57,7 +57,32 @@
             
   <div class="section" id="introduction">
 <h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
-<p><strong>pylastic</strong> is a python package for calculating elastic constants from first principles. Futhermore it is intended to serve as a fully automatic tool for elastic constants calculation.</p>
+<p><strong>pylastic</strong> is a python package for calculating elastic constants from first principles. Furthermore it is intended to serve as a fully automatic tool for elastic constants calculation.</p>
+<div class="section" id="concept">
+<h2>Concept<a class="headerlink" href="#concept" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>For calculating elastic constants two approaches are implemented:</dt>
+<dd><ul class="first">
+<li><dl class="first docutils">
+<dt>Calculating 2nd derivatives of the energy with respect to strain</dt>
+<dd><div class="first last math">
+\[C_{ij} = \frac{1}{V_0}\frac{\partial^2 E}{\partial \eta_{i} \partial \eta_{j}} |_{\eta = 0}\]</div>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Derivative of stress with respect to strain</dt>
+<dd><div class="first last math">
+\[C_{ij} = \frac{\partial \sigma_i}{\partial \eta_j}\]</div>
+</dd>
+</dl>
+</li>
+</ul>
+<p>For that a starting structure (parent) is distorted and energy strain curves are fitted with polynomials.</p>
+<p class="last"><strong>pylastic</strong> allows for automation of this procedure and offers tools for data analysis such as cross validation score (CVS) calculation.</p>
+</dd>
+</dl>
+</div>
 <div class="section" id="using-pylastic-in-gui-mode">
 <h2>Using <strong>pylastic</strong>&#8216; in GUI mode<a class="headerlink" href="#using-pylastic-in-gui-mode" title="Permalink to this headline">¶</a></h2>
 <p>For automated calculations of elastic constants within a standard framework.</p>
@@ -68,47 +93,6 @@
 <div class="section" id="using-pylastic-as-python-module">
 <h2>Using <strong>pylastic</strong> as python module<a class="headerlink" href="#using-pylastic-as-python-module" title="Permalink to this headline">¶</a></h2>
 <p>Scripting with python allows for flexible usage of <strong>pylastic</strong>&#8216;s modules, classes and functions.</p>
-</div>
-<div class="section" id="importing-vasp-poscar-files">
-<h2>Importing vasp POSCAR files<a class="headerlink" href="#importing-vasp-poscar-files" title="Permalink to this headline">¶</a></h2>
-<p>Two options are avalilable for importing atoms positions from vasp POSCAR file:</p>
-<ul>
-<li><p class="first">using vaspIO module (pylastic package)</p>
-<p>The following code sample imports the POSCAR file</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pylastic.vaspIO</span> <span class="kn">import</span> <span class="n">POS</span>
-
-<span class="n">poscar</span> <span class="o">=</span> <span class="n">POS</span><span class="o">.</span><span class="n">read_pos</span><span class="p">(</span><span class="s">&#39;POSCAR&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-</li>
-<li><p class="first">using ASE (external package ASE required)</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">ase.io</span> <span class="kn">import</span> <span class="n">vasp</span>
-
-<span class="n">pos</span> <span class="o">=</span> <span class="n">vasp</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s">&#39;POSCAR&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-</li>
-</ul>
-</div>
-<div class="section" id="creating-atoms-class-objects-from-vasp-poscar">
-<h2>Creating atoms class objects from vasp POSCAR<a class="headerlink" href="#creating-atoms-class-objects-from-vasp-poscar" title="Permalink to this headline">¶</a></h2>
-<p>After importing the POSCAR file one can create an ASE like atoms object which has the attributes of the POSCAR file containing information about the crystal structure (lattice vectors, number of atoms, basis, ....).</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pylastic.elatoms</span> <span class="kn">import</span> <span class="n">ElAtoms</span>
-<span class="kn">from</span> <span class="nn">pylastic.vaspIO</span> <span class="kn">import</span> <span class="n">POS</span>
-
-<span class="n">poscar</span> <span class="o">=</span> <span class="n">POS</span><span class="o">.</span><span class="n">read_pos</span><span class="p">(</span><span class="s">&#39;POSCAR&#39;</span><span class="p">)</span>
-<span class="n">ElAtoms</span><span class="o">.</span><span class="n">poscarToAtoms</span><span class="p">(</span><span class="n">poscar</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="distorting-the-atoms-object">
-<h2>Distorting the atoms object<a class="headerlink" href="#distorting-the-atoms-object" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="the-structures-class">
-<h2>The structures class<a class="headerlink" href="#the-structures-class" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="creating-distortions">
-<h2>Creating distortions<a class="headerlink" href="#creating-distortions" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
@@ -121,13 +105,9 @@
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Introduction</a><ul>
+<li><a class="reference internal" href="#concept">Concept</a></li>
 <li><a class="reference internal" href="#using-pylastic-in-gui-mode">Using <strong>pylastic</strong>&#8216; in GUI mode</a></li>
 <li><a class="reference internal" href="#using-pylastic-as-python-module">Using <strong>pylastic</strong> as python module</a></li>
-<li><a class="reference internal" href="#importing-vasp-poscar-files">Importing vasp POSCAR files</a></li>
-<li><a class="reference internal" href="#creating-atoms-class-objects-from-vasp-poscar">Creating atoms class objects from vasp POSCAR</a></li>
-<li><a class="reference internal" href="#distorting-the-atoms-object">Distorting the atoms object</a></li>
-<li><a class="reference internal" href="#the-structures-class">The structures class</a></li>
-<li><a class="reference internal" href="#creating-distortions">Creating distortions</a></li>
 </ul>
 </li>
 </ul>

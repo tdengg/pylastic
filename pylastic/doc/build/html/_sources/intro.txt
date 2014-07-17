@@ -1,9 +1,26 @@
 Introduction
 ------------
 
-**pylastic** is a python package for calculating elastic constants from first principles. Futhermore it is intended to serve as a fully automatic tool for elastic constants calculation.
+**pylastic** is a python package for calculating elastic constants from first principles. Furthermore it is intended to serve as a fully automatic tool for elastic constants calculation.
 
+Concept
+^^^^^^^
 
+For calculating elastic constants two approaches are implemented:
+	* Calculating 2nd derivatives of the energy with respect to strain
+		.. math::
+
+			C_{ij} = \frac{1}{V_0}\frac{\partial^2 E}{\partial \eta_{i} \partial \eta_{j}} |_{\eta = 0} 
+		
+	* Derivative of stress with respect to strain
+		.. math::
+
+			C_{ij} = \frac{\partial \sigma_i}{\partial \eta_j}
+	
+	For that a starting structure (parent) is distorted and energy strain curves are fitted with polynomials.
+	
+	**pylastic** allows for automation of this procedure and offers tools for data analysis such as cross validation score (CVS) calculation.
+	
 Using **pylastic**' in GUI mode
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -19,52 +36,3 @@ Using **pylastic** as python module
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Scripting with python allows for flexible usage of **pylastic**'s modules, classes and functions.
-
-Importing vasp POSCAR files
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Two options are avalilable for importing atoms positions from vasp POSCAR file:
-
-*	using vaspIO module (pylastic package)
-
-	The following code sample imports the POSCAR file
-	
-	.. code-block:: python
-	
-		from pylastic.vaspIO import POS
-		
-		poscar = POS.read_pos('POSCAR')
-		
-*	using ASE (external package ASE required)
-
-	.. code-block:: python
-	
-		from ase.io import vasp
-		
-		pos = vasp.read('POSCAR')
-
-Creating atoms class objects from vasp POSCAR
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-After importing the POSCAR file one can create an ASE like atoms object which has the attributes of the POSCAR file containing information about the crystal structure (lattice vectors, number of atoms, basis, ....).
-
-.. code-block:: python
-	
-	from pylastic.elatoms import ElAtoms
-	from pylastic.vaspIO import POS
-	
-	poscar = POS.read_pos('POSCAR')
-	ElAtoms.poscarToAtoms(poscar)
-
-Distorting the atoms object
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-
-
-The structures class
-^^^^^^^^^^^^^^^^^^^^
-
-
-
-Creating distortions
-^^^^^^^^^^^^^^^^^^^^

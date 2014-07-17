@@ -26,12 +26,10 @@ Contents:
    :maxdepth: 2
    
    intro
-   userinterface
    tutorial
    example_setup
    modules
    install
-   theory
 
 Indices and tables
 ==================
