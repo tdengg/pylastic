@@ -19,7 +19,7 @@ class ECs_old(object):
         Angstroem = 1.e-10
         self.__cnvrtr = (_e)/(1e9*Angstroem**3)    # Ryd/[a.u.^3] to GPa
         #--------------------------------------------------------------------------------------------------------------------------------
-        
+        self.__CVS
         self.V0 = None
         self.__cod = 'vasp'
         
@@ -43,11 +43,16 @@ class ECs_old(object):
             ans = analyze.Energy(strain,energy,self.V0)
             ans.set_2nd(6)
             print ans.get_2nd()
+        
+    def get_CVS(self):
+        return self.__CVS
             
 class ECs(object):
     """Calculate elastic constants, CVS calculation, post-processing."""
     
     def __init__(self):
+        
+        self.__CVS = []
         self.__V0 = None
         self.__structures = None
         self.__cod = 'vasp'
@@ -131,7 +136,7 @@ class ECs(object):
             ans = analyze.Energy(strain,energy,self.__V0)
             ans.set_2nd(self.__fitorder)
             ans.set_cvs(self.__fitorder)
-            CVS.append(ans.get_cvs())
+            self.__CVS.append(ans.get_cvs())
             A2.append(ans.get_2nd())
             
             spl = str(len(strainList))+'1'+str(n)
@@ -141,6 +146,9 @@ class ECs(object):
         
         self.set_C(A2, self.__etacalc)
         #plt.show()
+    
+    def get_CVS(self):
+        return self.__CVS
         
     def plot_cvs(self):
         """Returns matplotlib axis instance of cross validation score plot."""
