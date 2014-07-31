@@ -8,8 +8,9 @@ import numpy as np
 from distort import Distort
 from spacegroup import Sgroup
 from vaspIO import POS
+from prettyPrint import PrettyMatrix
 
-class ElAtoms(Distort, Sgroup, POS):
+class ElAtoms(Distort, Sgroup, POS, PrettyMatrix):
     '''
     ASE Atoms like object.
      
@@ -46,7 +47,8 @@ class ElAtoms(Distort, Sgroup, POS):
         '''
         Constructor
         '''
-        Distort.__init__(self)
+        super(ElAtoms, self).__init__()
+        PrettyMatrix.__init__(self)
         
         self.__poscarnew = None
         self.__cell = None
@@ -160,7 +162,7 @@ class ElAtoms(Distort, Sgroup, POS):
         self.__sgn = self.sgn
     
     def atomsToPoscar(self):
-        """Creare poscar out of atoms object."""
+        """Create poscar out of atoms object."""
         self.__poscar = {}
         self.__poscar['vlatt_1'] = self.__cell[0]
         self.__poscar['vlatt_2'] = self.__cell[1]
@@ -227,10 +229,10 @@ class Structures(ElAtoms, Sgroup, POS):
     
     """
     def __init__(self):
-        ElAtoms.__init__(self)
+        super(Structures, self).__init__()
         self.__structures = {}
         self.__fnames = []
-        self.__workdir = '.'
+        self.__workdir = './'
         
     def set_fname(self, fnames):
         """Set absolute path to calculations sub-directory.
@@ -296,7 +298,7 @@ class Structures(ElAtoms, Sgroup, POS):
             pickle.dump(self.__structures, output, -1)
     
     def set_executable(self, executable):
-        """Set path ot location vasp executable. 
+        """Set path to vasp executable. 
         
         Parameters
         ----------

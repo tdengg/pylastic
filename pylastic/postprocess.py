@@ -2,6 +2,7 @@
 """
 
 import analyze
+from analyze import Energy
 import get_DFTdata
 import json
 import os
@@ -47,7 +48,7 @@ class ECs_old(object):
     def get_CVS(self):
         return self.__CVS
             
-class ECs(object):
+class ECs(Energy):
     """Calculate elastic constants, CVS calculation, post-processing."""
     
     def __init__(self):
@@ -121,7 +122,7 @@ class ECs(object):
             * cross validation score and 
             * plot of the energy strain curves.
         """
-        A2 = []
+        self.__A2 = []
         CVS = []
         
         strainList= self.__structures.items()[0][1].strainList
@@ -137,14 +138,14 @@ class ECs(object):
             ans.set_2nd(self.__fitorder)
             ans.set_cvs(self.__fitorder)
             self.__CVS.append(ans.get_cvs())
-            A2.append(ans.get_2nd())
+            self.__A2.append(ans.get_2nd())
             
             spl = str(len(strainList))+'1'+str(n)
             #plt.subplot(int(spl))
             #ans.plot_energy()
             n+=1
         
-        self.set_C(A2, self.__etacalc)
+        self.set_C(self.__etacalc)
         #plt.show()
     
     def get_CVS(self):
@@ -253,7 +254,7 @@ class ECs(object):
     def get_fitorder(self):
         return self.__fitorder
     
-    def set_C(self, A2, etacalc):
+    def set_C(self, etacalc):
         """Evaluate elastic constants from polynomials.
         
         Parameters
@@ -266,8 +267,8 @@ class ECs(object):
         C = np.zeros((6,6))
         
         LC = self.__structures.items()[0][1].LC
-        
-        A2 = [a2[etacalc] for a2 in A2]
+        if not etacalc in self.__A2[0].keys(): raise ValueError('Please coose one of %s'%(self.__A2[0].keys()))
+        A2 = [a2[etacalc] for a2 in self.__A2]
         print A2
         #%%%--- Cubic structures ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         if (LC == 'CI' or \
@@ -438,7 +439,7 @@ class ECs(object):
         #--------------------------------------------------------------------------------------------------------------------------------
         self.__C = C
         
-    def get_C(self, A2, etacalc):
+    def get_C(self):
         return self.__C
     
     structures    = property( fget = get_structures         , fset = set_structures    )

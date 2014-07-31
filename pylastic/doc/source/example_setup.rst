@@ -46,8 +46,8 @@ _______________
 
 .. code-block:: python
 
-	from elatoms import Structures, ElAtoms
-	from postprocess import ECs
+	from pylastic.elatoms import Structures, ElAtoms
+	from pylastic.postprocess import ECs
 	
 	ec = ECs()
 	ec.set_structures()

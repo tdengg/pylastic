@@ -4,7 +4,7 @@ Download and installation
 Download
 ^^^^^^^^
 
-Go to `<https://github.com/tdengg/pylastic>`_ and download zip file.
+Go to `<https://github.com/tdengg/pylastic>`_ and download the zip file.
 
 Install
 ^^^^^^^
