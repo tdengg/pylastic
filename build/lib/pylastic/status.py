@@ -21,7 +21,9 @@ class Check(object):
         self.__paths = {}
         if not self.__structuresinst:
             if os.path.isfile(self.__workdir+'/structures.pkl'):
-                self.__structuresinst = Object().load(self.__workdir+'/structures.pkl')
+            #    with open(self.__workdir+'/structures.pkl', 'rb') as input:
+            #        self.__structuresinst = pickle.load(input)
+                self.__structuresinst = Object.load(self.__workdir+'/structures.pkl')
                 atoms = self.__structuresinst.get_structures()
             else:
                 raise Exception("Please do setup first!")
