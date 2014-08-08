@@ -1,9 +1,12 @@
 """
 """
 
-import analyze
-from analyze import Energy
-import get_DFTdata
+from pylastic.analyze import Energy
+from pylastic.get_DFTdata import VASP
+from pylastic.status import Check
+from pylastic.prettyPrint import FileStructure
+
+
 import json
 import os
 import pickle
@@ -26,7 +29,7 @@ class ECs_old(object):
         
     def set_CVS(self):
         """Calculate cross validation score."""
-        getData = get_DFTdata.VASP()
+        getData = VASP()
         f=open('info.json')
         dic = json.load(f)
         
@@ -41,17 +44,20 @@ class ECs_old(object):
                 strain.append(dic[key][str(key2)]['eta'])
             self.V0 = dic[key][str(key2)]['V0']
             
-            ans = analyze.Energy(strain,energy,self.V0)
+            ans = Energy(strain,energy,self.V0)
             ans.set_2nd(6)
             print ans.get_2nd()
         
     def get_CVS(self):
         return self.__CVS
             
-class ECs(Energy):
+class ECs(Check, FileStructure):
     """Calculate elastic constants, CVS calculation, post-processing."""
     
     def __init__(self):
+        
+        super(Check, self).__init__()
+        super(FileStructure, self).__init__()
         
         self.__CVS = []
         self.__V0 = None
@@ -59,6 +65,7 @@ class ECs(Energy):
         self.__cod = 'vasp'
         self.__fitorder = 4
         self.__etacalc = '0.04'
+        self.__workdir = './'
         #%%%%%%%%--- CONSTANTS ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         _e     = 1.602176565e-19              # elementary charge
         #Bohr   = 5.291772086e-11              # a.u. to meter
@@ -75,12 +82,20 @@ class ECs(Energy):
             gsenergy : float???? DEBUG???? 
                 Groundstate energy.
         """
+        self.status()
         if not gsenergy:
-            getData = get_DFTdata.VASP()
+            getData = VASP()
             for atoms in self.__structures.items():
+                # Do interpolation if calculation failed...... COMPLETE IT
+                
+                if not atoms[1].status:
+                    atoms[1].gsenergy = 0
+                    continue
                 getData.set_outfile('%s/%s/vasprun.xml'%atoms[0])
                 getData.set_gsEnergy()
                 atoms[1].gsenergy = getData.get_gsEnergy()
+                
+        
                 
                 
         self.__gsenergy = gsenergy
@@ -124,6 +139,8 @@ class ECs(Energy):
         """
         self.__A2 = []
         
+        #self.status()
+        # Check status of every atoms object
         strainList= self.__structures.items()[0][1].strainList
         n=1
         for stype in strainList:
@@ -133,7 +150,7 @@ class ECs(Energy):
             energy = [i.gsenergy for i in atoms]
             strain = [i.eta for i in atoms]
             
-            ans = analyze.Energy(strain,energy,self.__V0)
+            ans = Energy(strain,energy,self.__V0)
             ans.set_2nd(self.__fitorder)
             ans.set_cvs(self.__fitorder)
             self.__CVS.append(ans.get_cvs())
@@ -152,7 +169,7 @@ class ECs(Energy):
         
     def plot_cvs(self):
         """Returns matplotlib axis instance of cross validation score plot."""
-        f = Figure(figsize=(5,4), dpi=100)
+        f = plt.figure(figsize=(5,4), dpi=100)
         
         CVS = []
         strainList= self.__structures.items()[0][1].strainList
@@ -169,11 +186,11 @@ class ECs(Energy):
             a = f.add_subplot(int(spl))
             j = 1
             for i in [2,4,6]:
-                ans = analyze.Energy(strain,energy,self.__V0)
+                ans = Energy(strain,energy,self.__V0)
                 self.__fitorder = i
                 ans.set_cvs(self.__fitorder)
                 CVS.append(ans.get_cvs())
-                print n,j,(n-1)*3+j-1
+                
                 a.plot([cvs[1] for cvs in CVS[(n-1)*3+j-1]],[cvs[0] for cvs in CVS[(n-1)*3+j-1]], label=str(self.__fitorder))
                 a.set_title(stype)
                 a.set_xlabel('strain')
@@ -189,7 +206,7 @@ class ECs(Energy):
         
     def plot_2nd(self):
         """Returns matplotlib axis instance of d2E/d(eta) plot."""
-        f = Figure(figsize=(5,4), dpi=100)
+        f = plt.figure(figsize=(5,4), dpi=100)
         
         A2 = []
         
@@ -207,7 +224,7 @@ class ECs(Energy):
             
             j = 0
             for i in [2,4,6]:
-                ans = analyze.Energy(strain,energy,self.__V0)
+                ans = Energy(strain,energy,self.__V0)
                 self.__fitorder = i
                 ans.set_2nd(self.__fitorder)
                 A2.append(ans.get_2nd())
@@ -268,7 +285,7 @@ class ECs(Energy):
         LC = self.__structures.items()[0][1].LC
         if not etacalc in self.__A2[0].keys(): raise ValueError('Please coose one of %s'%(self.__A2[0].keys()))
         A2 = [a2[etacalc] for a2 in self.__A2]
-        print A2
+        
         #%%%--- Cubic structures ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         if (LC == 'CI' or \
             LC == 'CII'):
@@ -440,6 +457,16 @@ class ECs(Energy):
         
     def get_C(self):
         return self.__C
+    
+    def status(self):
+        state = Check()
+        state.workdir = self.__workdir
+        state.structures = self.__structures
+        self.__status, self.__structuresinst, statusstring = state.check_calc()
+        try:
+            self.__structures = self.__structuresinst.get_structures()
+        except:
+            self.__structures = self.__structuresinst
     
     structures    = property( fget = get_structures         , fset = set_structures    )
     fitorder    = property( fget = get_fitorder        , fset = set_fitorder    )

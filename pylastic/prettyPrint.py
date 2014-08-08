@@ -24,6 +24,20 @@ class FileStructure(object):
     def tree(self):
         return
     
+    def dicToTree(self, dic):
+        temp = []
+        string = ''
+        for key in sorted(dic.keys()):
+            if not key[0] in temp:
+                temp.append(key[0])
+                string += '%s\n'%str(key[0])
+            else:
+                string += '\t%s\n'%str(key[1])
+                for k in dic[key].keys():
+                    string += '\t\t%s\n'%str(dic[key][k])
+        
+        return string
+    
     
     
     

@@ -32,6 +32,7 @@ class Energy(object):
         self.__CV = []
         
         
+        
     def set_2nd(self, fitorder):
         """Fit energy strain curve and evaluate 2nd derivative in order to get 2nd order elastic constants.
         
@@ -40,6 +41,7 @@ class Energy(object):
         fitorder : integer 
             Order of polynomial energy-strain fit.
         """
+        self.search_for_failed()
         self.__CONV = self.__vToGPa #* math.factorial(2)*2.
         strain = copy(self.__strain)
         energy = copy(self.__energy)
@@ -70,6 +72,8 @@ class Energy(object):
         fitorder : integer 
             Order of polynomial energy-strain fit.
         """
+        self.search_for_failed()
+        
         self.__CONV = self.__vToGPa * math.factorial(3)*2.
         strain = copy(self.__strain)
         energy = copy(self.__energy)
@@ -99,6 +103,8 @@ class Energy(object):
         fitorder : integer 
             Order of polynomial energy-strain fit.
         """
+        self.search_for_failed()
+        
         strain = copy(self.__strain)
         energy = copy(self.__energy)
         
@@ -138,11 +144,22 @@ class Energy(object):
     
     def plot_energy(self):
         """Return matplotlib axis instance for energy-strain curve.  """
+        self.search_for_failed()
         
         ax = plt.plot(self.__strain, self.__energy)
         return ax
         
-
+    def search_for_failed(self, mod='pass'):
+        """Handle failed calculations"""
+        i=0
+        while i < len(self.__strain):
+            
+            if self.__energy[i] == 0:
+                print "WARNING: Calculation failed on ...... trying to fit anyway."
+                self.__energy.pop(i)
+                self.__strain.pop(i)
+            i+=1
+                
         
 #class Strain(object):
 #    def __init__(self):

@@ -1,10 +1,13 @@
 import sys
-import vaspIO
+from pylastic.vaspIO import POS
 import os
 
 
-class Sgroup(object):
+class Sgroup(POS):
     def __init__(self, poscar, fname):
+        
+        super(Sgroup, self).__init__(fname)
+        
         self.i = 0
         self.__sgn = None
         self.poscar = poscar
@@ -13,7 +16,7 @@ class Sgroup(object):
         
     def set_sgroup(self):
         
-        o_poscar = vaspIO.POS(self.fname)
+        o_poscar = POS(self.fname)
         o_poscar.write_sgroup(self.poscar)                # --"--
         os.system('sgroup sgroup.in 1> sgroup.out 2> sgroup.err')
         #%%%--- Calculate Space-group number and classify it ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -37,7 +40,7 @@ class Sgroup(object):
         for i in range(len(SGlins)):
             if (SGlins[i].find('Number and name of space group:') >= 0):
                 SGN = int(float(SGlins[i].split()[6]))
-                SGN_explanation=SGlins[i].strip()
+                SGN_explanation = SGlins[i].strip()
                 break
         self.__sgn = SGN
     

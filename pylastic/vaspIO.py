@@ -2,11 +2,13 @@ import numpy as np
 import os
 
 class POS(object):
-    def __init__(self, fname=None):
+    def __init__(self, fname='POSCAR'):
         self.__fname = fname
         if fname: self.car = open(fname)
+        self.__verbose = True
         
     def read_pos(self):
+        if self.__verbose: print "Reading input file: '%s' ...."%(self.__fname)
         p_dict = {}
         p_dict["name"] = self.car.readline()
         if self.__fname: p_dict["path"] = self.__fname
@@ -14,7 +16,7 @@ class POS(object):
         
         
         scale = self.lta()[0]
-        print scale
+        
         try:
             scale = np.float(scale)
         except:
@@ -25,7 +27,7 @@ class POS(object):
         p_dict["vlatt_2"] = np.array(map(np.float,self.lta()))
         p_dict["vlatt_3"] = np.array(map(np.float,self.lta()))
         p_dict["natoms"] = map(int,self.lta())
-        print p_dict["natoms"]
+        
         selective = self.car.readline()
         if selective.split()[0][0] in ['s','S']: 
             p_dict["selective"] = True
@@ -38,6 +40,7 @@ class POS(object):
             p_dict["vbasis"]["species_"+str(i+1)] = []
             for j in range(p_dict["natoms"][i]):
                 p_dict["vbasis"]["species_"+str(i+1)].append(self.lta())
+        if self.__verbose: print "'%s' read in as dictionary."%(self.__fname) 
         return p_dict
         #self.write_sgroup(p_dict)
     
@@ -65,7 +68,7 @@ class POS(object):
         return l
     
     def write_pos(self, pos, fileName):
-        
+        if self.__verbose: print "Writing file '%s'"%fileName
         posout = open(fileName, 'w')
         posout.write('COMMENT!\n')
         posout.write(str(pos['scale']) + '\n')
@@ -122,6 +125,16 @@ class POS(object):
                     f.write('Species_' + str(i+1) + '\n')
         else: print 'Basis vectors in Cartesian coordinates not supported yet!!! \n NOT WRITTEN TO sgroup.in!!!!!'
         f.close()
+    
+    def set_fname(self, fname):
+        self.__fname = fname
+    
+    def get_fname(self):
+        return self.__fname
+    
+    fname = property( fget = get_fname        , fset = set_fname)
+
+        
     
 #    def write_sgroup_ase(self, atoms):
 #        

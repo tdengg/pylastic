@@ -2,15 +2,19 @@
 '''
 import os
 import copy
+import time
+
+from subprocess import Popen, PIPE
 import cPickle as pickle
 import numpy as np
 
-from distort import Distort
-from spacegroup import Sgroup
-from vaspIO import POS
-from prettyPrint import PrettyMatrix
+from pylastic.distort import Distort
+from pylastic.spacegroup import Sgroup
+from pylastic.vaspIO import POS
+from pylastic.prettyPrint import PrettyMatrix
+from pylastic.status import Check
 
-class ElAtoms(Distort, Sgroup, POS, PrettyMatrix):
+class ElAtoms(Distort, Sgroup, POS, PrettyMatrix, Check):
     '''
     ASE Atoms like object.
      
@@ -49,17 +53,19 @@ class ElAtoms(Distort, Sgroup, POS, PrettyMatrix):
         '''
         super(ElAtoms, self).__init__()
         PrettyMatrix.__init__(self)
+        super(Check, self).__init__()
         
         self.__poscarnew = None
         self.__cell = None
         self.__gsenergy = None
         self.__executable = None
         self.__V0 = None
-        
+        self.__verbose = True
         
     def set_cell(self, cell):
         """Set lattice vectors of crystal cell."""
-        self.__cell = cell
+        if isinstance(cell, list): self.__cell = cell
+        else: print 'Invalide Type of lattice vector: %s. Must be list instead!'%(type(cell))
         
         
     def get_cell(self):
@@ -73,7 +79,8 @@ class ElAtoms(Distort, Sgroup, POS, PrettyMatrix):
         natom : integer
             Supercell size.
         """
-        self.__natom = natom
+        if isinstance(natom, int): self.__natom = natom
+        else: print 'Number of atoms is invalid type: %s. Must be integer instead!'%(type(natom))
         
     def get_natom(self):
         return self.__natom
@@ -86,18 +93,19 @@ class ElAtoms(Distort, Sgroup, POS, PrettyMatrix):
         scale : float
             Unit cell scaling.
         """
-        self.__scale = scale
+        if isinstance(scale, float) or isinstance(scale, list): self.__scale = scale
+        else: print 'Scale is of invalid type: %s. Must be float (or list of float values) instead!'%(type(scale))
         
     def get_scale(self):
         return self.__scale
     
     def set_species(self,species):
-        """Set atoms species.
+        """Set basis vectors.
         
         Parameters
         ----------
-        species : string
-            Atom species
+        species : list
+            Basis vectors
         """
         self.__species = species
     
@@ -150,6 +158,7 @@ class ElAtoms(Distort, Sgroup, POS, PrettyMatrix):
         poscar : dictionary
             POSCAR file converted to dictionary.
         """
+        if self.__verbose: print 'Converting dictionary to atoms object ....'
         self.__poscar = poscar
         self.__cell = np.array([self.__poscar['vlatt_1'],self.__poscar['vlatt_2'],self.__poscar['vlatt_3']])
         self.__natom = self.__poscar['natoms']
@@ -252,12 +261,13 @@ class Structures(ElAtoms, Sgroup, POS):
         workdir : string
             Working directory.
         """
-        self.__workdir = workdir
+        if os.path.isdir(workdir): self.__workdir = workdir
+        else: "Directory '%s' does not exist!"%workdir
         
     def get_workdir(self):
         return self.__workdir
         
-    def write_structures(self, strkt):
+    def write_structures(self, strkt, overwrite=True):
         """Generate a file structure and write all input files for vasp. 
         
         Filestructure:
@@ -272,6 +282,16 @@ class Structures(ElAtoms, Sgroup, POS):
                 * eta2
                 * ...
             * ...
+            
+        Parameters
+        ----------
+        strkt : object
+            Structures object to be written to structures.pkl
+        
+        Keyword arguments
+        -----------------
+        overwrite : boolean
+            Specify if existing files should be overwritten (default=True)
         """
         dirnames = []
         os.chdir(self.__workdir)
@@ -280,14 +300,19 @@ class Structures(ElAtoms, Sgroup, POS):
                 if not atoms[0] in dirnames: os.mkdir(atoms[0]) 
                 os.mkdir('%s/%s'%(atoms[0],atoms[1]))
             except:
-                print 'dir exists'
+                print "Directory '%s/%s' already exists."%(atoms[0],atoms[1])
             dirnames.append(atoms[0])
             fname = '%s/%s'%(atoms[0],atoms[1])
             self.__fnames.append(fname)
-            os.system('cp KPOINTS %s/%s/KPOINTS'%(atoms[0],atoms[1]))
-            os.system('cp INCAR %s/%s/INCAR'%(atoms[0],atoms[1]))
-            os.system('cp POTCAR %s/%s/POTCAR'%(atoms[0],atoms[1]))
-            POS().write_pos(self.__structures[atoms].poscarnew, fname+'/POSCAR')
+            
+            if not os.path.isfile("%s/%s/KPOINTS"%(atoms[0],atoms[1])) or overwrite: os.system('cp KPOINTS %s/%s/KPOINTS'%(atoms[0],atoms[1]))
+            else: print "%s/%s/KPOINTS already existing: overwrite = False"%(atoms[0],atoms[1])
+            if not os.path.isfile("%s/%s/INCAR"%(atoms[0],atoms[1]))   or overwrite: os.system('cp INCAR %s/%s/INCAR'%(atoms[0],atoms[1]))
+            else: print "%s/%s/INCAR   already existing: overwrite = False"%(atoms[0],atoms[1])
+            if not os.path.isfile("%s/%s/POTCAR"%(atoms[0],atoms[1]))  or overwrite: os.system('cp POTCAR %s/%s/POTCAR'%(atoms[0],atoms[1]))
+            else: print "%s/%s/POTCAR  already existing: overwrite = False"%(atoms[0],atoms[1])
+            if not os.path.isfile(fname+'/POSCAR')                     or overwrite: POS().write_pos(self.__structures[atoms].poscarnew, fname+'/POSCAR')
+            else: print "%s/%s/POSCAR  already existing: overwrite = False"%(atoms[0],atoms[1])
             self.__structures[atoms].path = self.__workdir + fname
             obj = self.__structures[atoms]
             
@@ -305,22 +330,45 @@ class Structures(ElAtoms, Sgroup, POS):
         ----------
         executable : string 
             Location of vasp executable (e.g. /home/user/bin/vasp)
-        ."""
-        self.__executable = executable
+        """
+        
+        if os.path.isfile(executable): self.__executable = executable
+        else: "Wrong path to executable '%s'"%executable
         
     def get_executable(self):
         return self.__executable
     
     
-    def calc_vasp(self):
-        """Perform local vasp calculations."""
+    def calc_vasp(self,lock=None, overwrite = True):
+        """Perform local vasp calculations.
+        
+        Keyword arguments
+        -----------------
+        lock : object 
+            thread locker object (default=None)
+        overwrite : boolean
+            Specify if existing files should be overwritten (default=True)
+        """
+        
         for atoms in self.__structures:
             
             fname = '%s/%s'%(atoms[0],atoms[1])
             self.__fnames.append(fname)
             os.chdir('%s/%s/'%(atoms[0],atoms[1]))
-            os.system(self.__executable)
+            string = "# Starting vasp calculation for %s/%s ......... #"%(atoms[0],atoms[1])
+            n = len(string)
+            
+            print "\n"+ n*'#'
+            print string
+            print n*'#' + "\n"
+            if not lock==None: lock.acquire()
+            sp = Popen([self.__executable])
+            sp.communicate()
+            time.sleep(0.01)
+            if not lock==None: lock.release()
+            
             os.chdir('../../')
+        
         
     def append_structure(self, atoms):
         """Append structure to Structures object to create a set of distorted structures.
@@ -351,7 +399,12 @@ class Structures(ElAtoms, Sgroup, POS):
         """Return dictionary with all structures."""
         return self.__structures
     
-    
+    def status(self):
+        state = Check()
+        state.workdir = self.__workdir
+        self.__status = state.check_calc()
+        return self.__status
+        
     executable    = property( fget = get_executable        , fset = set_executable)
     workdir = property( fget = get_workdir        , fset = set_workdir)
     
