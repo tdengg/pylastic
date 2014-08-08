@@ -30,6 +30,7 @@ class Energy(object):
         self.__energy = energy
         self.__Cij2nd  = {}
         self.__CV = []
+        self.__rms = []
         
         
         
@@ -54,11 +55,28 @@ class Energy(object):
             
             self.__Cij2nd[str(emax)]  = coeffs[fitorder-2]*self.__CONV/self.__V0         # in GPa units 
             
+            """  Calculate RMS:  """
+            deltasq = 0
+            deltas = []
+            
+            poly = np.poly1d(coeffs)
+            
+            for i in range(len(energy)):
+                delta = energy[i] - poly(strain[i])
+                deltas.append(delta)
+                deltasq += (delta)**2.0
+                
+            self.__rms.append(np.sqrt(deltasq/len(strain)))
+            
+            
             if (abs(strain[0]+emax) < 1.e-7):
                 strain.pop(0); energy.pop(0)
             if (abs(strain[len(strain)-1]-emax) < 1.e-7):
                 strain.pop()
                 energy.pop()
+                
+    def get_rms(self):
+        return self.__rms
         
     def get_2nd(self):
         return self.__Cij2nd
@@ -85,11 +103,25 @@ class Energy(object):
             coeffs= np.polyfit(strain, energy, fitorder)
             self.__Cij3rd  = coeffs[fitorder-3]*self.__CONV/self.__V0 * 0.001 # in TPa units
             
+            """  Calculate RMS:  """
+            deltasq = 0
+            deltas = []
+            
+            poly = np.poly1d(coeffs)
+            
+            for i in range(len(energy)):
+                delta = energy[i] - poly(strain[i])
+                deltas.append(delta)
+                deltasq += (delta)**2.0
+                
+            self.__rms.append(np.sqrt(deltasq/len(strain)))
+            
             if (abs(strain[0]+emax) < 1.e-7):
                 strain.pop(0); energy.pop(0)
             if (abs(strain[len(strain)-1]-emax) < 1.e-7):
                 strain.pop()
                 energy.pop()
+                
         
     def get_3rd(self):
         return self.__Cij3rd

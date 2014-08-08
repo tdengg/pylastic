@@ -64,7 +64,7 @@ class ECs(Check, FileStructure):
         self.__structures = None
         self.__cod = 'vasp'
         self.__fitorder = 4
-        self.__etacalc = '0.04'
+        self.__etacalc = None
         self.__workdir = './'
         #%%%%%%%%--- CONSTANTS ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         _e     = 1.602176565e-19              # elementary charge
@@ -160,7 +160,7 @@ class ECs(Check, FileStructure):
             #plt.subplot(int(spl))
             #ans.plot_energy()
             n+=1
-        
+        if not self.__etacalc: self.__etacalc = str(strain[-1])
         self.set_C(self.__etacalc)
         #plt.show()
     
@@ -283,6 +283,7 @@ class ECs(Check, FileStructure):
         C = np.zeros((6,6))
         
         LC = self.__structures.items()[0][1].LC
+        
         if not etacalc in self.__A2[0].keys(): raise ValueError('Please coose one of %s'%(self.__A2[0].keys()))
         A2 = [a2[etacalc] for a2 in self.__A2]
         
