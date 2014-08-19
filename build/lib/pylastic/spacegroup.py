@@ -1,5 +1,5 @@
 import sys
-from pylastic.vaspIO import POS
+from pylastic.io.vasp import POS
 import os
 
 

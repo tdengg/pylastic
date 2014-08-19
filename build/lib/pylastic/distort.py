@@ -40,7 +40,7 @@ class Distort(object):
     def __init__(self, volumeconserving = False, mthd = 'Energy', order = 2):
         self.__eta = 0.05
         self.volumeconserving = volumeconserving
-        self.mthd = mthd
+        self.__mthd = mthd
         self.order = order
         self.__V0 = None
         
@@ -209,8 +209,8 @@ class Distort(object):
         if not self.__strainType: self.set_strainType()
         
         if (self.__eta==0.):
-            if (self.mthd == 'Energy'): self.__eta = 0.0001
-            if (self.mthd == 'Stress'): self.__eta = 0.00001
+            if (self.__mthd == 'Energy'): self.__eta = 0.0001
+            if (self.__mthd == 'Stress'): self.__eta = 0.00001
 
         Ls = np.zeros(6)
         for j in range(6):
@@ -318,7 +318,7 @@ class Distort(object):
             if (self.order == 3): ECs =  6
         else: sys.exit('\n     ... Oops ERROR: WRONG Space-Group Number !?!?!?    \n')
         
-        if (self.mthd == 'Energy'):
+        if (self.__mthd == 'Energy'):
             if (self.order == 2):
                 if (LC == 'CI' or \
                     LC == 'CII'):
@@ -366,7 +366,7 @@ class Distort(object):
                 if (LC == 'N'):
                     sys.exit('\n     ... Oops SORRY: Not implemented yet. \n')
         
-        if (self.mthd == 'Stress'):
+        if (self.__mthd == 'Stress'):
             if (self.order == 2):
                 if (LC == 'CI' or \
                     LC == 'CII'):
@@ -448,7 +448,7 @@ class Distort(object):
             
             print "eta : ",self.__eta
             print "volumeconserving : ",self.volumeconserving
-            print "mthd : ",self.mthd
+            print "mthd : ",self.__mthd
             print "order : ",self.order
             print "sgn : ",self.__sgn
             print "strainType : ",self.__strainType
@@ -456,7 +456,14 @@ class Distort(object):
             print "eta : ",self.__Lag_strain_list
         return {'eta':self.__eta, 'volumeconserving':self.volumeconserving, 'method':self.mthd, 'order':self.order, 'spacegroup':self.__sgn, 'strain_type':self.__strainType, 'path':os.getcwd(), 'V0':self.__V0}
         
-        
+    
+    def set_method(self, mthd):
+        if mthd in ['Energy','Stress']: self.__mthd = mthd
+        else: print "Wrong value for method: Please choose either 'Energy' or 'Stress'!"
+    
+    def get_method(self):
+        return self.__mthd
+    
     # object properties definition
     strainList      = property(fget = get_strainList      , fset= set_strainList)
     #strainList_iter = property(fget = get_strainList_iter , fset= set_strainList)
@@ -465,6 +472,7 @@ class Distort(object):
     sgn             = property(fget = get_sgn             , fset= set_sgn       )
     eta             = property(fget = get_eta             , fset= set_eta       )
     LC = property(fget = get_LC             , fset= set_LC       )
+    mthd = property( fget = get_method       , fset = set_method)
     
 class NECs(object):
     def __init__(self, SGN):

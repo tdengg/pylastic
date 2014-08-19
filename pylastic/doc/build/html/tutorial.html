@@ -112,6 +112,53 @@
 </pre></div>
 </div>
 </div>
+<div class="section" id="starting-local-calculations-using-vasp">
+<h2>Starting local calculations using VASP<a class="headerlink" href="#starting-local-calculations-using-vasp" title="Permalink to this headline">¶</a></h2>
+<p>To start electronic structure calculations for all collected structures one has first to specify the location of the VASP binary:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">structures</span><span class="o">.</span><span class="n">executable</span> <span class="o">=</span> <span class="s">&#39;/home/t.dengg/bin/vasp/vasp.5.3/vasp&#39;</span>
+</pre></div>
+</div>
+<p>The calculations are started after calling the method:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">structures</span><span class="o">.</span><span class="n">calc_vasp</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="postprocessing">
+<h2>Postprocessing<a class="headerlink" href="#postprocessing" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pylastic.elatoms</span> <span class="kn">import</span> <span class="n">Structures</span><span class="p">,</span> <span class="n">ElAtoms</span>
+<span class="kn">from</span> <span class="nn">pylastic.postprocess</span> <span class="kn">import</span> <span class="n">ECs</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+</pre></div>
+</div>
+<p>First import the structures object:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">ec</span> <span class="o">=</span> <span class="n">ECs</span><span class="p">()</span>
+<span class="n">ec</span><span class="o">.</span><span class="n">set_structures</span><span class="p">()</span>
+<span class="n">ec</span><span class="o">.</span><span class="n">set_gsenergy</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The groundstate energy of each calculation is read and passed to the <em>ECs</em> instance as attribute.
+To get 2nd order derivatives of the energy and the Cross-Validation-Score (CVS) for all distortions the <em>set_analytics</em> method is called:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">ec</span><span class="o">.</span><span class="n">set_analytics</span><span class="p">()</span>
+
+<span class="k">print</span> <span class="n">ec</span><span class="o">.</span><span class="n">get_CVS</span><span class="p">()</span>
+<span class="k">print</span> <span class="n">ec</span><span class="o">.</span><span class="n">get_rms</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>For plotting matplotlib package is used. In order to plot the CVS and second energy derivative one has to call the methods <em>plot_cvs</em> and <em>plot_2nd</em> respectively. Matplotlib&#8217;s <em>show</em> makes the figures appear on the screen:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+
+<span class="n">ec</span><span class="o">.</span><span class="n">plot_cvs</span><span class="p">()</span>
+<span class="n">ec</span><span class="o">.</span><span class="n">plot_2nd</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Finally the elastic constants are computed for a specific maximal lagrangian strain given as argument and printed to standard output:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">ec</span><span class="o">.</span><span class="n">set_ec</span><span class="p">(</span><span class="s">&#39;0.05&#39;</span><span class="p">)</span>
+<span class="k">print</span> <span class="n">ec</span><span class="o">.</span><span class="n">get_ec</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
 </div>
 
 
@@ -127,6 +174,8 @@
 <li><a class="reference internal" href="#creating-atoms-class-objects-from-vasp-poscar">Creating atoms class objects from vasp POSCAR</a></li>
 <li><a class="reference internal" href="#distorting-the-atoms-object">Distorting the atoms object</a></li>
 <li><a class="reference internal" href="#the-structures-class">The structures class</a></li>
+<li><a class="reference internal" href="#starting-local-calculations-using-vasp">Starting local calculations using VASP</a></li>
+<li><a class="reference internal" href="#postprocessing">Postprocessing</a></li>
 </ul>
 </li>
 </ul>

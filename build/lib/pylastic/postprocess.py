@@ -51,13 +51,14 @@ class ECs_old(object):
     def get_CVS(self):
         return self.__CVS
             
-class ECs(Check, FileStructure):
+class ECs(Check, FileStructure, Energy):
     """Calculate elastic constants, CVS calculation, post-processing."""
     
     def __init__(self):
         
         super(Check, self).__init__()
         super(FileStructure, self).__init__()
+        super(ECs, self).__init__()
         
         self.__CVS = []
         self.__V0 = None
@@ -65,6 +66,7 @@ class ECs(Check, FileStructure):
         self.__cod = 'vasp'
         self.__fitorder = 4
         self.__etacalc = None
+        self.__rms = []
         self.__workdir = './'
         #%%%%%%%%--- CONSTANTS ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         _e     = 1.602176565e-19              # elementary charge
@@ -150,23 +152,31 @@ class ECs(Check, FileStructure):
             energy = [i.gsenergy for i in atoms]
             strain = [i.eta for i in atoms]
             
-            ans = Energy(strain,energy,self.__V0)
+            ans = Energy()
+            ans.energy = energy
+            ans.strain = strain
+            ans.V0 = self.__V0
+            
             ans.set_2nd(self.__fitorder)
             ans.set_cvs(self.__fitorder)
+            self.__rms.append(ans.get_r())
             self.__CVS.append(ans.get_cvs())
             self.__A2.append(ans.get_2nd())
             
             #spl = str(len(strainList))+'1'+str(n)
             #plt.subplot(int(spl))
-            #ans.plot_energy()
+            ans.plot_energy()
             n+=1
         if not self.__etacalc: self.__etacalc = str(strain[-1])
-        self.set_C(self.__etacalc)
+        self.set_ec(self.__etacalc)
         #plt.show()
+    
+    def get_rms(self):
+        return self.__rms
     
     def get_CVS(self):
         return self.__CVS
-        
+    
     def plot_cvs(self):
         """Returns matplotlib axis instance of cross validation score plot."""
         f = plt.figure(figsize=(5,4), dpi=100)
@@ -186,7 +196,11 @@ class ECs(Check, FileStructure):
             a = f.add_subplot(int(spl))
             j = 1
             for i in [2,4,6]:
-                ans = Energy(strain,energy,self.__V0)
+                ans = Energy()
+                ans.energy = energy
+                ans.strain = strain
+                ans.V0 = self.__V0
+                
                 self.__fitorder = i
                 ans.set_cvs(self.__fitorder)
                 CVS.append(ans.get_cvs())
@@ -194,7 +208,7 @@ class ECs(Check, FileStructure):
                 a.plot([cvs[1] for cvs in CVS[(n-1)*3+j-1]],[cvs[0] for cvs in CVS[(n-1)*3+j-1]], label=str(self.__fitorder))
                 a.set_title(stype)
                 a.set_xlabel('strain')
-                a.set_ylabel('CVS')
+                a.set_ylabel('CVS    in eV')
                 
                 j+=1
             
@@ -224,7 +238,11 @@ class ECs(Check, FileStructure):
             
             j = 0
             for i in [2,4,6]:
-                ans = Energy(strain,energy,self.__V0)
+                ans = Energy()
+                ans.energy = energy
+                ans.strain = strain
+                ans.V0 = self.__V0
+                
                 self.__fitorder = i
                 ans.set_2nd(self.__fitorder)
                 A2.append(ans.get_2nd())
@@ -234,7 +252,7 @@ class ECs(Check, FileStructure):
                 a.plot(strains, dE, label=str(self.__fitorder))
                 a.set_title(stype)
                 a.set_xlabel('strain')
-                a.set_ylabel('dE')
+                a.set_ylabel(r'$\frac{d^2E}{d\epsilon^2}$    in eV')
                 
                 j+=1
             
@@ -270,7 +288,7 @@ class ECs(Check, FileStructure):
     def get_fitorder(self):
         return self.__fitorder
     
-    def set_C(self, etacalc):
+    def set_ec(self, etacalc):                                           #--> set_ec!
         """Evaluate elastic constants from polynomials.
         
         Parameters
@@ -456,7 +474,7 @@ class ECs(Check, FileStructure):
         #--------------------------------------------------------------------------------------------------------------------------------
         self.__C = C
         
-    def get_C(self):
+    def get_ec(self):
         return self.__C
     
     def status(self):
@@ -472,7 +490,7 @@ class ECs(Check, FileStructure):
     structures    = property( fget = get_structures         , fset = set_structures    )
     fitorder    = property( fget = get_fitorder        , fset = set_fitorder    )
     etacalc    = property( fget = get_etacalc        , fset = set_etacalc    )
-    C = property( fget = get_C        , fset = set_C    )
+    ec = property( fget = get_ec        , fset = set_ec    )
     gsenergy = property( fget = get_gsenergy        , fset = set_gsenergy    )
     
     

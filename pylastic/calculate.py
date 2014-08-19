@@ -1,6 +1,6 @@
 import numpy as np
 from elatoms import Structures, ElAtoms
-from vaspIO import POS
+from pylastic.io.vasp import POS
 
 NoP = 11
 etamax = 0.05

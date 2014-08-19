@@ -19,6 +19,6 @@ setup(name='pylastic',
       author='Thomas Dengg',
       author_email='thomas.dengg@mcl.at',
       license='LGPL',
-      packages=['pylastic'],
+      packages=['pylastic','pylastic.io'],
       install_requires=['numpy','lxml','matplotlib','json'],
       zip_safe=False)

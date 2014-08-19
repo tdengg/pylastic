@@ -10,7 +10,7 @@ import numpy as np
 
 from pylastic.distort import Distort
 from pylastic.spacegroup import Sgroup
-from pylastic.vaspIO import POS
+from pylastic.io.vasp import POS
 from pylastic.prettyPrint import PrettyMatrix
 from pylastic.status import Check
 
@@ -62,6 +62,9 @@ class ElAtoms(Distort, Sgroup, POS, PrettyMatrix, Check):
         self.__V0 = None
         self.__verbose = True
         
+        self.__mthd = 'Energy'
+        
+        
     def set_cell(self, cell):
         """Set lattice vectors of crystal cell."""
         if isinstance(cell, list): self.__cell = cell
@@ -70,6 +73,7 @@ class ElAtoms(Distort, Sgroup, POS, PrettyMatrix, Check):
         
     def get_cell(self):
         return self.__cell
+    
     
     def set_natom(self, natom):
         """Set number of atoms in supercell.
@@ -85,6 +89,7 @@ class ElAtoms(Distort, Sgroup, POS, PrettyMatrix, Check):
     def get_natom(self):
         return self.__natom
     
+    
     def set_scale(self, scale):
         """Set scaling factor for cell vectors
         
@@ -99,6 +104,7 @@ class ElAtoms(Distort, Sgroup, POS, PrettyMatrix, Check):
     def get_scale(self):
         return self.__scale
     
+    
     def set_species(self,species):
         """Set basis vectors.
         
@@ -111,6 +117,7 @@ class ElAtoms(Distort, Sgroup, POS, PrettyMatrix, Check):
     
     def get_species(self):
         return self.__species
+    
     
     def set_path(self, path):
         """Set path to the calculations sub-directory.
@@ -125,6 +132,7 @@ class ElAtoms(Distort, Sgroup, POS, PrettyMatrix, Check):
     def get_path(self):
         return self.__path
     
+    
     def distort(self, eta=0.0, strainType_index=0):
         """Distort structure and 
         
@@ -136,10 +144,9 @@ class ElAtoms(Distort, Sgroup, POS, PrettyMatrix, Check):
         strainType_index : integer
             List-index of strainType in strainList. 
         """
+        self.mthd = self.__mthd
         self.sgn = self.__sgn
-        
         self.strainType = self.get_strainList()[strainType_index]
-        
         self.eta = eta
         self.set_defMatrix()
         def_matrix = self.defMatrix
@@ -149,7 +156,11 @@ class ElAtoms(Distort, Sgroup, POS, PrettyMatrix, Check):
         self.__poscarnew['vlatt_1'] = self.__cell[0]
         self.__poscarnew['vlatt_2'] = self.__cell[1]
         self.__poscarnew['vlatt_3'] = self.__cell[2]
+    
+    
         
+    ### VASP
+    ### --->    
     def poscarToAtoms(self, poscar):
         """Set properties of poscar input to atoms object.
         
@@ -166,7 +177,6 @@ class ElAtoms(Distort, Sgroup, POS, PrettyMatrix, Check):
         self.__scale = self.__poscar['scale']
         D = np.linalg.det(self.__cell)
         self.__V0 = abs(self.__scale**3*D)
-        
         self.sgn = Sgroup(self.__poscar, self.__poscar['path']).sgn
         self.__sgn = self.sgn
     
@@ -179,7 +189,6 @@ class ElAtoms(Distort, Sgroup, POS, PrettyMatrix, Check):
         self.__poscar['natoms'] = self.__natom
         self.__poscar['vbasis'] = self.__species
         self.__poscar['scale'] = self.__scale
-        
         return self.__poscar
     
     def set_poscar(self, poscar):
@@ -195,6 +204,9 @@ class ElAtoms(Distort, Sgroup, POS, PrettyMatrix, Check):
         
     def get_poscarnew(self):
         return self.__poscarnew
+    ### <---
+    
+    
     
     def set_V0(self, V0):
         """Set equilibrium volume of supercell.
@@ -209,6 +221,7 @@ class ElAtoms(Distort, Sgroup, POS, PrettyMatrix, Check):
     def get_V0(self):
         return self.__V0
     
+    
     def set_gsenergy(self, gsenergy):
         """Give atoms object a groundstate energy.
         
@@ -222,6 +235,15 @@ class ElAtoms(Distort, Sgroup, POS, PrettyMatrix, Check):
     def get_gsenergy(self):
         return self.__gsenergy
     
+    
+    def set_method(self, mthd):
+        if mthd in ['Energy','Stress']: self.__mthd = mthd
+        else: print "Wrong value for method: Please choose either 'Energy' or 'Stress'!"
+    
+    def get_method(self):
+        return self.__mthd
+    
+    
     V0      = property( fget = get_V0       , fset = set_V0   )
     cell    = property( fget = get_cell         , fset = set_cell    )
     natom   = property( fget = get_natom        , fset = set_natom   )
@@ -231,6 +253,8 @@ class ElAtoms(Distort, Sgroup, POS, PrettyMatrix, Check):
     poscar  = property( fget = get_poscar       , fset = set_poscar  )
     poscarnew  = property( fget = get_poscarnew       , fset = set_poscarnew )
     gsenergy= property( fget = get_gsenergy     , fset = set_gsenergy)
+    mthd = property( fget = get_method       , fset = set_method)
+    
     
     
 class Structures(ElAtoms, Sgroup, POS):
@@ -380,6 +404,7 @@ class Structures(ElAtoms, Sgroup, POS):
         """
         self.__structures[(atoms.strainType,round(atoms.eta,3))]= atoms
         
+        
     def get_atomsByStraintype(self, strainType):
         """Returns a sorted list of structures with given strain-type.
         
@@ -399,6 +424,7 @@ class Structures(ElAtoms, Sgroup, POS):
         """Return dictionary with all structures."""
         return self.__structures
     
+    
     def status(self):
         state = Check()
         state.workdir = self.__workdir
@@ -407,6 +433,7 @@ class Structures(ElAtoms, Sgroup, POS):
         
     executable    = property( fget = get_executable        , fset = set_executable)
     workdir = property( fget = get_workdir        , fset = set_workdir)
+    
     
     
     

@@ -7,7 +7,7 @@ import json
 
 import distort
 import spacegroup
-import vaspIO
+import io.vasp
 
 class VASP(object):
     def __init__(self, eta=0.05, method='Energy', order=2, NoP=11, fname='POSCAR'):
@@ -19,7 +19,7 @@ class VASP(object):
         self.__paths = []
     
     def gen_filestruct(self):
-        o_poscar = vaspIO.POS(self.__fname)
+        o_poscar = io.vasp.POS(self.__fname)
         poscar = o_poscar.read_pos()                 # Generate sgroup.out from POSCAR file                    ###MOD
         
         
