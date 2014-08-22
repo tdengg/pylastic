@@ -10,11 +10,11 @@ import numpy as np
 
 from pylastic.distort import Distort
 from pylastic.spacegroup import Sgroup
-from pylastic.io.vasp import POS
+
 from pylastic.prettyPrint import PrettyMatrix
 from pylastic.status import Check
 
-class ElAtoms(Distort, Sgroup, POS, PrettyMatrix, Check):
+class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
     '''
     ASE Atoms like object.
      
@@ -61,7 +61,7 @@ class ElAtoms(Distort, Sgroup, POS, PrettyMatrix, Check):
         self.__executable = None
         self.__V0 = None
         self.__verbose = True
-        
+        self.__code = 'espresso'
         self.__mthd = 'Energy'
         
         
@@ -177,7 +177,8 @@ class ElAtoms(Distort, Sgroup, POS, PrettyMatrix, Check):
         self.__scale = self.__poscar['scale']
         D = np.linalg.det(self.__cell)
         self.__V0 = abs(self.__scale**3*D)
-        self.sgn = Sgroup(self.__poscar, self.__poscar['path']).sgn
+        if self.__code=='vasp': self.sgn = Sgroup(self.__poscar, self.__poscar['path']).sgn
+        else: self.sgn = self.__poscar['sgn']
         self.__sgn = self.sgn
     
     def atomsToPoscar(self):
@@ -243,6 +244,16 @@ class ElAtoms(Distort, Sgroup, POS, PrettyMatrix, Check):
     def get_method(self):
         return self.__mthd
     
+    def set_code(self, code):
+        if code in ['vasp','exciting','espresso']:
+            self.__code = code
+        else:
+            print "Unknown code '%s'. Please choose either espresso, exciting or vasp"%code
+            
+    def get_code(self):
+        return self.__code
+
+    
     
     V0      = property( fget = get_V0       , fset = set_V0   )
     cell    = property( fget = get_cell         , fset = set_cell    )
@@ -254,10 +265,10 @@ class ElAtoms(Distort, Sgroup, POS, PrettyMatrix, Check):
     poscarnew  = property( fget = get_poscarnew       , fset = set_poscarnew )
     gsenergy= property( fget = get_gsenergy     , fset = set_gsenergy)
     mthd = property( fget = get_method       , fset = set_method)
+    code = property( fget = get_code       , fset = set_code)
     
     
-    
-class Structures(ElAtoms, Sgroup, POS):
+class Structures(ElAtoms, Sgroup):
     """Generate a series of distorted structures.
     
     """
@@ -266,6 +277,7 @@ class Structures(ElAtoms, Sgroup, POS):
         self.__structures = {}
         self.__fnames = []
         self.__workdir = './'
+        self.__code = 'vasp'
         
     def set_fname(self, fnames):
         """Set absolute path to calculations sub-directory.
@@ -329,14 +341,35 @@ class Structures(ElAtoms, Sgroup, POS):
             fname = '%s/%s'%(atoms[0],atoms[1])
             self.__fnames.append(fname)
             
-            if not os.path.isfile("%s/%s/KPOINTS"%(atoms[0],atoms[1])) or overwrite: os.system('cp KPOINTS %s/%s/KPOINTS'%(atoms[0],atoms[1]))
-            else: print "%s/%s/KPOINTS already existing: overwrite = False"%(atoms[0],atoms[1])
-            if not os.path.isfile("%s/%s/INCAR"%(atoms[0],atoms[1]))   or overwrite: os.system('cp INCAR %s/%s/INCAR'%(atoms[0],atoms[1]))
-            else: print "%s/%s/INCAR   already existing: overwrite = False"%(atoms[0],atoms[1])
-            if not os.path.isfile("%s/%s/POTCAR"%(atoms[0],atoms[1]))  or overwrite: os.system('cp POTCAR %s/%s/POTCAR'%(atoms[0],atoms[1]))
-            else: print "%s/%s/POTCAR  already existing: overwrite = False"%(atoms[0],atoms[1])
-            if not os.path.isfile(fname+'/POSCAR')                     or overwrite: POS().write_pos(self.__structures[atoms].poscarnew, fname+'/POSCAR')
-            else: print "%s/%s/POSCAR  already existing: overwrite = False"%(atoms[0],atoms[1])
+            ##### VASP #####
+            if self.__code=='vasp':
+                from pylastic.io.vasp import POS
+                if not os.path.isfile("%s/%s/KPOINTS"%(atoms[0],atoms[1])) or overwrite: os.system('cp KPOINTS %s/%s/KPOINTS'%(atoms[0],atoms[1]))
+                else: print "%s/%s/KPOINTS already existing: overwrite = False"%(atoms[0],atoms[1])
+                if not os.path.isfile("%s/%s/INCAR"%(atoms[0],atoms[1]))   or overwrite: os.system('cp INCAR %s/%s/INCAR'%(atoms[0],atoms[1]))
+                else: print "%s/%s/INCAR   already existing: overwrite = False"%(atoms[0],atoms[1])
+                if not os.path.isfile("%s/%s/POTCAR"%(atoms[0],atoms[1]))  or overwrite: os.system('cp POTCAR %s/%s/POTCAR'%(atoms[0],atoms[1]))
+                else: print "%s/%s/POTCAR  already existing: overwrite = False"%(atoms[0],atoms[1])
+                if not os.path.isfile(fname+'/POSCAR')                     or overwrite: POS().write_pos(self.__structures[atoms].poscarnew, fname+'/POSCAR')
+                else: print "%s/%s/POSCAR  already existing: overwrite = False"%(atoms[0],atoms[1])
+            ################
+            
+            
+            ### ESPRESSO ###
+            if self.__code=='espresso':
+                from pylastic.io.espresso import POS
+                if not os.path.isfile(fname+'/ElaStic_PW.in') or overwrite: POS('ElaStic_PW.in').write_in(self.__structures[atoms].poscarnew, fname+'/ElaStic_PW.in')
+                else: print "%s/%s/ElaStic_PW.in  already existing: overwrite = False"%(atoms[0],atoms[1])
+            ################
+            
+            
+            ### EXCITING ###
+            if self.__code=='exciting':
+                from pylastic.io.exciting import INPUT
+                if not os.path.isfile(fname+'/input.xml') or overwrite: INPUT('input.xml').write_in(self.__structures[atoms].poscarnew, fname+'/input.xml')
+                else: print "%s/%s/input.xml already existing: overwrite = False"%(atoms[0],atoms[1])
+            ################
+            
             self.__structures[atoms].path = self.__workdir + fname
             obj = self.__structures[atoms]
             
@@ -424,6 +457,15 @@ class Structures(ElAtoms, Sgroup, POS):
         """Return dictionary with all structures."""
         return self.__structures
     
+    def set_code(self, code):
+        if code in ['vasp','exciting','espresso']:
+            self.__code = code
+        else:
+            print "Unknown code '%s'. Please choose either espresso, exciting or vasp"%code
+            
+    def get_code(self):
+        return self.__code
+    
     
     def status(self):
         state = Check()
@@ -433,6 +475,7 @@ class Structures(ElAtoms, Sgroup, POS):
         
     executable    = property( fget = get_executable        , fset = set_executable)
     workdir = property( fget = get_workdir        , fset = set_workdir)
+    code = property( fget = get_code       , fset = set_code)
     
     
     

@@ -92,11 +92,11 @@
 </div>
 <div class="section" id="distorting-the-atoms-object">
 <h2>Distorting the atoms object<a class="headerlink" href="#distorting-the-atoms-object" title="Permalink to this headline">¶</a></h2>
-<p>Once an atoms object is created one can make distortions by using the distort() method on it:</p>
+<p>Once an atoms object is created one can make distortions by using the <em>distort</em> method on it:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">atom</span><span class="o">.</span><span class="n">distort</span><span class="p">(</span><span class="n">eta</span><span class="p">,</span> <span class="n">strainType</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>where the arguments eta and strainType are the strain and the type of deformation. The number of deformation types is determined by the crystal symmetry of the parent lattice.</p>
+<p>where the arguments <cite>eta</cite> and <cite>strainType</cite> are the lagrangian strain and the type of deformation respectively. The number of deformation types is determined by the crystal symmetry of the parent lattice.</p>
 <p>To list all possible deformation types do</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">atom</span><span class="o">.</span><span class="n">strainList</span>
 </pre></div>
@@ -125,27 +125,28 @@
 </div>
 <div class="section" id="postprocessing">
 <h2>Postprocessing<a class="headerlink" href="#postprocessing" title="Permalink to this headline">¶</a></h2>
+<p>The following section describes how to proceed when DFT calculations have finished. The necessary module imports for the following steps are:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pylastic.elatoms</span> <span class="kn">import</span> <span class="n">Structures</span><span class="p">,</span> <span class="n">ElAtoms</span>
 <span class="kn">from</span> <span class="nn">pylastic.postprocess</span> <span class="kn">import</span> <span class="n">ECs</span>
 
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
 </pre></div>
 </div>
-<p>First import the structures object:</p>
+<p>First import the structures object previously generated when setting up the calculation by calling <tt class="docutils literal"><span class="pre">set_structures</span></tt>:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">ec</span> <span class="o">=</span> <span class="n">ECs</span><span class="p">()</span>
 <span class="n">ec</span><span class="o">.</span><span class="n">set_structures</span><span class="p">()</span>
 <span class="n">ec</span><span class="o">.</span><span class="n">set_gsenergy</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>The groundstate energy of each calculation is read and passed to the <em>ECs</em> instance as attribute.
-To get 2nd order derivatives of the energy and the Cross-Validation-Score (CVS) for all distortions the <em>set_analytics</em> method is called:</p>
+<p>With <tt class="docutils literal"><span class="pre">set_gsenergy</span></tt> the groundstate energy of each calculation is read and passed to the <tt class="docutils literal"><span class="pre">ECs</span></tt> instance as attribute.
+To get 2nd order derivatives of the energy and the Cross-Validation-Score (CVS) for all distortions the <tt class="docutils literal"><span class="pre">set_analytics</span></tt> method is called:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">ec</span><span class="o">.</span><span class="n">set_analytics</span><span class="p">()</span>
 
 <span class="k">print</span> <span class="n">ec</span><span class="o">.</span><span class="n">get_CVS</span><span class="p">()</span>
 <span class="k">print</span> <span class="n">ec</span><span class="o">.</span><span class="n">get_rms</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>For plotting matplotlib package is used. In order to plot the CVS and second energy derivative one has to call the methods <em>plot_cvs</em> and <em>plot_2nd</em> respectively. Matplotlib&#8217;s <em>show</em> makes the figures appear on the screen:</p>
+<p>For plotting matplotlib package is used. In order to plot the CVS and second energy derivative one has to call the methods <tt class="docutils literal"><span class="pre">plot_cvs</span></tt> and <tt class="docutils literal"><span class="pre">plot_2nd</span></tt> respectively. Matplotlib&#8217;s <tt class="docutils literal"><span class="pre">show</span></tt> makes the figures appear on screen:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
 
 <span class="n">ec</span><span class="o">.</span><span class="n">plot_cvs</span><span class="p">()</span>
@@ -153,7 +154,7 @@ To get 2nd order derivatives of the energy and the Cross-Validation-Score (CVS) 
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>Finally the elastic constants are computed for a specific maximal lagrangian strain given as argument and printed to standard output:</p>
+<p>Finally the elastic constants are computed for a specific maximal lagrangian strain, given as argument and printed to standard output:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">ec</span><span class="o">.</span><span class="n">set_ec</span><span class="p">(</span><span class="s">&#39;0.05&#39;</span><span class="p">)</span>
 <span class="k">print</span> <span class="n">ec</span><span class="o">.</span><span class="n">get_ec</span><span class="p">()</span>
 </pre></div>

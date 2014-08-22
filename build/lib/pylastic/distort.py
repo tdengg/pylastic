@@ -259,7 +259,7 @@ class Distort(object):
         return self.__defMatrix
     
     def set_strainList(self):
-        """finds list of deformation types for specific crystal symmetry"""
+        """Finds list of deformation types for specific crystal symmetry"""
         SGN = self.__sgn
         if not SGN: raise AttributeError("Please set the spacegroup number (e.g. yourinstance.sgn = 230) of the structure")
         if (1 <= SGN and SGN <= 2):      # Triclinic
