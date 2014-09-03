@@ -14,6 +14,7 @@ class Check(FileStructure):
         self.__starus = None
         self.__structuresinst = None
         self.__workdir = './'
+        self.__cod = 'vasp'
         
         
     
@@ -47,14 +48,16 @@ class Check(FileStructure):
         
         for stype, eta in atoms:
             self.__status[(stype,eta)] = {}
-            try:
-                et.parse(atoms[(stype,eta)].path+'/vasprun.xml')
-                self.__status[(stype,eta)]['status'] = 'finished'
-                atoms[(stype,eta)].status = True
-            except:
-                self.__status[(stype,eta)]['status'] = '--------'
-                atoms[(stype,eta)].status = False
+            if self.__cod == 'vasp':
+                try:
+                    et.parse(atoms[(stype,eta)].path+'/vasprun.xml')
+                    self.__status[(stype,eta)]['status'] = 'finished'
+                    atoms[(stype,eta)].status = True
+                except:
+                    self.__status[(stype,eta)]['status'] = '--------'
+                    atoms[(stype,eta)].status = False
             self.__status[(stype,eta)]['path'] = atoms[(stype,eta)].path
+        else: print 'Please specify dft code for check status.Check()!'
         
         self.__statusstring = FileStructure().dicToTree(self.__status)
         f = open('status', 'w')

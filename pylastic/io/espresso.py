@@ -698,7 +698,7 @@ class Energy():
         return self.__fname
     
 class Stress():
-    def __init__(self, fname = 'espresso.out'):
+    def __init__(self, fname = 'stress.dat'):
         self.__fname = fname
         self.__stress = None
         
@@ -707,8 +707,8 @@ class Stress():
             os.system("grep -A3 'total   stress  (Ry/bohr**' "+ self.__fname + \
                       " | tail -n 4 > stress.dat")
             sig = zeros((3,3))
-            if (os.path.getsize('stress.dat')!=0):
-                fstres = open('stress.dat','r')
+            if (os.path.getsize(self.__fname)!=0):
+                fstres = open(self.__fnames,'r')
 
                 l0 = fstres.readline()
                 l1 = fstres.readline()
@@ -739,7 +739,7 @@ class Stress():
                    
         
     def get_stress(self):
-        return self.__gsenergy
+        return self.__stress
     
     def set_fname(self,fname):
         self.__fname = fname

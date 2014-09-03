@@ -12,7 +12,7 @@ Two options are available for importing atoms positions from vasp POSCAR file:
 	
 	.. code-block:: python
 	
-		from pylastic.vaspIO import POS
+		from pylastic.io.vasp import POS
 		
 		poscar = POS('POSCAR').read_pos()
 
@@ -33,7 +33,7 @@ After importing the POSCAR file one can create an ASE like atoms object which ha
 .. code-block:: python
 	
 	from pylastic.elatoms import ElAtoms
-	from pylastic.vaspIO import POS
+	from pylastic.io.vasp import POS
 	
 	poscar = POS('POSCAR').read_pos()
 	atom = ElAtoms()
@@ -42,7 +42,7 @@ After importing the POSCAR file one can create an ASE like atoms object which ha
 Distorting the atoms object
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Once an atoms object is created one can make distortions by using the *distort* method on it:
+Once an atoms object is created one can make distortions by applying the *distort* method on it:
 
 .. code-block:: python
 	
@@ -124,7 +124,7 @@ For plotting matplotlib package is used. In order to plot the CVS and second ene
 	ec.plot_2nd()
 	plt.show()
 
-Finally the elastic constants are computed for a specific maximal lagrangian strain, given as argument and printed to standard output: 
+Finally the elastic constants are computed for a specific maximal lagrangian strain which is given as argument and printed to standard output: 
 
 .. code-block:: python
 	

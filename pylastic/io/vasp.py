@@ -1,4 +1,5 @@
 import numpy as np
+import lxml.etree as et
 import os
 
 class POS(object):
@@ -161,5 +162,54 @@ class POS(object):
 #                    f.write('Species_' + str(i+1) + '\n')
 #        else: print 'Basis vectors in Cartesian coordinates not supported yet!!! \n NOT WRITTEN TO sgroup.in!!!!!'
 #        f.close()
+
+
+class Energy():
+    """Get energies from espresso output file."""
+    def __init__(self, fname = 'erpresso.out'):
+        self.__fname = fname
+
+    def set_gsenergy(self):
+        for line in open(self.__fname,'r'):
+            if (line.find('!    total energy')>=0):
+                self.__gsenergy = float(line.split()[-2])
+        
+    def get_gsenergy(self):
+        return self.__gsenergy
+    
+    def set_fname(self,fname):
+        self.__fname = fname
+        
+    def get_fname(self):
+        return self.__fname
+    
+    fname = property( fget = get_fname        , fset = set_fname)
+    
+class Stress():
+    def __init__(self, fname = 'vasprun.xml'):
+        self.__fname = fname
+        self.__stress = None
+        
+    def set_stress(self):
+        if (os.path.exists(self.__fname)):
+            stress_m = []
+          
+            vaspout = et.parse(self.__fname)
+            stress_in = vaspout.xpath("//varray[@name = 'stress']/v")
+            for stress_i in stress_in: stress_m.append(map(float, (stress_i.text).split()))
+            self.__stress = stress_m
+                   
+        
+    def get_stress(self):
+        return self.__stress
+    
+    def set_fname(self,fname):
+        self.__fname = fname
+        
+    def get_fname(self):
+        return self.__fname
+    
+    fname = property( fget = get_fname        , fset = set_fname)
+    
     
 if __name__ == "__main__": POS('INCAR').read_in()

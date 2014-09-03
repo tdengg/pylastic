@@ -1,4 +1,5 @@
 import lxml.etree as et
+from pkg_resources import resource_filename
 import os
 
 class INPUT(object):
@@ -13,10 +14,17 @@ class INPUT(object):
     def read_in(self):
         
         #####       Generate spacegroup output       ######
-        os.system('xsltproc $ElaSticROOT/exciting2sgroup.xsl '+ self.__fname +' > sgroup.in')
+        path = resource_filename('pylastic', 'templates/exciting2sgroup.xsl')
+        print path
+        os.system('xsltproc %s '%path+ self.__fname +' > sgroup.in')
+        #os.system('sgroup sgroup.in 1>sgroup.out 2>sgroup.err')
+        #transform = et.XSLT(et.parse(resource_string('pylastic', 'templates/exciting2sgroup.xsl')))
+        #sgroup = transform(self.__fname)
+        #print sgroup
+        #f = open('sgroup.in','w')
+        #f.write(sgroup)
+        #f.close()
         os.system('sgroup sgroup.in 1>sgroup.out 2>sgroup.err')
-        
-        
         
         i_dict = {}
         i_dict['name'] = self.__doc.xpath('//title')[0].text
@@ -54,6 +62,11 @@ class INPUT(object):
     def write_in(self, i_dict, fileName):
         
         f   = open(fileName, 'w')
+        bsvct = self.__root.xpath('//crystal/basevect')
+        
+        bsvct[0].text = str(i_dict['vlatt_1'][0])+' '+str(i_dict['vlatt_1'][1])+' '+str(i_dict['vlatt_1'][2])
+        bsvct[1].text = str(i_dict['vlatt_2'][0])+' '+str(i_dict['vlatt_2'][1])+' '+str(i_dict['vlatt_2'][2])
+        bsvct[2].text = str(i_dict['vlatt_3'][0])+' '+str(i_dict['vlatt_3'][1])+' '+str(i_dict['vlatt_3'][2])
         f.write(et.tostring(self.__root, method  ='xml',
                                        pretty_print   =True ,
                                        xml_declaration=True ,
@@ -67,3 +80,23 @@ class INPUT(object):
     
     def write_sgroup(self):
         return
+    
+class Energy():
+    def __init__(self, fname='INFO.out'):
+        self.__fname = fname
+        self.__gsenergy = None
+        
+    def set_gsenergy(self):
+        for line in open(self.__fname, 'r'):
+            if (line.find(' total energy                :')>=0): 
+                self.__gsenergy = float(line.split()[-1])
+                
+    def get_gsenergy(self):
+        return self.__gsenergy
+    
+    def set_fname(self,fname):
+        self.__fname = fname
+        
+    def get_fname(self):
+        return self.__fname
+    

@@ -61,7 +61,7 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
         self.__executable = None
         self.__V0 = None
         self.__verbose = True
-        self.__code = 'espresso'
+        self.__code = 'vasp'
         self.__mthd = 'Energy'
         
         
@@ -245,10 +245,10 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
         return self.__mthd
     
     def set_code(self, code):
-        if code in ['vasp','exciting','espresso']:
+        if code in ['vasp','exciting','espresso','wien']:
             self.__code = code
         else:
-            print "Unknown code '%s'. Please choose either espresso, exciting or vasp"%code
+            print "Unknown code '%s'. Please choose either espresso, exciting, wien or vasp"%code
             
     def get_code(self):
         return self.__code
@@ -370,6 +370,13 @@ class Structures(ElAtoms, Sgroup):
                 else: print "%s/%s/input.xml already existing: overwrite = False"%(atoms[0],atoms[1])
             ################
             
+            ### WIEN2K ###
+            if self.__code=='wien':
+                from pylastic.io.wien import POS
+                if not os.path.isfile(fname+'/distorted_P.struct') or overwrite: POS('distorted').write_in(self.__structures[atoms].poscarnew, fname+'/wien.struct')
+                else: print "%s/%s/ already existing: overwrite = False"%(atoms[0],atoms[1])
+            
+            ################
             self.__structures[atoms].path = self.__workdir + fname
             obj = self.__structures[atoms]
             
@@ -458,10 +465,10 @@ class Structures(ElAtoms, Sgroup):
         return self.__structures
     
     def set_code(self, code):
-        if code in ['vasp','exciting','espresso']:
+        if code in ['vasp','exciting','espresso','wien']:
             self.__code = code
         else:
-            print "Unknown code '%s'. Please choose either espresso, exciting or vasp"%code
+            print "Unknown code '%s'. Please choose either espresso, exciting, wien or vasp"%code
             
     def get_code(self):
         return self.__code

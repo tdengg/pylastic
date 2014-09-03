@@ -664,6 +664,25 @@ class POS(object):
         #fi.close()
         
         return
+
+    def read_sgroup(self):
+        return
+    
+    def write_sgroup(self):
+        return
+    
+    def set_fname(self,fname):
+        self.__fname = fname
+        
+    def get_fname(self):
+        return self.__fname
+
+
+class Energy():
+    """Get energies from espresso output file."""
+    def __init__(self, fname = 'erpresso.out'):
+        self.__fname = fname
+
     def set_gsenergy(self):
         for line in open(self.__fname,'r'):
             if (line.find('!    total energy')>=0):
@@ -672,10 +691,62 @@ class POS(object):
     def get_gsenergy(self):
         return self.__gsenergy
     
-    def read_sgroup(self):
-        return
+    def set_fname(self,fname):
+        self.__fname = fname
+        
+    def get_fname(self):
+        return self.__fname
     
-    def write_sgroup(self):
-        return
+class Stress():
+    def __init__(self, fname = 'stress.dat'):
+        self.__fname = fname
+        self.__stress = None
+        
+    def set_stress(self):
+        if (os.path.exists(self.__fname)):
+            os.system("grep -A3 'total   stress  (Ry/bohr**' "+ self.__fname + \
+                      " | tail -n 4 > stress.dat")
+            sig = zeros((3,3))
+            if (os.path.getsize(self.__fname)!=0):
+                fstres = open(self.__fnames,'r')
+
+                l0 = fstres.readline()
+                l1 = fstres.readline()
+                l2 = fstres.readline()
+                l3 = fstres.readline()
+
+                sig[0,0] = l1.split()[-3]
+                sig[0,1] = l1.split()[-2]
+                sig[0,2] = l1.split()[-1]
+
+                sig[1,0] = l2.split()[-3]
+                sig[1,1] = l2.split()[-2]
+                sig[1,2] = l2.split()[-1]
+            
+                sig[2,0] = l3.split()[-3]
+                sig[2,1] = l3.split()[-2]
+                sig[2,2] = l3.split()[-1]
+
+                fstres.close()
+                self.__stress = sig
+            else: 
+                print '\n.... Oops WARNING: No Stresses in '+ \
+                      self.__fname +' file !?!?!?\n'
+
+        else: 
+            print '\n.... Oops WARNING: Where is the '+ \
+                   self.__fname +' file !?!?!?\n'
+                   
+        
+    def get_stress(self):
+        return self.__stress
+    
+    def set_fname(self,fname):
+        self.__fname = fname
+        
+    def get_fname(self):
+        return self.__fname
+    
+    
     
     

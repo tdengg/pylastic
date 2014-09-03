@@ -20,5 +20,6 @@ setup(name='pylastic',
       author_email='thomas.dengg@mcl.at',
       license='LGPL',
       packages=['pylastic','pylastic.io'],
+      package_data={'pylastic':['templates/exciting2sgroup.xsl']},
       install_requires=['numpy','lxml','matplotlib','json'],
       zip_safe=False)

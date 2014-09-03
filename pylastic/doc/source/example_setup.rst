@@ -15,7 +15,7 @@ ______
 
 	import numpy as np
 	from pylastic.elatoms import Structures, ElAtoms
-	from pylastic.vaspIO import POS
+	from pylastic.io.vasp import POS
 	
 	########################## Read in POSCAR file: ######################
 	poscar = POS('POSCAR').read_pos()

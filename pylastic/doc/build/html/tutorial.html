@@ -63,7 +63,7 @@
 <ul>
 <li><p class="first">using vaspIO module (pylastic package)</p>
 <p>The following code sample imports the POSCAR file</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pylastic.vaspIO</span> <span class="kn">import</span> <span class="n">POS</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pylastic.io.vasp</span> <span class="kn">import</span> <span class="n">POS</span>
 
 <span class="n">poscar</span> <span class="o">=</span> <span class="n">POS</span><span class="p">(</span><span class="s">&#39;POSCAR&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read_pos</span><span class="p">()</span>
 </pre></div>
@@ -82,7 +82,7 @@
 <h2>Creating atoms class objects from vasp POSCAR<a class="headerlink" href="#creating-atoms-class-objects-from-vasp-poscar" title="Permalink to this headline">¶</a></h2>
 <p>After importing the POSCAR file one can create an ASE like atoms object which has the attributes of the POSCAR file containing information about the crystal structure (lattice vectors, number of atoms, basis, ....).</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pylastic.elatoms</span> <span class="kn">import</span> <span class="n">ElAtoms</span>
-<span class="kn">from</span> <span class="nn">pylastic.vaspIO</span> <span class="kn">import</span> <span class="n">POS</span>
+<span class="kn">from</span> <span class="nn">pylastic.io.vasp</span> <span class="kn">import</span> <span class="n">POS</span>
 
 <span class="n">poscar</span> <span class="o">=</span> <span class="n">POS</span><span class="p">(</span><span class="s">&#39;POSCAR&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read_pos</span><span class="p">()</span>
 <span class="n">atom</span> <span class="o">=</span> <span class="n">ElAtoms</span><span class="p">()</span>
@@ -92,7 +92,7 @@
 </div>
 <div class="section" id="distorting-the-atoms-object">
 <h2>Distorting the atoms object<a class="headerlink" href="#distorting-the-atoms-object" title="Permalink to this headline">¶</a></h2>
-<p>Once an atoms object is created one can make distortions by using the <em>distort</em> method on it:</p>
+<p>Once an atoms object is created one can make distortions by applying the <em>distort</em> method on it:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">atom</span><span class="o">.</span><span class="n">distort</span><span class="p">(</span><span class="n">eta</span><span class="p">,</span> <span class="n">strainType</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -154,7 +154,7 @@ To get 2nd order derivatives of the energy and the Cross-Validation-Score (CVS) 
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>Finally the elastic constants are computed for a specific maximal lagrangian strain, given as argument and printed to standard output:</p>
+<p>Finally the elastic constants are computed for a specific maximal lagrangian strain which is given as argument and printed to standard output:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">ec</span><span class="o">.</span><span class="n">set_ec</span><span class="p">(</span><span class="s">&#39;0.05&#39;</span><span class="p">)</span>
 <span class="k">print</span> <span class="n">ec</span><span class="o">.</span><span class="n">get_ec</span><span class="p">()</span>
 </pre></div>

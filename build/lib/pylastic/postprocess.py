@@ -1,57 +1,23 @@
 """
 """
 
-from pylastic.analyze import Energy
-from pylastic.get_DFTdata import VASP
+from pylastic.analyze import Energy, Stress
+#from pylastic.get_DFTdata import VASP
+import pylastic.io.vasp as vasp
+import pylastic.io.espresso as espresso
+import pylastic.io.wien as wien
+import pylastic.io.exciting as exciting
+
 from pylastic.status import Check
 from pylastic.prettyPrint import FileStructure
 
 
-import json
-import os
 import pickle
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.figure import Figure
 
-class ECs_old(object):
-    def __init__(self):
-        #%%%%%%%%--- CONSTANTS ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        _e     = 1.602176565e-19              # elementary charge
-        #Bohr   = 5.291772086e-11              # a.u. to meter
-        #Ryd2eV = 13.605698066                 # Ryd to eV
-        Angstroem = 1.e-10
-        self.__cnvrtr = (_e)/(1e9*Angstroem**3)    # Ryd/[a.u.^3] to GPa
-        #--------------------------------------------------------------------------------------------------------------------------------
-        self.__CVS
-        self.V0 = None
-        self.__cod = 'vasp'
-        
-    def set_CVS(self):
-        """Calculate cross validation score."""
-        getData = VASP()
-        f=open('info.json')
-        dic = json.load(f)
-        
-        for key in sorted(dic.keys()):
-            energy = []
-            strain = []
-            for key2 in sorted(map(int,dic[key].keys())):
-                
-                getData.set_outfile('Dst%.2d'%int(key)+'/Dst%.2d'%int(key)+'_%.2d'%int(key2)+'/vasprun.xml')
-                getData.set_gsEnergy()
-                energy.append(getData.get_gsEnergy())
-                strain.append(dic[key][str(key2)]['eta'])
-            self.V0 = dic[key][str(key2)]['V0']
-            
-            ans = Energy(strain,energy,self.V0)
-            ans.set_2nd(6)
-            print ans.get_2nd()
-        
-    def get_CVS(self):
-        return self.__CVS
-            
-class ECs(Check, FileStructure, Energy):
+
+class ECs(Check, FileStructure, Energy, Stress):
     """Calculate elastic constants, CVS calculation, post-processing."""
     
     def __init__(self):
@@ -64,6 +30,7 @@ class ECs(Check, FileStructure, Energy):
         self.__V0 = None
         self.__structures = None
         self.__cod = 'vasp'
+        self.__mthd = 'energy'
         self.__fitorder = 4
         self.__etacalc = None
         self.__rms = []
@@ -86,25 +53,69 @@ class ECs(Check, FileStructure, Energy):
         """
         self.status()
         if not gsenergy:
-            getData = VASP()
+            if self.__cod == 'vasp': 
+                #getData = VASP()
+                getData = vasp.Energy()
+                outfile = 'vasprun.xml'
+            elif self.__cod == 'espresso':
+                getData = espresso.Energy()
+                outfile = 'espresso.out'
+            elif self.__cod == 'wien':
+                getData = wien.Energy()
+                outfile = '??'
+            elif self.__cod == 'exciting':
+                getData = exciting.Energy()
+                outfile = 'info.xml'
             for atoms in self.__structures.items():
-                # Do interpolation if calculation failed...... COMPLETE IT
                 
                 if not atoms[1].status:
                     atoms[1].gsenergy = 0
                     continue
-                getData.set_outfile('%s/%s/vasprun.xml'%atoms[0])
-                getData.set_gsEnergy()
-                atoms[1].gsenergy = getData.get_gsEnergy()
-                
-        
-                
-                
+                #getData.set_outfile('%s/%s/'%atoms[0] + outfile)
+                #getData.set_gsEnergy()
+                getData.set_fname('%s/%s/'%atoms[0] + outfile)
+                getData.set_gsenergy()
+                #atoms[1].gsenergy = getData.get_gsEnergy()
+                atoms[1].gsenergy = getData.get_gsenergy()
+                    
         self.__gsenergy = gsenergy
     
     def get_gsenergy(self):
         return self.__gsenergy
     
+    def set_stress(self, stress=None):
+        """Read stress for all atoms in structures.
+        
+        Parameters
+        ----------
+            stress : float???? DEBUG???? 
+                Physical stress.
+        """
+        self.status()
+        if not stress:
+            if self.__cod == 'vasp': 
+                #getData = VASP()
+                getData = vasp.Stress()
+                outfile = 'vasprun.xml'
+            elif self.__cod == 'espresso':
+                getData = espresso.Stress()
+                outfile = 'espresso.out'
+            for atoms in self.__structures.items():
+                
+                if not atoms[1].status:
+                    atoms[1].stress = np.zeros((3,3))
+                    continue
+                #getData.set_outfile('%s/%s/'%atoms[0] + outfile)
+                #getData.set_gsEnergy()
+                getData.set_fname('%s/%s/'%atoms[0] + outfile)
+                getData.set_stress()
+                #atoms[1].gsenergy = getData.get_gsEnergy()
+                atoms[1].stress = getData.get_stress()
+                    
+        self.__stress = stress
+    
+    def get_stress(self):
+        return self.__stress
         
     def set_structures(self):
         """Import structures object from file."""
@@ -149,11 +160,17 @@ class ECs(Check, FileStructure, Energy):
             atoms = self.get_atomsByStraintype(stype)
             self.__V0 = atoms[0].V0
             strainList = atoms[0].strainList
-            energy = [i.gsenergy for i in atoms]
+            
             strain = [i.eta for i in atoms]
             
-            ans = Energy()
-            ans.energy = energy
+            if self.__mthd == 'energy':
+                energy = [i.gsenergy for i in atoms]
+                ans = Energy()
+                ans.energy = energy
+            elif self.__mthd == 'stress':
+                stress = [i.stress for i in atoms]
+                ans = Stress()
+                ans.stress = stress
             ans.strain = strain
             ans.V0 = self.__V0
             
@@ -165,7 +182,7 @@ class ECs(Check, FileStructure, Energy):
             
             #spl = str(len(strainList))+'1'+str(n)
             #plt.subplot(int(spl))
-            ans.plot_energy()
+            if self.__mthd == 'energy': ans.plot_energy()
             n+=1
         if not self.__etacalc: self.__etacalc = str(strain[-1])
         self.set_ec(self.__etacalc)
@@ -492,9 +509,5 @@ class ECs(Check, FileStructure, Energy):
     etacalc    = property( fget = get_etacalc        , fset = set_etacalc    )
     ec = property( fget = get_ec        , fset = set_ec    )
     gsenergy = property( fget = get_gsenergy        , fset = set_gsenergy    )
-    
-    
-if __name__ == '__main__':
-    ECs_old().set_CVS()
             
         
