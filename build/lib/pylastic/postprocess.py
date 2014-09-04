@@ -12,6 +12,7 @@ from pylastic.status import Check
 from pylastic.prettyPrint import FileStructure
 
 import os
+import glob
 import pickle
 import numpy as np
 import matplotlib.pyplot as plt
@@ -69,7 +70,7 @@ class ECs(Check, FileStructure, Energy, Stress):
             for atoms in self.__structures.items():
                 
                 
-                if self.__cod == 'wien': outfile = atoms[1].path + '/' + os.system('ls -d *.scf')
+                if self.__cod == 'wien': outfile = atoms[1].path + '/' + glob.glob('*.scf')[0]
                 if not atoms[1].status:
                     atoms[1].gsenergy = 0
                     continue
@@ -78,7 +79,7 @@ class ECs(Check, FileStructure, Energy, Stress):
                 
                 getData.set_fname('%s/'%atoms[1].path + outfile)
                 getData.set_gsenergy()
-                print getData.get_gsenergy()
+                
                 #atoms[1].gsenergy = getData.get_gsEnergy()
                 atoms[1].gsenergy = getData.get_gsenergy()
                     
