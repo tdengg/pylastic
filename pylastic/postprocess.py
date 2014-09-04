@@ -170,7 +170,7 @@ class ECs(Check, FileStructure, Energy, Stress):
             
             if self.__mthd == 'energy':
                 energy = [i.gsenergy for i in atoms]
-                ans = Energy()
+                ans = Energy(code=self.__cod)
                 ans.energy = energy
                 
             elif self.__mthd == 'stress':

@@ -18,14 +18,16 @@ class Energy(object):
     V0 : float 
         Equilibrium volume of parent structure.
     """
-    def __init__(self, strain=None, energy=None, V0=None):
+    def __init__(self, strain=None, energy=None, V0=None, code='vasp'):
         _e        =  1.602176565e-19              # elementary charge
         Bohr      =  5.291772086e-11              # a.u. to meter
         Ryd2eV    = 13.605698066                  # Ryd to eV
         Angstroem =  1.e-10                       # Angstroem to meter
         self.__vToGPa = (_e)/(1e9*Angstroem**3.)
+        self.__ToGPa  = (_e*Ryd2eV)/(1e9*Bohr**3)
         
         self.__V0 = V0
+        self.__cod = code
         self.__strain = strain
         self.__energy = energy
         self.__Cij2nd  = {}
@@ -61,7 +63,11 @@ class Energy(object):
         """
         
         self.search_for_failed()
-        self.__CONV = self.__vToGPa #* math.factorial(2)*2.
+        #self.__CONV = self.__vToGPa #* math.factorial(2)*2.
+        if self.__cod == 'vasp': self.__CONV = self.__vToGPa * math.factorial(2)*2.
+        if self.__cod == 'wien': self.__CONV = self.__ToGPa * math.factorial(2)*1.
+        if self.__cod == 'espresso': self.__CONV = self.__ToGPa * math.factorial(2)*1.
+        if self.__cod == 'exciting': self.__CONV = self.__ToGPa * math.factorial(2)*1.
         strain = copy(self.__strain)
         energy = copy(self.__energy)
         
@@ -111,7 +117,10 @@ class Energy(object):
         """
         self.search_for_failed()
         
-        self.__CONV = self.__vToGPa * math.factorial(3)*2.
+        if self.__cod == 'vasp': self.__CONV = self.__vToGPa * math.factorial(3)*2.
+        if self.__cod == 'wien': self.__CONV = self.__ToGPa * math.factorial(3)*1.
+        if self.__cod == 'espresso': self.__CONV = self.__ToGPa * math.factorial(3)*1.
+        if self.__cod == 'exciting': self.__CONV = self.__ToGPa * math.factorial(3)*1.
         strain = copy(self.__strain)
         energy = copy(self.__energy)
         while (len(strain) > fitorder): 
