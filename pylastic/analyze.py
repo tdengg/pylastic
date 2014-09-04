@@ -87,7 +87,7 @@ class Energy(object):
                 
             self.__r[(emax,fitorder)] = np.sqrt(deltasq/len(strain))
             
-            self.__coeffs[(emax,fitorder)] = (coeffs)
+            self.__coeffs[(round(emax,4),fitorder)] = (coeffs)
             
             if (abs(strain[0]+emax) < 1.e-7):
                 strain.pop(0); energy.pop(0)
@@ -199,7 +199,7 @@ class Energy(object):
         #f = plt.figure(figsize=(5,4), dpi=100)
         #ax = f.add_subplot(111)
         plt.plot(self.__strain, self.__energy, '*')
-        
+        print self.__coeffs
         poly = np.poly1d(self.__coeffs[(etamax,fitorder)])
         xp = np.linspace(min(self.__strain), max(self.__strain), 100)
         ax = plt.plot(xp, poly(xp))

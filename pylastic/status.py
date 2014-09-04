@@ -56,9 +56,11 @@ class Check(FileStructure):
                 except:
                     self.__status[(stype,eta)]['status'] = '--------'
                     atoms[(stype,eta)].status = False
+            
+            else: 
+                self.__status[(stype,eta)]['status'] = 'finished'
+                atoms[(stype,eta)].status = True
             self.__status[(stype,eta)]['path'] = atoms[(stype,eta)].path
-        else: print 'Please specify dft code for check status.Check()!'
-        
         self.__statusstring = FileStructure().dicToTree(self.__status)
         f = open('status', 'w')
         f.write(self.__statusstring)
@@ -68,7 +70,17 @@ class Check(FileStructure):
     def get_filestructure(self):
         return self.__filestructure
     
+    def set_code(self, code):
+        if code in ['vasp','exciting','espresso','wien']:
+            self.__cod = code
+        else:
+            print "Unknown code '%s'. Please choose either espresso, exciting, wien or vasp"%code
+            
+    def get_code(self):
+        return self.__cod
+    
+    
     workdir = property( fget = get_workdir        , fset = set_workdir)
     structures = property( fget = get_structuresinst       , fset = set_structuresinst)
-    
+    code = property( fget = get_code        , fset = set_code    )
     

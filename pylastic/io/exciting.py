@@ -2,7 +2,7 @@ import lxml.etree as et
 from pkg_resources import resource_filename
 import os
 
-class INPUT(object):
+class POS(object):
     
     def __init__(self, fname='input.xml'):
         self.__fname = fname

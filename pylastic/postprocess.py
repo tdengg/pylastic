@@ -11,7 +11,7 @@ import pylastic.io.exciting as exciting
 from pylastic.status import Check
 from pylastic.prettyPrint import FileStructure
 
-
+import os
 import pickle
 import numpy as np
 import matplotlib.pyplot as plt
@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 class ECs(Check, FileStructure, Energy, Stress):
     """Calculate elastic constants, CVS calculation, post-processing."""
     
-    def __init__(self):
+    def __init__(self, cod='vasp'):
         
         super(Check, self).__init__()
         super(FileStructure, self).__init__()
@@ -29,7 +29,7 @@ class ECs(Check, FileStructure, Energy, Stress):
         self.__CVS = []
         self.__V0 = None
         self.__structures = None
-        self.__cod = 'vasp'
+        self.__cod = cod
         self.__mthd = 'energy'
         self.__fitorder = 4
         self.__etacalc = None
@@ -62,19 +62,23 @@ class ECs(Check, FileStructure, Energy, Stress):
                 outfile = 'espresso.out'
             elif self.__cod == 'wien':
                 getData = wien.Energy()
-                outfile = '??'
+                
             elif self.__cod == 'exciting':
                 getData = exciting.Energy()
-                outfile = 'info.xml'
+                outfile = 'INFO.OUT'
             for atoms in self.__structures.items():
                 
+                
+                if self.__cod == 'wien': outfile = atoms[1].path + '/' + os.system('ls -d *.scf')
                 if not atoms[1].status:
                     atoms[1].gsenergy = 0
                     continue
                 #getData.set_outfile('%s/%s/'%atoms[0] + outfile)
                 #getData.set_gsEnergy()
-                getData.set_fname('%s/%s/'%atoms[0] + outfile)
+                
+                getData.set_fname('%s/'%atoms[1].path + outfile)
                 getData.set_gsenergy()
+                print getData.get_gsenergy()
                 #atoms[1].gsenergy = getData.get_gsEnergy()
                 atoms[1].gsenergy = getData.get_gsenergy()
                     
@@ -167,6 +171,7 @@ class ECs(Check, FileStructure, Energy, Stress):
                 energy = [i.gsenergy for i in atoms]
                 ans = Energy()
                 ans.energy = energy
+                
             elif self.__mthd == 'stress':
                 stress = [i.stress for i in atoms]
                 ans = Stress()
@@ -494,8 +499,20 @@ class ECs(Check, FileStructure, Energy, Stress):
     def get_ec(self):
         return self.__C
     
+    def set_code(self, code):
+        if code in ['vasp','exciting','espresso','wien']:
+            self.__cod = code
+        else:
+            print "Unknown code '%s'. Please choose either espresso, exciting, wien or vasp"%code
+            
+    def get_code(self):
+        return self.__cod
+    
+    
+    
     def status(self):
         state = Check()
+        state.code = self.__cod
         state.workdir = self.__workdir
         state.structures = self.__structures
         self.__status, self.__structuresinst, statusstring = state.check_calc()
@@ -509,5 +526,6 @@ class ECs(Check, FileStructure, Energy, Stress):
     etacalc    = property( fget = get_etacalc        , fset = set_etacalc    )
     ec = property( fget = get_ec        , fset = set_ec    )
     gsenergy = property( fget = get_gsenergy        , fset = set_gsenergy    )
+    code = property( fget = get_code        , fset = set_code    )
             
         

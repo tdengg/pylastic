@@ -429,12 +429,13 @@ class POS(object):
         i_dict['vlatt_3'] = [M_old[2,0],M_old[2,1],M_old[2,2]]
         i_dict['natoms'] = 1
         i_dict["selective"] = None
+        i_dict["apspath"] = self.__case_struct
         i_dict["vbasis"] = {}
         
         
         
         
-        return
+        return i_dict
     
     def write_in(self, i_dict, dir_name):
         
@@ -454,10 +455,10 @@ class POS(object):
                               i_dict['vlatt_1'][1]*i_dict['vlatt_2'][1] +\
                               i_dict['vlatt_1'][2]*i_dict['vlatt_2'][2])/(A1*A2)))
         
-        fP   = open(dir_name + '_P.struct', 'r')
+        fP   = open(i_dict['path'] + '_P.struct', 'r')
         Plins= fP.readlines()
         fP.close()
-        fo = open('distorted.struct', 'w')
+        fo = open(dir_name+'/distorted.struct', 'w')
 
         Plins.pop(0)
         Plins.insert(0, 'distorted \n')

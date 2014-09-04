@@ -47,7 +47,7 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
     '''
     
 
-    def __init__(self):
+    def __init__(self, cod='vasp'):
         '''
         Constructor
         '''
@@ -61,7 +61,7 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
         self.__executable = None
         self.__V0 = None
         self.__verbose = True
-        self.__code = 'vasp'
+        self.__code = cod
         self.__mthd = 'Energy'
         
         
@@ -272,12 +272,12 @@ class Structures(ElAtoms, Sgroup):
     """Generate a series of distorted structures.
     
     """
-    def __init__(self):
+    def __init__(self, cod = 'vasp'):
         super(Structures, self).__init__()
         self.__structures = {}
         self.__fnames = []
         self.__workdir = './'
-        self.__code = 'vasp'
+        self.__code = cod
         
     def set_fname(self, fnames):
         """Set absolute path to calculations sub-directory.
@@ -332,55 +332,58 @@ class Structures(ElAtoms, Sgroup):
         dirnames = []
         os.chdir(self.__workdir)
         for atoms in self.__structures:
+            self.__path = '%s/eta%s'%(atoms[0],atoms[1])
             try:
                 if not atoms[0] in dirnames: os.mkdir(atoms[0]) 
-                os.mkdir('%s/%s'%(atoms[0],atoms[1]))
+                os.mkdir('%s'%(self.__path))
             except:
-                print "Directory '%s/%s' already exists."%(atoms[0],atoms[1])
+                print "Directory '%s' already exists."%(atoms[0])
             dirnames.append(atoms[0])
-            fname = '%s/%s'%(atoms[0],atoms[1])
-            self.__fnames.append(fname)
+            
+            self.__fnames.append(self.__path)
             
             ##### VASP #####
             if self.__code=='vasp':
+                
                 from pylastic.io.vasp import POS
-                if not os.path.isfile("%s/%s/KPOINTS"%(atoms[0],atoms[1])) or overwrite: os.system('cp KPOINTS %s/%s/KPOINTS'%(atoms[0],atoms[1]))
-                else: print "%s/%s/KPOINTS already existing: overwrite = False"%(atoms[0],atoms[1])
-                if not os.path.isfile("%s/%s/INCAR"%(atoms[0],atoms[1]))   or overwrite: os.system('cp INCAR %s/%s/INCAR'%(atoms[0],atoms[1]))
-                else: print "%s/%s/INCAR   already existing: overwrite = False"%(atoms[0],atoms[1])
-                if not os.path.isfile("%s/%s/POTCAR"%(atoms[0],atoms[1]))  or overwrite: os.system('cp POTCAR %s/%s/POTCAR'%(atoms[0],atoms[1]))
-                else: print "%s/%s/POTCAR  already existing: overwrite = False"%(atoms[0],atoms[1])
-                if not os.path.isfile(fname+'/POSCAR')                     or overwrite: POS().write_pos(self.__structures[atoms].poscarnew, fname+'/POSCAR')
-                else: print "%s/%s/POSCAR  already existing: overwrite = False"%(atoms[0],atoms[1])
+                if not os.path.isfile("%s/KPOINTS"%(self.__path)) or overwrite: os.system('cp KPOINTS %s/KPOINTS'%(self.__path))
+                else: print "%s/KPOINTS already existing: overwrite = False"%(self.__path)
+                if not os.path.isfile("%s/INCAR"%(self.__path))   or overwrite: os.system('cp INCAR %s/INCAR'%(self.__path))
+                else: print "%s/INCAR   already existing: overwrite = False"%(self.__path)
+                if not os.path.isfile("%s/POTCAR"%(self.__path))  or overwrite: os.system('cp POTCAR %s/POTCAR'%(self.__path))
+                else: print "%s/POTCAR  already existing: overwrite = False"%(self.__path)
+                if not os.path.isfile(self.__path+'/POSCAR')                     or overwrite: POS().write_pos(self.__structures[atoms].poscarnew, self.__path+'/POSCAR')
+                else: print "%s/POSCAR  already existing: overwrite = False"%(self.__path)
             ################
             
             
             ### ESPRESSO ###
             if self.__code=='espresso':
                 from pylastic.io.espresso import POS
-                if not os.path.isfile(fname+'/ElaStic_PW.in') or overwrite: POS('ElaStic_PW.in').write_in(self.__structures[atoms].poscarnew, fname+'/ElaStic_PW.in')
-                else: print "%s/%s/ElaStic_PW.in  already existing: overwrite = False"%(atoms[0],atoms[1])
+                if not os.path.isfile(self.__path+'/ElaStic_PW.in') or overwrite: POS('ElaStic_PW.in').write_in(self.__structures[atoms].poscarnew, self.__path+'/ElaStic_PW.in')
+                else: print "%s/ElaStic_PW.in  already existing: overwrite = False"%(self.__path)
             ################
             
             
             ### EXCITING ###
             if self.__code=='exciting':
-                from pylastic.io.exciting import INPUT
-                if not os.path.isfile(fname+'/input.xml') or overwrite: INPUT('input.xml').write_in(self.__structures[atoms].poscarnew, fname+'/input.xml')
-                else: print "%s/%s/input.xml already existing: overwrite = False"%(atoms[0],atoms[1])
+                from pylastic.io.exciting import POS
+                if not os.path.isfile(self.__path+'/input.xml') or overwrite: POS('input.xml').write_in(self.__structures[atoms].poscarnew, self.__path+'/input.xml')
+                else: print "%s/input.xml already existing: overwrite = False"%(self.__path)
             ################
             
             ### WIEN2K ###
             if self.__code=='wien':
+                print self.__structures[atoms].poscarnew['path'], self.__structures[atoms].poscarnew['path']
                 from pylastic.io.wien import POS
-                if not os.path.isfile(fname+'/distorted_P.struct') or overwrite: POS('distorted').write_in(self.__structures[atoms].poscarnew, fname+'/wien.struct')
-                else: print "%s/%s/ already existing: overwrite = False"%(atoms[0],atoms[1])
+                if not os.path.isfile(self.__path+'/distorted_P.struct') or overwrite: POS(self.__structures[atoms].poscarnew['path']).write_in(self.__structures[atoms].poscarnew, self.__path)
+                else: print "%s/ already existing: overwrite = False"%(self.__path)
             
             ################
-            self.__structures[atoms].path = self.__workdir + fname
+            self.__structures[atoms].path = self.__workdir + self.__path
             obj = self.__structures[atoms]
             
-            with open(fname+'/atoms.pkl', 'wb') as output:
+            with open(self.__path+'/atoms.pkl', 'wb') as output:
                 pickle.dump(obj, output, -1)
                 
         with open('structures.pkl', 'wb') as output:
@@ -416,9 +419,9 @@ class Structures(ElAtoms, Sgroup):
         
         for atoms in self.__structures:
             
-            fname = '%s/%s'%(atoms[0],atoms[1])
+            fname = '%s'%(self.__path)
             self.__fnames.append(fname)
-            os.chdir('%s/%s/'%(atoms[0],atoms[1]))
+            os.chdir('%s/'%(self.__path))
             string = "# Starting vasp calculation for %s/%s ......... #"%(atoms[0],atoms[1])
             n = len(string)
             
