@@ -73,15 +73,15 @@
 <span class="n">poscar</span> <span class="o">=</span> <span class="n">POS</span><span class="p">(</span><span class="s">&#39;POSCAR&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read_pos</span><span class="p">()</span>
 
 <span class="c">###################### Create Structures instance: ###################</span>
-<span class="n">structures</span> <span class="o">=</span> <span class="n">Structures</span><span class="p">()</span>
+<span class="n">structures</span> <span class="o">=</span> <span class="n">Structures</span><span class="p">(</span><span class="s">&#39;vasp&#39;</span><span class="p">)</span>
 
 <span class="c">## Generate distorted structures and add them to structures object: ##</span>
-<span class="n">atom</span> <span class="o">=</span> <span class="n">ElAtoms</span><span class="p">()</span>
+<span class="n">atom</span> <span class="o">=</span> <span class="n">ElAtoms</span><span class="p">(</span><span class="s">&#39;vasp&#39;</span><span class="p">)</span>
 <span class="n">atom</span><span class="o">.</span><span class="n">poscarToAtoms</span><span class="p">(</span><span class="n">poscar</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">etan</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">11</span><span class="p">):</span>
 
         <span class="k">for</span> <span class="n">strains</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">strainList</span><span class="p">)):</span>
-                <span class="n">atom</span> <span class="o">=</span> <span class="n">ElAtoms</span><span class="p">()</span>
+                <span class="n">atom</span> <span class="o">=</span> <span class="n">ElAtoms</span><span class="p">(</span><span class="s">&#39;vasp&#39;</span><span class="p">)</span>
                 <span class="n">atom</span><span class="o">.</span><span class="n">poscarToAtoms</span><span class="p">(</span><span class="n">poscar</span><span class="p">)</span>
                 <span class="n">atom</span><span class="o">.</span><span class="n">distort</span><span class="p">(</span><span class="n">eta</span><span class="o">=</span><span class="n">etan</span><span class="p">,</span> <span class="n">strainType_index</span> <span class="o">=</span> <span class="n">strains</span><span class="p">)</span>
                 <span class="n">structures</span><span class="o">.</span><span class="n">append_structure</span><span class="p">(</span><span class="n">atom</span><span class="p">)</span>
@@ -100,7 +100,7 @@
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pylastic.elatoms</span> <span class="kn">import</span> <span class="n">Structures</span><span class="p">,</span> <span class="n">ElAtoms</span>
 <span class="kn">from</span> <span class="nn">pylastic.postprocess</span> <span class="kn">import</span> <span class="n">ECs</span>
 
-<span class="n">ec</span> <span class="o">=</span> <span class="n">ECs</span><span class="p">()</span>
+<span class="n">ec</span> <span class="o">=</span> <span class="n">ECs</span><span class="p">(</span><span class="s">&#39;vasp&#39;</span><span class="p">)</span>
 <span class="n">ec</span><span class="o">.</span><span class="n">set_structures</span><span class="p">()</span>
 <span class="n">ec</span><span class="o">.</span><span class="n">set_gsenergy</span><span class="p">()</span>
 <span class="n">ec</span><span class="o">.</span><span class="n">set_analytics</span><span class="p">()</span>

@@ -36,7 +36,7 @@ After importing the POSCAR file one can create an ASE like atoms object which ha
 	from pylastic.io.vasp import POS
 	
 	poscar = POS('POSCAR').read_pos()
-	atom = ElAtoms()
+	atom = ElAtoms('vasp')
 	atom.poscarToAtoms(poscar)
 
 Distorting the atoms object
@@ -67,7 +67,7 @@ To collect the distorted structures there is the Structures class available:
 
 	from pylastic.elatoms import Structures
 	
-	structures = Structures()
+	structures = Structures('vasp')
 	structures.append_structure(atom)
 
 Starting local calculations using VASP
@@ -100,7 +100,7 @@ First import the structures object previously generated when setting up the calc
 
 .. code-block:: python
 	
-	ec = ECs()
+	ec = ECs('vasp')
 	ec.set_structures()
 	ec.set_gsenergy()
 	
