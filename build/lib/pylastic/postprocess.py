@@ -69,7 +69,7 @@ class ECs(Check, FileStructure, Energy, Stress):
                 outfile = 'INFO.OUT'
             for atoms in self.__structures.items():
                 
-                
+                print atoms[1].path.split('/')
                 if self.__cod == 'wien': outfile = atoms[1].path + '/' + glob.glob('*.scf')[0]
                 if not atoms[1].status:
                     atoms[1].gsenergy = 0
