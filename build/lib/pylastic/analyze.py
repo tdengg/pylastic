@@ -202,20 +202,22 @@ class Energy(object):
     def get_cvs(self):
         return self.__CV
     
-    def plot_energy(self, etamax=0.05, fitorder=4):
-        """Return matplotlib axis instance for energy-strain curve.  """
-        self.search_for_failed()
-        #f = plt.figure(figsize=(5,4), dpi=100)
-        #ax = f.add_subplot(111)
-        plt.plot(self.__strain, self.__energy, '*')
-        
-        poly = np.poly1d(self.__coeffs[(etamax,fitorder)])
-        xp = np.linspace(min(self.__strain), max(self.__strain), 100)
-        ax = plt.plot(xp, poly(xp))
-        
-        plt.xlabel('strain')
-        plt.ylabel(r'energy    in eV')
-        return ax
+    #def plot_energy(self, etamax=0.05, fitorder=4, color='b'):
+    #    """Return matplotlib axis instance for energy-strain curve.  """
+    #    
+    #    self.search_for_failed()
+    #    #f = plt.figure(figsize=(5,4), dpi=100)
+    # #   #ax = f.add_subplot(111)
+    #    plt.plot(self.__strain, self.__energy, '%s*'%color)
+    #    print self.__coeffs
+    #    
+    #    poly = np.poly1d(self.__coeffs[(etamax,fitorder)])
+    #    xp = np.linspace(min(self.__strain), max(self.__strain), 100)
+    #    ax = plt.plot(xp, poly(xp),color)
+    #    
+    #    plt.xlabel('strain')
+    #    plt.ylabel(r'energy    in eV')
+    #    return ax
         
     def search_for_failed(self, mod='pass'):
         """Handle failed calculations"""

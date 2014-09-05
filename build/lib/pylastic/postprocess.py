@@ -269,8 +269,9 @@ class ECs(Check, FileStructure, Energy, Stress):
                 fitorder = i
                 ans.set_2nd(fitorder)
                 A2.append(ans.get_2nd())
+                
                 strains = sorted(map(float,A2[j].keys()))
-                dE = [A2[j][str(s)] for s in strains]
+                dE = [A2[j+3*(n-1)][str(s)] for s in strains]
                 
                 a.plot(strains, dE, label=str(fitorder))
                 a.set_title(stype)
@@ -284,7 +285,30 @@ class ECs(Check, FileStructure, Energy, Stress):
         a.legend(title='Order of fit')
         return f
         
-        
+    def plot_energy(self, color=['r','g','b','c','m','y','k']):
+        """Return matplotlib axis instance for energy-strain curve.  """
+        f = plt.figure(figsize=(5,4), dpi=100)
+        a = f.add_subplot(111)
+        strainList= self.__structures.items()[0][1].strainList
+        j=0
+        for stype in strainList:
+            #self.search_for_failed()
+            atoms = self.get_atomsByStraintype(stype)
+            energy = [i.gsenergy for i in atoms]
+            strain = [i.eta for i in atoms]
+            
+            plt.plot(strain, energy, '%s*'%color[j])
+            
+            
+            poly = np.poly1d(np.polyfit(strain,energy,self.__fitorder))
+            xp = np.linspace(min(strain), max(strain), 100)
+            a = plt.plot(xp, poly(xp),color[j])
+            j+=1
+            
+        a.set_xlabel('strain')
+        a.set_ylabel(r'energy    in eV')
+        return f
+            
     def set_fitorder(self, fitorder):
         """Set fitorder of polynomial energy - strain fit.
         
