@@ -604,7 +604,7 @@ class POS(object):
         K_POINTS = i_dict['parameters']['K_POINTS']
         nat = i_dict['parameters']['nat']
         OATPO = i_dict['parameters']['OATPO']
-        print path
+        
         shutil.copy(os.getcwd()+'/espresso.in',path)
         
         pwi = open(path, 'w')

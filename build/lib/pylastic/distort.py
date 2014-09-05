@@ -317,7 +317,7 @@ class Distort(object):
             if (self.order == 2): ECs =  3
             if (self.order == 3): ECs =  6
         else: sys.exit('\n     ... Oops ERROR: WRONG Space-Group Number !?!?!?    \n')
-        
+        print self.__mthd
         if (self.__mthd == 'Energy'):
             if (self.order == 2):
                 if (LC == 'CI' or \
@@ -458,7 +458,9 @@ class Distort(object):
         
     
     def set_method(self, mthd):
-        if mthd in ['Energy','Stress']: self.__mthd = mthd
+        if mthd in ['Energy','Stress']: 
+            self.__mthd = mthd
+            
         else: print "Wrong value for method: Please choose either 'Energy' or 'Stress'!"
     
     def get_method(self):

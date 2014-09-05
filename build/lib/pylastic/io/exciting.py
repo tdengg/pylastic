@@ -15,7 +15,7 @@ class POS(object):
         
         #####       Generate spacegroup output       ######
         path = resource_filename('pylastic', 'templates/exciting2sgroup.xsl')
-        print path
+        
         os.system('xsltproc %s '%path+ self.__fname +' > sgroup.in')
         #os.system('sgroup sgroup.in 1>sgroup.out 2>sgroup.err')
         #transform = et.XSLT(et.parse(resource_string('pylastic', 'templates/exciting2sgroup.xsl')))

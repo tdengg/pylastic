@@ -2,6 +2,7 @@
 """
 
 from pylastic.analyze import Energy, Stress
+
 #from pylastic.get_DFTdata import VASP
 import pylastic.io.vasp as vasp
 import pylastic.io.espresso as espresso
@@ -9,29 +10,27 @@ import pylastic.io.wien as wien
 import pylastic.io.exciting as exciting
 
 from pylastic.status import Check
-from pylastic.prettyPrint import FileStructure
+#from pylastic.prettyPrint import FileStructure
 
-import os
-import glob
 import pickle
 import numpy as np
 import matplotlib.pyplot as plt
 
 
-class ECs(Check, FileStructure, Energy, Stress):
+class ECs(Check, Energy, Stress):
     """Calculate elastic constants, CVS calculation, post-processing."""
     
     def __init__(self, cod='vasp'):
         
-        super(Check, self).__init__()
-        super(FileStructure, self).__init__()
+        #super(Check, self).__init__()
+        #super(FileStructure, self).__init__()
         super(ECs, self).__init__()
         
         self.__CVS = []
         self.__V0 = None
         self.__structures = None
         self.__cod = cod
-        self.__mthd = 'energy'
+        self.__mthd = 'Energy'
         self.__fitorder = 4
         self.__etacalc = None
         self.__rms = []
@@ -69,7 +68,6 @@ class ECs(Check, FileStructure, Energy, Stress):
                 outfile = 'INFO.OUT'
             for atoms in self.__structures.items():
                 
-                print atoms[1].path.split('/')
                 if self.__cod == 'wien': outfile = atoms[1].path.split('/')[-1] + '.scf'
                 if not atoms[1].status:
                     atoms[1].gsenergy = 0
@@ -168,12 +166,12 @@ class ECs(Check, FileStructure, Energy, Stress):
             
             strain = [i.eta for i in atoms]
             
-            if self.__mthd == 'energy':
+            if self.__mthd == 'Energy':
                 energy = [i.gsenergy for i in atoms]
                 ans = Energy(code=self.__cod)
                 ans.energy = energy
                 
-            elif self.__mthd == 'stress':
+            elif self.__mthd == 'Stress':
                 stress = [i.stress for i in atoms]
                 ans = Stress()
                 ans.stress = stress
@@ -302,11 +300,12 @@ class ECs(Check, FileStructure, Energy, Stress):
             
             poly = np.poly1d(np.polyfit(strain,energy,self.__fitorder))
             xp = np.linspace(min(strain), max(strain), 100)
-            a = plt.plot(xp, poly(xp),color[j])
+            a.plot(xp, poly(xp),color[j],label=stype)
             j+=1
-            
+        
         a.set_xlabel('strain')
         a.set_ylabel(r'energy    in eV')
+        a.legend(title='Strain type:')
         return f
             
     def set_fitorder(self, fitorder):

@@ -62,7 +62,6 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
         self.__V0 = None
         self.__verbose = True
         self.__code = cod
-        self.__mthd = 'Energy'
         
         
     def set_cell(self, cell):
@@ -144,7 +143,7 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
         strainType_index : integer
             List-index of strainType in strainList. 
         """
-        self.mthd = self.__mthd
+        #self.mthd = self.__mthd
         self.sgn = self.__sgn
         self.strainType = self.get_strainList()[strainType_index]
         self.eta = eta
@@ -236,13 +235,12 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
     def get_gsenergy(self):
         return self.__gsenergy
     
-    
-    def set_method(self, mthd):
-        if mthd in ['Energy','Stress']: self.__mthd = mthd
-        else: print "Wrong value for method: Please choose either 'Energy' or 'Stress'!"
-    
-    def get_method(self):
-        return self.__mthd
+#    def set_method(self, mthd):
+#        if mthd in ['Energy','Stress']: self.__mthd = mthd
+#        else: print "Wrong value for method: Please choose either 'Energy' or 'Stress'!"
+#    
+#    def get_method(self):
+#        return self.__mthd
     
     def set_code(self, code):
         if code in ['vasp','exciting','espresso','wien']:
@@ -264,7 +262,8 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
     poscar  = property( fget = get_poscar       , fset = set_poscar  )
     poscarnew  = property( fget = get_poscarnew       , fset = set_poscarnew )
     gsenergy= property( fget = get_gsenergy     , fset = set_gsenergy)
-    mthd = property( fget = get_method       , fset = set_method)
+    
+#    mthd = property( fget = get_method       , fset = set_method)
     code = property( fget = get_code       , fset = set_code)
     
     
@@ -374,7 +373,7 @@ class Structures(ElAtoms, Sgroup):
             
             ### WIEN2K ###
             if self.__code=='wien':
-                print self.__structures[atoms].poscarnew['path'], self.__structures[atoms].poscarnew['path']
+                
                 from pylastic.io.wien import POS
                 if not os.path.isfile(self.__path+'/distorted_P.struct') or overwrite: POS(self.__structures[atoms].poscarnew['path']).write_in(self.__structures[atoms].poscarnew, self.__path)
                 else: print "%s/ already existing: overwrite = False"%(self.__path)
