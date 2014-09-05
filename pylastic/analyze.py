@@ -208,7 +208,7 @@ class Energy(object):
         #f = plt.figure(figsize=(5,4), dpi=100)
         #ax = f.add_subplot(111)
         plt.plot(self.__strain, self.__energy, '*')
-        print self.__coeffs
+        
         poly = np.poly1d(self.__coeffs[(etamax,fitorder)])
         xp = np.linspace(min(self.__strain), max(self.__strain), 100)
         ax = plt.plot(xp, poly(xp))

@@ -70,7 +70,7 @@ class ECs(Check, FileStructure, Energy, Stress):
             for atoms in self.__structures.items():
                 
                 print atoms[1].path.split('/')
-                if self.__cod == 'wien': outfile = atoms[1].path + '/' + glob.glob('*.scf')[0]
+                if self.__cod == 'wien': outfile = atoms[1].path.split('/')[-1] + '.scf'
                 if not atoms[1].status:
                     atoms[1].gsenergy = 0
                     continue
@@ -188,7 +188,7 @@ class ECs(Check, FileStructure, Energy, Stress):
             
             #spl = str(len(strainList))+'1'+str(n)
             #plt.subplot(int(spl))
-            if self.__mthd == 'energy': ans.plot_energy()
+            #if self.__mthd == 'energy': ans.plot_energy(fitorder=self.__fitorder)
             n+=1
         if not self.__etacalc: self.__etacalc = str(strain[-1])
         self.set_ec(self.__etacalc)
@@ -224,11 +224,11 @@ class ECs(Check, FileStructure, Energy, Stress):
                 ans.strain = strain
                 ans.V0 = self.__V0
                 
-                self.__fitorder = i
-                ans.set_cvs(self.__fitorder)
+                fitorder = i
+                ans.set_cvs(fitorder)
                 CVS.append(ans.get_cvs())
                 
-                a.plot([cvs[1] for cvs in CVS[(n-1)*3+j-1]],[cvs[0] for cvs in CVS[(n-1)*3+j-1]], label=str(self.__fitorder))
+                a.plot([cvs[1] for cvs in CVS[(n-1)*3+j-1]],[cvs[0] for cvs in CVS[(n-1)*3+j-1]], label=str(fitorder))
                 a.set_title(stype)
                 a.set_xlabel('strain')
                 a.set_ylabel('CVS    in eV')
@@ -266,13 +266,13 @@ class ECs(Check, FileStructure, Energy, Stress):
                 ans.strain = strain
                 ans.V0 = self.__V0
                 
-                self.__fitorder = i
-                ans.set_2nd(self.__fitorder)
+                fitorder = i
+                ans.set_2nd(fitorder)
                 A2.append(ans.get_2nd())
                 strains = sorted(map(float,A2[j].keys()))
                 dE = [A2[j][str(s)] for s in strains]
                 
-                a.plot(strains, dE, label=str(self.__fitorder))
+                a.plot(strains, dE, label=str(fitorder))
                 a.set_title(stype)
                 a.set_xlabel('strain')
                 a.set_ylabel(r'$\frac{d^2E}{d\epsilon^2}$    in eV')
