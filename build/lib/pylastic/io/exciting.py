@@ -87,10 +87,16 @@ class Energy():
         self.__gsenergy = None
         
     def set_gsenergy(self):
-        for line in open(self.__fname, 'r'):
-            if (line.find(' total energy                :')>=0): 
-                self.__gsenergy = float(line.split()[-1])
-                
+        #for line in open(self.__fname, 'r'):
+        #    if (line.find(' Total energy                :')>=0): 
+        #        self.__gsenergy = float(line.split()[-1])
+        #        
+        #print self.__gsenergy
+        #if not self.__gsenergy:
+        root = et.parse(self.__fname.rstrip('INFO.OUT')+'info.xml')
+        
+        self.__gsenergy = float(root.xpath('//energies/@totalEnergy[last()]')[-1])
+        
     def get_gsenergy(self):
         return self.__gsenergy
     

@@ -317,7 +317,7 @@ class Distort(object):
             if (self.order == 2): ECs =  3
             if (self.order == 3): ECs =  6
         else: sys.exit('\n     ... Oops ERROR: WRONG Space-Group Number !?!?!?    \n')
-        print self.__mthd
+        
         if (self.__mthd == 'Energy'):
             if (self.order == 2):
                 if (LC == 'CI' or \

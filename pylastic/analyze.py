@@ -67,7 +67,7 @@ class Energy(object):
         if self.__cod == 'vasp': self.__CONV = self.__vToGPa * math.factorial(2)*2.
         if self.__cod == 'wien': self.__CONV = self.__ToGPa * math.factorial(2)*1.
         if self.__cod == 'espresso': self.__CONV = self.__ToGPa * math.factorial(2)*1.
-        if self.__cod == 'exciting': self.__CONV = self.__ToGPa * math.factorial(2)*1.
+        if self.__cod == 'exciting': self.__CONV = self.__ToGPa * math.factorial(2)*2.
         strain = copy(self.__strain)
         energy = copy(self.__energy)
         
@@ -120,7 +120,7 @@ class Energy(object):
         if self.__cod == 'vasp': self.__CONV = self.__vToGPa * math.factorial(3)*2.
         if self.__cod == 'wien': self.__CONV = self.__ToGPa * math.factorial(3)*1.
         if self.__cod == 'espresso': self.__CONV = self.__ToGPa * math.factorial(3)*1.
-        if self.__cod == 'exciting': self.__CONV = self.__ToGPa * math.factorial(3)*1.
+        if self.__cod == 'exciting': self.__CONV = self.__ToGPa * math.factorial(3)*2.
         strain = copy(self.__strain)
         energy = copy(self.__energy)
         while (len(strain) > fitorder): 
@@ -230,7 +230,7 @@ class Stress():
     V0 : float 
         Equilibrium volume of parent structure.
     """
-    def __init__(self, strain=None, stress=None, V0=None):
+    def __init__(self, strain=None, stress=None, V0=None, code='vasp'):
         _e        =  1.602176565e-19              # elementary charge
         Bohr      =  5.291772086e-11              # a.u. to meter
         Ryd2eV    = 13.605698066                  # Ryd to eV
@@ -238,6 +238,7 @@ class Stress():
         self.__vToGPa = (_e)/(1e9*Angstroem**3.)
         
         self.__V0 = V0
+        self.__cod = code
         self.__strain = strain
         self.__stress = stress
         self.__Cij2nd  = {}
@@ -272,12 +273,23 @@ class Stress():
             Order of polynomial stress-strain fit.
         """
         
+        
+        
+        
         self.search_for_failed()
         self.__CONV = self.__vToGPa #* math.factorial(2)*2.
         #strain = copy(self.__strain)
         #stress_all = copy(self.__stress)
         
         LSi_dic = {1:'LS1',2:'LS2',3:'LS3',4:'LS4',5:'LS5',6:'LS6'}
+        sigma = {}
+        sigma1 = []
+        sigma2 = []
+        sigma3 = []
+        sigma4 = []
+        sigma5 = []
+        sigma6 = []
+        
         for l in range(1,7):
 
             
@@ -287,32 +299,43 @@ class Stress():
             elif l==4: s=(1,2) 
             elif l==5: s=(0,2) 
             elif l==6: s=(0,1) 
-            stress_ii = [st[s] for st in self.__stress]
+            stress_ii = [st[s[0]][s[1]] for st in self.__stress]
             
             strain = copy(self.__strain)
             stress = copy(stress_ii)
-
+            
+            etacalc = []
             #--- first derivative coefficient calculation -----------------------------------------
             while (len(strain) > fitorder):
                 emax=max(strain)
                 emin=min(strain)
                 emax=max(abs(emin),abs(emax))
-                self.__coeffs[(emax,fitorder,LSi_dic[s])] = np.polyfit(strain, stress, fitorder)
+                coeffs = np.polyfit(strain, stress, fitorder)
                 
-                self.__Cij[(emax,fitorder,LSi_dic[s])] = self.__coeffs[fitorder-1] * self.__CONV         # in GPa unit 
+                #self.__Cij2nd[str(emax),LSi_dic[s[0]+1]] = coeffs[fitorder-1] * self.__CONV         # in GPa unit 
                 
                 
                 deltas = []
                 deltasq = 0
-                poly = np.poly1d(self.__coeffs)
+                poly = np.poly1d(coeffs)
                 
                 for i in range(len(stress)):
                     delta = stress[i] - poly(strain[i])
                     deltas.append(delta)
                     deltasq += (delta)**2.0
                     
-                self.rms.append(np.sqrt(deltasq/len(strain)))
+                self.__r[(emax,fitorder,LSi_dic[s[0]+1])]=(np.sqrt(deltasq/len(strain)))
             
+                self.__coeffs[(emax,fitorder,LSi_dic[s[0]+1])] = (coeffs)
+                
+                if l==1: sigma1.append(coeffs)
+                elif l==2: sigma2.append(coeffs)
+                elif l==3: sigma3.append(coeffs)
+                elif l==4: sigma4.append(coeffs)
+                elif l==5: sigma5.append(coeffs)
+                elif l==6: sigma6.append(coeffs)
+                
+                etacalc.append(emax)
                 
                 if (abs(strain[0]+emax) < 1.e-7):
                     strain.pop(0)
@@ -320,10 +343,19 @@ class Stress():
                 if (abs(strain[len(strain)-1]-emax) < 1.e-7):
                     strain.pop()
                     stress.pop()
+                    
+        for i in range(len(sigma1)): 
+            
+            sigma[str(etacalc[i])] = [sigma1[i], sigma2[i], sigma3[i], sigma4[i], sigma5[i], sigma6[i]] 
+        
+        self.__sigma = sigma    
 
                 
     def get_2nd(self):
         return self.__Cij2nd
+    
+    def get_sigma(self):
+        return self.__sigma
     
     def get_r(self):
         return self.__r
@@ -383,38 +415,52 @@ class Stress():
         """
         self.search_for_failed()
         
-        strain = copy(self.__strain)
-        energy = copy(self.__energy)
         
-        while (len(strain) > fitorder+1):
-            emax = max(strain)
-            emin = min(strain)
-            emax = max(abs(emin),abs(emax))
-    
-            S = 0
-            for k in range(len(strain)):
-                Y      = energy[k]
-                etatmp = []
-                enetmp = []
+        LSi_dic = {1:'LS1',2:'LS2',3:'LS3',4:'LS4',5:'LS5',6:'LS6'}
+        for l in range(1,7):
 
-                for l in range(len(strain)):
-                    if (l==k): pass
-                    else:
-                        etatmp.append(strain[l])
-                        enetmp.append(energy[l])
-    
-                Yfit = np.polyval(np.polyfit(etatmp,enetmp, fitorder), strain[k])
-                S    = S + (Yfit-Y)**2
             
-            self.__CV.append((np.sqrt(S/len(strain)),emax,fitorder))
+            if l==1: s=(0,0)
+            elif l==2: s=(1,1)  
+            elif l==3: s=(2,2) 
+            elif l==4: s=(1,2) 
+            elif l==5: s=(0,2) 
+            elif l==6: s=(0,1) 
+            stress_ii = [st[s[0]][s[1]] for st in self.__stress]
             
+        
+            strain = copy(self.__strain)
+            stress = copy(stress_ii)
+            
+            while (len(strain) > fitorder+1):
+                emax = max(strain)
+                emin = min(strain)
+                emax = max(abs(emin),abs(emax))
+        
+                S = 0
+                for k in range(len(strain)):
+                    Y      = stress[k]
+                    etatmp = []
+                    enetmp = []
     
-            if (abs(strain[0]+emax) < 1.e-7):
-                strain.pop(0)
-                energy.pop(0)
-            if (abs(strain[len(strain)-1]-emax) < 1.e-7):
-                strain.pop()
-                energy.pop()
+                    for h in range(len(strain)):
+                        if (h==k): pass
+                        else:
+                            etatmp.append(strain[h])
+                            enetmp.append(stress[h])
+        
+                    Yfit = np.polyval(np.polyfit(etatmp,enetmp, fitorder), strain[k])
+                    S    = S + (Yfit-Y)**2
+                
+                self.__CV.append((np.sqrt(S/len(strain)),emax,fitorder))
+                
+        
+                if (abs(strain[0]+emax) < 1.e-7):
+                    strain.pop(0)
+                    stress.pop(0)
+                if (abs(strain[len(strain)-1]-emax) < 1.e-7):
+                    strain.pop()
+                    stress.pop()
                 
                 
     def get_cvs(self):
