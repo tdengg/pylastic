@@ -27,7 +27,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="pylastic 0.1 documentation" href="#" />
-    <link rel="next" title="Introduction" href="intro.html" /> 
+    <link rel="next" title="Features" href="features.html" /> 
   </head>
   <body>
     <div class="related">
@@ -40,7 +40,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="intro.html" title="Introduction"
+          <a href="features.html" title="Features"
              accesskey="N">next</a> |</li>
         <li><a href="#">pylastic 0.1 documentation</a> &raquo;</li> 
       </ul>
@@ -53,54 +53,17 @@
             
   <div class="section" id="welcome-to-pylastic-s-documentation">
 <h1>Welcome to pylastic&#8217;s documentation!<a class="headerlink" href="#welcome-to-pylastic-s-documentation" title="Permalink to this headline">¶</a></h1>
-<p><strong>pylastic</strong> is a python package for calculating elastic constants from first principles.</p>
-<div class="section" id="features">
-<h2>Features:<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li>vasp input/output management</li>
-<li>Determination of 2nd and 3rd order elastic constants</li>
-<li>Process <strong>phonopy</strong> output to determine temperature dependence in the quasiharmonic approximation using vasp DFPT</li>
-</ul>
-</div>
+<p><strong>pylastic</strong> - the python package for calculating elastic constants from first principles.</p>
 <div class="section" id="contents">
 <h2>Contents:<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="intro.html#concept">Concept</a></li>
-<li class="toctree-l2"><a class="reference internal" href="intro.html#using-pylastic-in-gui-mode">Using <strong>pylastic</strong>&#8216; in GUI mode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="intro.html#using-pylastic-as-python-module">Using <strong>pylastic</strong> as python module</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorials</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorial.html#importing-vasp-poscar-files">Importing vasp POSCAR files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial.html#creating-atoms-class-objects-from-vasp-poscar">Creating atoms class objects from vasp POSCAR</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial.html#distorting-the-atoms-object">Distorting the atoms object</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial.html#the-structures-class">The structures class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial.html#starting-local-calculations-using-vasp">Starting local calculations using VASP</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial.html#postprocessing">Postprocessing</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="example_setup.html">Example: 2nd order elastic constants at the groundstate.</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="example_setup.html#a-using-the-gui">a.) Using the GUI</a></li>
-<li class="toctree-l2"><a class="reference internal" href="example_setup.html#b-using-python-modules-in-a-script">b.) Using python modules in a script</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="modules.html">pylastic&#8217;s modules</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="modules/elatoms.html">Module elatoms</a></li>
-<li class="toctree-l2"><a class="reference internal" href="modules/distort.html">Module distort</a></li>
-<li class="toctree-l2"><a class="reference internal" href="modules/analyze.html">Module analyze</a></li>
-<li class="toctree-l2"><a class="reference internal" href="modules/postprocess.html">Module postprocess</a></li>
-<li class="toctree-l2"><a class="reference internal" href="modules/vaspIO.html">Module vaspIO</a></li>
-<li class="toctree-l2"><a class="reference internal" href="modules/get_DFTdata.html">Module get_DFTdata</a></li>
-<li class="toctree-l2"><a class="reference internal" href="modules/spacegroup.html">Module spacegroup</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="install.html">Download and installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="install.html#download">Download</a></li>
-<li class="toctree-l2"><a class="reference internal" href="install.html#install">Install</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Download and installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_setup.html">Example script using pylastic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">pylastic&#8217;s modules</a></li>
 </ul>
 </div>
 </div>
@@ -123,7 +86,6 @@
   <h3><a href="#">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Welcome to pylastic&#8217;s documentation!</a><ul>
-<li><a class="reference internal" href="#features">Features:</a></li>
 <li><a class="reference internal" href="#contents">Contents:</a><ul>
 </ul>
 </li>
@@ -133,8 +95,8 @@
 </ul>
 
   <h4>Next topic</h4>
-  <p class="topless"><a href="intro.html"
-                        title="next chapter">Introduction</a></p>
+  <p class="topless"><a href="features.html"
+                        title="next chapter">Features</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/index.txt"
@@ -167,7 +129,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="intro.html" title="Introduction"
+          <a href="features.html" title="Features"
              >next</a> |</li>
         <li><a href="#">pylastic 0.1 documentation</a> &raquo;</li> 
       </ul>

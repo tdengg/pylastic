@@ -1,4 +1,4 @@
-Module elatoms
+Module ElAtoms
 --------------
 
 .. automodule:: elatoms

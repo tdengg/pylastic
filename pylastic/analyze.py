@@ -303,13 +303,15 @@ class Stress():
             
             strain = copy(self.__strain)
             stress = copy(stress_ii)
-            
+            print strain, stress, s
             etacalc = []
             #--- first derivative coefficient calculation -----------------------------------------
+            
             while (len(strain) > fitorder):
                 emax=max(strain)
                 emin=min(strain)
                 emax=max(abs(emin),abs(emax))
+                
                 coeffs = np.polyfit(strain, stress, fitorder)
                 
                 #self.__Cij2nd[str(emax),LSi_dic[s[0]+1]] = coeffs[fitorder-1] * self.__CONV         # in GPa unit 
@@ -324,16 +326,16 @@ class Stress():
                     deltas.append(delta)
                     deltasq += (delta)**2.0
                     
-                self.__r[(emax,fitorder,LSi_dic[s[0]+1])]=(np.sqrt(deltasq/len(strain)))
+                self.__r[(emax,fitorder,LSi_dic[l])]=(np.sqrt(deltasq/len(strain)))
             
-                self.__coeffs[(emax,fitorder,LSi_dic[s[0]+1])] = (coeffs)
-                
-                if l==1: sigma1.append(coeffs)
-                elif l==2: sigma2.append(coeffs)
-                elif l==3: sigma3.append(coeffs)
-                elif l==4: sigma4.append(coeffs)
-                elif l==5: sigma5.append(coeffs)
-                elif l==6: sigma6.append(coeffs)
+                self.__coeffs[(emax,fitorder,LSi_dic[l])] = (coeffs[fitorder-1])
+                #print coeffs, fitorder
+                if l==1: sigma1.append(coeffs[fitorder-1])
+                elif l==2: sigma2.append(coeffs[fitorder-1])
+                elif l==3: sigma3.append(coeffs[fitorder-1])
+                elif l==4: sigma4.append(coeffs[fitorder-1])
+                elif l==5: sigma5.append(coeffs[fitorder-1])
+                elif l==6: sigma6.append(coeffs[fitorder-1])
                 
                 etacalc.append(emax)
                 
@@ -343,13 +345,14 @@ class Stress():
                 if (abs(strain[len(strain)-1]-emax) < 1.e-7):
                     strain.pop()
                     stress.pop()
-                    
+                
         for i in range(len(sigma1)): 
             
-            sigma[str(etacalc[i])] = [sigma1[i], sigma2[i], sigma3[i], sigma4[i], sigma5[i], sigma6[i]] 
-        
+            sigma[str(round(etacalc[i],5))] = [sigma1[i], sigma2[i], sigma3[i], sigma4[i], sigma5[i], sigma6[i]] 
+            print 'coeff ',sigma[str(round(etacalc[i],5))]
+            
         self.__sigma = sigma    
-
+        
                 
     def get_2nd(self):
         return self.__Cij2nd

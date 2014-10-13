@@ -149,11 +149,16 @@ class ECs(Check, Energy, Stress):
                 atomslist.append(self.__structures[dic])
         return atomslist
     
+    def physicalToLagrangian(self,pstress, def_matrix):
+        dm  = def_matrix
+        idm = np.linalg.inv(dm)
+        lstress = list(np.linalg.det(dm)*np.dot(idm,np.dot(pstress,idm)))
+        return lstress
+    
     def set_analytics(self):
         """Standard analysis including:
             * Calculation of elastic constants, 
             * cross validation score and 
-            * plot of the energy strain curves.
         """
         
         self.__A2 = []
@@ -175,7 +180,10 @@ class ECs(Check, Energy, Stress):
                 ans.energy = energy
                 
             elif self.__mthd == 'Stress':
-                stress = [i.stress for i in atoms]
+                
+                stress = [self.physicalToLagrangian(i.stress,i.defMatrix) for i in atoms]
+                print stress
+                plt.plot(strain,[i.stress[0][2] for i in atoms])
                 ans = Stress(code=self.__cod)
                 ans.set_stress(stress)
                 
@@ -198,9 +206,9 @@ class ECs(Check, Energy, Stress):
         if self.__mthd == 'Energy': self.set_ec(self.__etacalc)
         elif self.__mthd == 'Stress': 
             self.__sigma = ans.get_sigma()
-            print self.__sigma
+            
             self.set_ec((self.__etacalc))
-        #plt.show()
+        plt.show()
     
     def get_rms(self):
         return self.__rms
@@ -682,10 +690,11 @@ class ECs(Check, Energy, Stress):
             sigma = np.array(self.__sigma[etacalc])
             
             ci = np.linalg.lstsq(Matrix,sigma)
-            print ci[0][0]
+            
             #-- Cubic structures ------------------------------------------------------------------------------
             if (LC == 'CI' or \
                 LC == 'CII'):
+                
                 C[0,0]=ci[0][0]
                 C[0,1]=ci[0][1]
                 C[3,3]=ci[0][2]
@@ -827,7 +836,7 @@ class ECs(Check, Energy, Stress):
             for j in range(i+1,6):
                 C[j,i] = C[i,j] 
         #%%%--- Calculating the elastic moduli ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
+        C = -C/10.
         self.BV = (C[0,0]+C[1,1]+C[2,2]+2*(C[0,1]+C[0,2]+C[1,2]))/9
         self.GV = ((C[0,0]+C[1,1]+C[2,2])-(C[0,1]+C[0,2]+C[1,2])+3*(C[3,3]+C[4,4]+C[5,5]))/15
         self.EV = (9*self.BV*self.GV)/(3*self.BV+self.GV)

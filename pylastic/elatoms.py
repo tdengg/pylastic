@@ -16,7 +16,7 @@ from pylastic.status import Check
 
 class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
     '''
-    ASE Atoms like object.
+    Object similar to the ``atoms`` class in *ASE*, containing information related to the structure.
      
     **Example:**
 
@@ -65,7 +65,12 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
         
         
     def set_cell(self, cell):
-        """Set lattice vectors of crystal cell."""
+        """Set lattice vectors of crystal cell.
+        
+        cell : list of 3 lists
+            Lattice vectors in Cartesian coordinates.
+        """
+        
         if isinstance(cell, list): self.__cell = cell
         else: print 'Invalide Type of lattice vector: %s. Must be list instead!'%(type(cell))
         
@@ -75,12 +80,12 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
     
     
     def set_natom(self, natom):
-        """Set number of atoms in supercell.
+        """Set number of atoms in crystal cell.
         
-        Parameters
-        ----------
+        
+        
         natom : integer
-            Supercell size.
+            Number of atoms in crystal cell.
         """
         if isinstance(natom, int): self.__natom = natom
         else: print 'Number of atoms is invalid type: %s. Must be integer instead!'%(type(natom))
@@ -94,6 +99,7 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
         
         Parameters
         ----------
+        
         scale : float
             Unit cell scaling.
         """
@@ -146,8 +152,9 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
         #self.mthd = self.__mthd
         self.sgn = self.__sgn
         self.strainType = self.get_strainList()[strainType_index]
+        
         self.eta = eta
-        self.set_defMatrix()
+        self.set_defMatrix(self.__code)
         def_matrix = self.defMatrix
         M_new = np.dot(self.__cell, def_matrix)
         self.__cell = M_new
@@ -192,10 +199,11 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
         return self.__poscar
     
     def set_poscar(self, poscar):
-        """"""
+        """Assign the dictionary poscar."""
         self.__poscar = poscar
         
     def get_poscar(self):
+        """Assign the dictionary poscar."""
         return self.__poscar
     
     def set_poscarnew(self, poscar):
@@ -209,12 +217,12 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
     
     
     def set_V0(self, V0):
-        """Set equilibrium volume of supercell.
+        """Set equilibrium volume of crystal cell.
         
         Parameters
         ----------
         V0 : float
-            Equilibrium volume of supercell.
+            Equilibrium volume of crystal cell.
         """
         self.__V0 = V0
         

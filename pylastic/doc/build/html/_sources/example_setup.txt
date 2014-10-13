@@ -1,7 +1,7 @@
-Example: 2nd order elastic constants at the groundstate.
+Example script using pylastic
 --------
 
-The following example will show the procedure of calculating groundstate elastic constants using the GUI version as well as a python script doing the exact same thing.
+The following example will show the procedure of calculating elastic constants (at T=0K) using either the GUI version or a *python* script.
 
 a.) Using the GUI
 ^^^^^^^^^^^^^^^^^

@@ -146,8 +146,9 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
         #self.mthd = self.__mthd
         self.sgn = self.__sgn
         self.strainType = self.get_strainList()[strainType_index]
+        
         self.eta = eta
-        self.set_defMatrix()
+        self.set_defMatrix(self.__code)
         def_matrix = self.defMatrix
         M_new = np.dot(self.__cell, def_matrix)
         self.__cell = M_new

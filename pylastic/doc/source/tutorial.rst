@@ -4,11 +4,11 @@ Tutorials
 Importing vasp POSCAR files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Two options are available for importing atoms positions from vasp POSCAR file:
+Two options are available for importing atomic positions from *VASP* POSCAR file:
 
-*	using vaspIO module (pylastic package)
+*	using ``vaspIO`` module (*pylastic* package)
 
-	The following code sample imports the POSCAR file
+	The following code imports the POSCAR file
 	
 	.. code-block:: python
 	
@@ -17,7 +17,7 @@ Two options are available for importing atoms positions from vasp POSCAR file:
 		poscar = POS('POSCAR').read_pos()
 
 		
-*	using ASE (external package ASE required)
+*	using *ASE* (external package *ASE* required)
 
 	.. code-block:: python
 	
@@ -25,10 +25,10 @@ Two options are available for importing atoms positions from vasp POSCAR file:
 		
 		pos = vasp.read('POSCAR')
 
-Creating atoms class objects from vasp POSCAR
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Creating an object containing the structural information
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-After importing the POSCAR file one can create an ASE like atoms object which has the attributes of the POSCAR file containing information about the crystal structure (lattice vectors, number of atoms, basis, ....).
+After importing the POSCAR file one can create an object which has the attributes of the POSCAR file, containing information about the crystal structure (lattice vectors, number of atoms, basis, ....). To do so, the ``ElAtoms`` class is provided, which is similar to the *ASE* ``atoms`` class.
 
 .. code-block:: python
 	
@@ -39,10 +39,19 @@ After importing the POSCAR file one can create an ASE like atoms object which ha
 	atom = ElAtoms('vasp')
 	atom.poscarToAtoms(poscar)
 
+Setting calculation method
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+	
+To switch from energy (default) to the stress approach, you have to assign the ``method`` attribute to your atoms instance:
+
+.. code-block:: python
+
+	atom.method = 'Stress'
+
 Distorting the atoms object
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Once an atoms object is created one can make distortions by applying the *distort* method on it:
+Once the instance *atoms* of ``ElAtomc`` class is created, one can make distortions by applying the ``distort`` method on it:
 
 .. code-block:: python
 	
@@ -50,7 +59,7 @@ Once an atoms object is created one can make distortions by applying the *distor
 
 
 
-where the arguments `eta` and `strainType` are the lagrangian strain and the type of deformation respectively. The number of deformation types is determined by the crystal symmetry of the parent lattice.
+where the arguments ``eta`` and ``strainType`` are the Lagrangian strain and the type of deformation respectively. The number of deformation types is determined by the crystal symmetry of the parent lattice.
 
 To list all possible deformation types do
 
@@ -58,10 +67,10 @@ To list all possible deformation types do
 	
 	atom.strainList
 
-The structures class
-^^^^^^^^^^^^^^^^^^^^
+The ``Structures`` class
+^^^^^^^^^^^^^^^^^^^^^^^^
 
-To collect the distorted structures there is the Structures class available: 
+To collect the distorted structures the ``Structures`` class is available: 
 
 .. code-block:: python
 
@@ -70,10 +79,10 @@ To collect the distorted structures there is the Structures class available:
 	structures = Structures('vasp')
 	structures.append_structure(atom)
 
-Starting local calculations using VASP
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Starting local calculations using *VASP*
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-To start electronic structure calculations for all collected structures one has first to specify the location of the VASP binary:
+To start electronic structure calculations for all collected structures one has first to specify the location of the *VASP* binary:
 
 .. code-block:: python
 
@@ -87,7 +96,8 @@ The calculations are started after calling the method:
 	
 Postprocessing
 ^^^^^^^^^^^^^^
-The following section describes how to proceed when DFT calculations have finished. The necessary module imports for the following steps are:
+
+The following section describes how to proceed when DFT calculations have finished. The modules to be imported for the subsequent steps are:
 
 .. code-block:: python
 
@@ -96,12 +106,16 @@ The following section describes how to proceed when DFT calculations have finish
 	
 	import matplotlib.pyplot as plt 
 	
-First import the structures object previously generated when setting up the calculation by calling ``set_structures``:
+First import the ``structures`` object previously generated when setting up the calculation by calling ``set_structures``:
 
 .. code-block:: python
 	
 	ec = ECs('vasp')
 	ec.set_structures()
+	
+
+.. code-block:: python	
+	
 	ec.set_gsenergy()
 	
 With ``set_gsenergy`` the groundstate energy of each calculation is read and passed to the ``ECs`` instance as attribute.
@@ -114,7 +128,7 @@ To get 2nd order derivatives of the energy and the Cross-Validation-Score (CVS) 
 	print ec.get_CVS()
 	print ec.get_rms()
 
-For plotting matplotlib package is used. In order to plot the CVS and second energy derivative one has to call the methods ``plot_cvs`` and ``plot_2nd`` respectively. Matplotlib's ``show`` makes the figures appear on screen: 
+For plotting the package *matplotlib* is used. In order to plot the CVS and second energy derivative one has to call the methods ``plot_cvs`` and ``plot_2nd`` respectively. Matplotlib's ``show`` makes the figures appear on screen: 
 
 .. code-block:: python
 
