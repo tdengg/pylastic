@@ -77,7 +77,7 @@ class Check(FileStructure):
                 else: 
                     self.__status[(stype,eta,vol)]['status'] = 'finished'
                     atoms[(stype,eta,vol)].status = True
-                self.__status[(stype,eta,vol)]['path'] = atoms[(stype,eta)].path        
+                self.__status[(stype,eta,vol)]['path'] = atoms[(stype,eta,vol)].path        
                 
             
         self.__statusstring = FileStructure().dicToTree(self.__status)
