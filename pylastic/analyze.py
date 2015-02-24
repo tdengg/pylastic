@@ -54,7 +54,7 @@ class Energy(object):
         return self.__V0
         
     def set_2nd(self, fitorder):
-        """Fit energy strain curve and evaluate 2nd derivative in order to get 2nd order elastic constants.
+        """Fit energy vs. strain curve and evaluate 2nd derivatives in order to get 2nd order elastic constants.
         
         Parameters
         ----------

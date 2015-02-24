@@ -26,7 +26,7 @@ class VASP(object):
         
     #####################################
     def set_cellsize(self, cells):
-        """Set supercell size.
+        """Set cell size.
         
         Parameters
         ----------

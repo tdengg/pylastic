@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 
 
 class ECs(Check, Energy, Stress):
-    """Calculate elastic constants, CVS calculation, post-processing."""
+    """Calculation of elastic constants and post-processing."""
     
     def __init__(self, cod='vasp'):
         
@@ -35,6 +35,8 @@ class ECs(Check, Energy, Stress):
         self.__etacalc = None
         self.__rms = []
         self.__workdir = './'
+        self.__thermodyn = False
+        self.__T = 0
         #%%%%%%%%--- CONSTANTS ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         _e     = 1.602176565e-19              # elementary charge
         #Bohr   = 5.291772086e-11              # a.u. to meter
@@ -79,14 +81,26 @@ class ECs(Check, Energy, Stress):
                 
                 getData.set_fname(self.__workdir + '%s/'%atoms[1].path.lstrip('.') + outfile)
                 getData.set_gsenergy()
-                
+                if self.__thermodyn:
+                    outfile_ph = 'F_TV'
+                    getData.set_fname(self.__workdir + '%s/'%atoms[1].path.lstrip('.') + outfile_ph)
+                    getData.T = self.__T
+                    getData.set_phenergy()
+                    atoms[1].phenergy = getData.get_phenergy()
                 #atoms[1].gsenergy = getData.get_gsEnergy()
                 atoms[1].gsenergy = getData.get_gsenergy()
                     
         self.__gsenergy = gsenergy
-    
+
     def get_gsenergy(self):
         return self.__gsenergy
+    
+    def set_fenergy(self, fenergy):
+        
+        self.__fenergy = fenergy
+    
+    def get_fenergy(self):
+        return self.__fenergy
     
     def set_stress(self, stress=None):
         """Read stress for all atoms in structures.
@@ -116,7 +130,7 @@ class ECs(Check, Energy, Stress):
                 getData.set_stress()
                 #atoms[1].gsenergy = getData.get_gsEnergy()
                 atoms[1].stress = getData.get_stress()
-                    
+                
         self.__stress = stress
     
     def get_stress(self):
@@ -157,8 +171,11 @@ class ECs(Check, Energy, Stress):
     
     def set_analytics(self):
         """Standard analysis including:
+        
             * Calculation of elastic constants, 
-            * cross validation score and 
+            * Root mean square error (RMS),
+            * cross validation score and
+            * plot of energy vs. strain curves.
         """
         
         self.__A2 = []
@@ -175,7 +192,10 @@ class ECs(Check, Energy, Stress):
             strain = [i.eta for i in atoms]
             
             if self.__mthd == 'Energy':
-                energy = [i.gsenergy for i in atoms]
+                if self.__thermodyn:
+                    energy = [i.gsenergy+i.phenergy for i in atoms]
+                else:    
+                    energy = [i.gsenergy for i in atoms]
                 ans = Energy(code=self.__cod)
                 ans.energy = energy
                 
@@ -188,7 +208,7 @@ class ECs(Check, Energy, Stress):
                 ans.set_stress(stress)
                 
             ans.set_strain(strain)
-             
+            
             ans.V0 = self.__V0
             
             ans.set_2nd(self.__fitorder)
@@ -206,7 +226,6 @@ class ECs(Check, Energy, Stress):
         if self.__mthd == 'Energy': self.set_ec(self.__etacalc)
         elif self.__mthd == 'Stress': 
             self.__sigma = ans.get_sigma()
-            
             self.set_ec((self.__etacalc))
         plt.show()
     
@@ -227,7 +246,10 @@ class ECs(Check, Energy, Stress):
             atoms = self.get_atomsByStraintype(stype)
             self.__V0 = atoms[0].V0
             strainList = atoms[0].strainList
-            energy = [i.gsenergy for i in atoms]
+            if self.__thermodyn:
+                energy = [i.gsenergy+i.phenergy for i in atoms]
+            else:
+                energy = [i.gsenergy for i in atoms]
             strain = [i.eta for i in atoms]
             
             spl = '1'+str(len(strainList))+str(n)
@@ -269,7 +291,11 @@ class ECs(Check, Energy, Stress):
             atoms = self.get_atomsByStraintype(stype)
             self.__V0 = atoms[0].V0
             strainList = atoms[0].strainList
-            energy = [i.gsenergy for i in atoms]
+            if self.__thermodyn:
+                energy = [i.gsenergy+i.phenergy for i in atoms]
+            else:
+                energy = [i.gsenergy for i in atoms]
+            
             strain = [i.eta for i in atoms]
             
             spl = '1'+str(len(strainList))+str(n)
@@ -310,7 +336,10 @@ class ECs(Check, Energy, Stress):
         for stype in strainList:
             #self.search_for_failed()
             atoms = self.get_atomsByStraintype(stype)
-            energy = [i.gsenergy for i in atoms]
+            if self.__thermodyn:
+                energy = [i.gsenergy+i.phenergy for i in atoms]
+            else:
+                energy = [i.gsenergy for i in atoms]
             strain = [i.eta for i in atoms]
             
             plt.plot(strain, energy, '%s*'%color[j])
@@ -352,7 +381,7 @@ class ECs(Check, Energy, Stress):
     def get_fitorder(self):
         return self.__fitorder
     
-    def set_ec(self, etacalc):                                           #--> set_ec!
+    def set_ec(self, etacalc):                                           
         """Evaluate elastic constants from polynomials.
         
         Parameters
@@ -836,7 +865,8 @@ class ECs(Check, Energy, Stress):
             for j in range(i+1,6):
                 C[j,i] = C[i,j] 
         #%%%--- Calculating the elastic moduli ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        C = -C/10.
+        if self.__cod == 'espresso': C = -C/10.
+        elif self.__cod == 'vasp': C = C/4.
         self.BV = (C[0,0]+C[1,1]+C[2,2]+2*(C[0,1]+C[0,2]+C[1,2]))/9
         self.GV = ((C[0,0]+C[1,1]+C[2,2])-(C[0,1]+C[0,2]+C[1,2])+3*(C[3,3]+C[4,4]+C[5,5]))/15
         self.EV = (9*self.BV*self.GV)/(3*self.BV+self.GV)

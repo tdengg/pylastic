@@ -19,6 +19,7 @@ Contents:
    
    features
    intro
+   units
    install
    tutorial
    example_setup

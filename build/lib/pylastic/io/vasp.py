@@ -7,6 +7,7 @@ class POS(object):
         self.__fname = fname
         if fname: self.car = open(fname)
         self.__verbose = True
+        self.__T = 0
         
     def read_pos(self):
         if self.__verbose: print "Reading input file: '%s' ...."%(self.__fname)
@@ -14,7 +15,6 @@ class POS(object):
         p_dict["name"] = self.car.readline()
         if self.__fname: p_dict["path"] = self.__fname
         else: p_dict["path"] = os.getcwd()+'/POSCAR'
-        
         
         scale = self.lta()[0]
         
@@ -88,8 +88,9 @@ class POS(object):
         for n in range(len(pos["vbasis"])): 
             
             for s in pos['vbasis']["species_%s"%(str(n+1))]:
+                
                 for l in s: 
-                    for i in range(len(l)): posout.write(l[i] + ' ')
+                    posout.write(l+' ')#!!!!!!!
                 posout.write('\n')
                 
         posout.close()
@@ -122,7 +123,7 @@ class POS(object):
             for i in range(len(pos["natoms"])):
                 for j in range(pos["natoms"][i]):
                     
-                    f.write(pos["vbasis"]["species_" + str(i+1)][j][0] + ' ' + pos["vbasis"]["species_" + str(i+1)][j][1] + ' ' + pos["vbasis"]["species_" + str(i+1)][j][2] + '\n')
+                    f.write(pos["vbasis"]["species_" + str(i+1)][j][0]  + pos["vbasis"]["species_" + str(i+1)][j][1]  + pos["vbasis"]["species_" + str(i+1)][j][2] + '\n')
                     f.write('Species_' + str(i+1) + '\n')
         else: print 'Basis vectors in Cartesian coordinates not supported yet!!! \n NOT WRITTEN TO sgroup.in!!!!!'
         f.close()
@@ -166,16 +167,37 @@ class POS(object):
 
 class Energy():
     """Get energies from espresso output file."""
-    def __init__(self, fname = 'erpresso.out'):
+    def __init__(self, fname = 'vasprun.xml'):
         self.__fname = fname
+        
+    def set_T(self, T):
+        self.__T = T
+        
+    def get_T(self):
+        return self.__T
 
     def set_gsenergy(self):
-        for line in open(self.__fname,'r'):
-            if (line.find('!    total energy')>=0):
-                self.__gsenergy = float(line.split()[-2])
+        """Get groundstate energy from vasprun.xml"""
+        vasprun = et.parse(self.__fname)
+        elem = vasprun.xpath("//scstep[last()]/energy/i[@name = 'e_fr_energy']")
+        self.__gsenergy = float(elem[0].text)
+        
         
     def get_gsenergy(self):
+        """Return groundstate energy."""
         return self.__gsenergy
+    
+    def set_phenergy(self, phenergy):
+        """Read phonon free energy from phonopy output (default filename: F_TV) for temperature T."""
+        g = open(self.__fname)
+        phenergy = float(g.readlines()[self.__T].split()[1])/96.47244
+        g.close()
+        
+        self.__phenergy = phenergy
+    
+    def get_phenergy(self):
+        """Return phonon free energy for temperature T"""
+        return self.__phenergy
     
     def set_fname(self,fname):
         self.__fname = fname
@@ -184,6 +206,7 @@ class Energy():
         return self.__fname
     
     fname = property( fget = get_fname        , fset = set_fname)
+    T = property( fget = get_T       , fset = set_T)
     
 class Stress():
     def __init__(self, fname = 'vasprun.xml'):

@@ -4,6 +4,8 @@ import os
 
 
 class Sgroup(POS):
+    """Determine the space group of ``poscar`` using the **sgroup** tool.
+    """
     def __init__(self, poscar, fname):
         
         super(Sgroup, self).__init__(fname)

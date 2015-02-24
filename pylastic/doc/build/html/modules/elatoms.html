@@ -88,6 +88,10 @@
 <dt id="elatoms.ElAtoms.set_cell">
 <tt class="descname">set_cell</tt><big>(</big><em>cell</em><big>)</big><a class="headerlink" href="#elatoms.ElAtoms.set_cell" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set lattice vectors of crystal cell.</p>
+<dl class="docutils">
+<dt>cell <span class="classifier-delimiter">:</span> <span class="classifier">list of 3 lists</span></dt>
+<dd>Lattice vectors in Cartesian coordinates.</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -98,10 +102,10 @@
 <dl class="method">
 <dt id="elatoms.ElAtoms.set_natom">
 <tt class="descname">set_natom</tt><big>(</big><em>natom</em><big>)</big><a class="headerlink" href="#elatoms.ElAtoms.set_natom" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set number of atoms in supercell.</p>
+<dd><p>Set number of atoms in crystal cell.</p>
 <dl class="docutils">
 <dt>natom <span class="classifier-delimiter">:</span> <span class="classifier">integer</span></dt>
-<dd>Supercell size.</dd>
+<dd>Number of atoms in crystal cell.</dd>
 </dl>
 </dd></dl>
 
@@ -158,12 +162,14 @@
 <dl class="method">
 <dt id="elatoms.ElAtoms.set_poscar">
 <tt class="descname">set_poscar</tt><big>(</big><em>poscar</em><big>)</big><a class="headerlink" href="#elatoms.ElAtoms.set_poscar" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Assign the dictionary poscar.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="elatoms.ElAtoms.get_poscar">
 <tt class="descname">get_poscar</tt><big>(</big><big>)</big><a class="headerlink" href="#elatoms.ElAtoms.get_poscar" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Assign the dictionary poscar.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="elatoms.ElAtoms.set_poscarnew">
@@ -178,10 +184,10 @@
 <dl class="method">
 <dt id="elatoms.ElAtoms.set_V0">
 <tt class="descname">set_V0</tt><big>(</big><em>V0</em><big>)</big><a class="headerlink" href="#elatoms.ElAtoms.set_V0" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set equilibrium volume of supercell.</p>
+<dd><p>Set equilibrium volume of crystal cell.</p>
 <dl class="docutils">
 <dt>V0 <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>Equilibrium volume of supercell.</dd>
+<dd>Equilibrium volume of crystal cell.</dd>
 </dl>
 </dd></dl>
 
@@ -208,7 +214,7 @@
 <dl class="method">
 <dt id="elatoms.ElAtoms.distort">
 <tt class="descname">distort</tt><big>(</big><em>eta=0.0</em>, <em>strainType_index=0</em><big>)</big><a class="headerlink" href="#elatoms.ElAtoms.distort" title="Permalink to this definition">¶</a></dt>
-<dd><p>Distort structure and</p>
+<dd><p>Distort the structure.</p>
 <dl class="docutils">
 <dt>eta <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
 <dd>lagrangian strain value</dd>
@@ -261,7 +267,7 @@
 
 <dl class="method">
 <dt id="elatoms.Structures.write_structures">
-<tt class="descname">write_structures</tt><big>(</big><em>strkt</em>, <em>overwrite=True</em><big>)</big><a class="headerlink" href="#elatoms.Structures.write_structures" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">write_structures</tt><big>(</big><em>struct</em>, <em>overwrite=True</em><big>)</big><a class="headerlink" href="#elatoms.Structures.write_structures" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a file structure and write all input files for vasp.</p>
 <p>Filestructure:</p>
 <ul>
@@ -296,8 +302,8 @@
 </li>
 </ul>
 <dl class="docutils">
-<dt>strkt <span class="classifier-delimiter">:</span> <span class="classifier">object</span></dt>
-<dd>Structures object to be written to structures.pkl</dd>
+<dt>struct <span class="classifier-delimiter">:</span> <span class="classifier">object</span></dt>
+<dd><tt class="docutils literal"><span class="pre">Structures</span></tt> object to be written to structures.pkl</dd>
 </dl>
 <dl class="docutils">
 <dt>overwrite <span class="classifier-delimiter">:</span> <span class="classifier">boolean</span></dt>
@@ -308,7 +314,7 @@
 <dl class="method">
 <dt id="elatoms.Structures.append_structure">
 <tt class="descname">append_structure</tt><big>(</big><em>atoms</em><big>)</big><a class="headerlink" href="#elatoms.Structures.append_structure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Append structure to Structures object to create a set of distorted structures.</p>
+<dd><p>Append structure to <tt class="docutils literal"><span class="pre">Structures</span></tt> object to create a set of distorted structures.</p>
 <dl class="docutils">
 <dt>atoms <span class="classifier-delimiter">:</span> <span class="classifier">object </span></dt>
 <dd>atoms object created from ElAtoms class.</dd>
