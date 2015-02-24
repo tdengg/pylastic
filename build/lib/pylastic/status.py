@@ -45,22 +45,41 @@ class Check(FileStructure):
                 atoms = self.__structuresinst.get_structures()
             except:
                 atoms = self.__structuresinst
-        
-        for stype, eta in atoms:
-            self.__status[(stype,eta)] = {}
-            if self.__cod == 'vasp':
-                try:
-                    et.parse(atoms[(stype,eta)].path+'/vasprun.xml')
+        if len(atoms.keys()[0])==2:
+            for stype, eta in atoms:
+                self.__status[(stype,eta)] = {}
+                if self.__cod == 'vasp':
+                    try:
+                        et.parse(atoms[(stype,eta)].path+'/vasprun.xml')
+                        self.__status[(stype,eta)]['status'] = 'finished'
+                        atoms[(stype,eta)].status = True
+                    except:
+                        self.__status[(stype,eta)]['status'] = '--------'
+                        atoms[(stype,eta)].status = False
+                
+                else: 
                     self.__status[(stype,eta)]['status'] = 'finished'
                     atoms[(stype,eta)].status = True
-                except:
-                    self.__status[(stype,eta)]['status'] = '--------'
-                    atoms[(stype,eta)].status = False
+                self.__status[(stype,eta)]['path'] = atoms[(stype,eta)].path
+        
+        elif len(atoms.keys()[0])==3:
+            for stype, eta, vol in atoms:
+                self.__status[(stype,eta,vol)] = {}
+                if self.__cod == 'vasp':
+                    try:
+                        et.parse(atoms[(stype,eta,vol)].path+'/vasprun.xml')
+                        self.__status[(stype,eta,vol)]['status'] = 'finished'
+                        atoms[(stype,eta,vol)].status = True
+                    except:
+                        self.__status[(stype,eta,vol)]['status'] = '--------'
+                        atoms[(stype,eta,vol)].status = False
+                
+                else: 
+                    self.__status[(stype,eta,vol)]['status'] = 'finished'
+                    atoms[(stype,eta,vol)].status = True
+                self.__status[(stype,eta,vol)]['path'] = atoms[(stype,eta)].path        
+                
             
-            else: 
-                self.__status[(stype,eta)]['status'] = 'finished'
-                atoms[(stype,eta)].status = True
-            self.__status[(stype,eta)]['path'] = atoms[(stype,eta)].path
         self.__statusstring = FileStructure().dicToTree(self.__status)
         f = open('status', 'w')
         f.write(self.__statusstring)
