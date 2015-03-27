@@ -98,7 +98,6 @@ class Check(FileStructure):
     def get_code(self):
         return self.__cod
     
-    
     workdir = property( fget = get_workdir        , fset = set_workdir)
     structures = property( fget = get_structuresinst       , fset = set_structuresinst)
     code = property( fget = get_code        , fset = set_code    )

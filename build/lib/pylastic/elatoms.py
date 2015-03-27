@@ -258,6 +258,19 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
     def get_gsenergy(self):
         return self.__gsenergy
     
+    def set_phenergy(self, phenergy):
+        """Give atoms object a phonon free energy.
+        
+        Parameters
+        ----------
+        phenergy : float
+            groundstate energy in eV
+        """
+        self.__phenergy = phenergy
+        
+    def get_phenergy(self):
+        return self.__phenergy
+    
 #    def set_method(self, mthd):
 #        if mthd in ['Energy','Stress']: self.__mthd = mthd
 #        else: print "Wrong value for method: Please choose either 'Energy' or 'Stress'!"
@@ -273,6 +286,11 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
             
     def get_code(self):
         return self.__code
+    
+    def set_T(self,T):
+        self.__T = T
+    def get_T(self):
+        return self.__T
 
     
     
@@ -285,6 +303,8 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
     poscar  = property( fget = get_poscar       , fset = set_poscar  )
     poscarnew  = property( fget = get_poscarnew       , fset = set_poscarnew )
     gsenergy= property( fget = get_gsenergy     , fset = set_gsenergy)
+    phenergy= property( fget = get_phenergy     , fset = set_phenergy)
+    T = property( fget = get_T       , fset = set_T   )
     
 #    mthd = property( fget = get_method       , fset = set_method)
     code = property( fget = get_code       , fset = set_code)

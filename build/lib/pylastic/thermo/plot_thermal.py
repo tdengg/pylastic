@@ -11,6 +11,7 @@ class PLOT_THERMAL(object):
 		self.style = style
 		self.conv = 96.47244
 		self.__E0 = []
+		self.__cellsize = 1.
 	def get_data(self):
 		f = []
 		l = []
@@ -18,7 +19,7 @@ class PLOT_THERMAL(object):
 		
 		for d in sorted(os.listdir(self.dir)):
 			
-			if 'scale_' in d:
+			if '1' in d and os.path.isdir(d):
 				
 				l = float(d.lstrip('scale_'))
 				
@@ -28,17 +29,11 @@ class PLOT_THERMAL(object):
 					dic[l]['file'] = open(self.dir+'/'+d+'/F_TV').readlines()
 					dic[l]['vasprun'] = vrun
 					
-					elem = vrun.xpath("//scstep/energy/i[@name = 'e_fr_energy']")
-					allengys = []
-					for k in elem:
-						try: allengys.append(float(k.text))
-						except: allengys.append(0.)
-					trueengys = []
-					for engy in allengys:
-						if engy < -1000. and engy > -3000.: trueengys.append(engy)
-					gsenergy = trueengys[-1]
-					dic[l]['E0']=gsenergy/125.
-					self.__E0.append(gsenergy/125.)
+					elem = vrun.xpath("//scstep/energy[i/@name='hartreedc']/i[@name = 'e_0_energy']")
+					
+					gsenergy = float(elem[1].text)
+					dic[l]['E0']=gsenergy/self.__cellsize
+					self.__E0.append(gsenergy/self.__cellsize)
 					
 					
 				except:
@@ -60,7 +55,7 @@ class PLOT_THERMAL(object):
 				
 			dic[out]['F'] = F
 			dic[out]['T'] = T
-			dic[out]['E0'] = float(dic[out]['vasprun'].xpath("//scstep[last()]/energy/i[@name = 'e_0_energy']")[0].text)
+			dic[out]['E0'] = float(dic[out]['vasprun'].xpath("//scstep/energy[i/@name='hartreedc']/i[@name = 'e_0_energy']")[1].text)
 			#plt.plot(T,F)
 			#plt.show()
 			j+=1
@@ -78,24 +73,27 @@ class PLOT_THERMAL(object):
 			xdata = []
 			ydata = []
 			i=0
+			
 			for out in ndic:
 				xdata.append(out)
 				ind = self.__dic[out]['T'].index(temp)
-				print out
-				print self.__E0[i]
+				
 				ydata.append(self.__dic[out]['F'][ind]/self.conv + self.__E0[i] + 13.5)
 				i+=1
 			#polyfit:
-			coeff = np.polyfit(xdata,ydata,3)
+			coeff = np.polyfit(xdata,ydata,5)
 			p = np.poly1d(coeff)
 			polyx = np.linspace(min(xdata),max(xdata),1000)
 			
-			if temp == 100.:
-				
-				ax.plot(xdata,self.__E0,'+')
-				#ax.plot(polyx,p(polyx))
-			minl.append(np.real(np.roots(p.deriv())[1]))
-			minF.append(p(np.roots(p.deriv())[1]))
+			i=0
+			for root in np.roots(p.deriv()):
+				if np.imag(root) == 0. and min(xdata)*0.8 < np.real(root) < max(xdata)*1.1:
+					minl.append(float(np.real(root)))
+					minF.append(p(np.real(root)))
+					break
+				i+=1
+			#minl.append(np.real(np.roots(p.deriv())[1]))
+			#minF.append(p(np.roots(p.deriv())[1]))
 			
 			#polyfit F-T
 			coeff = np.polyfit(minl,minF,21)
@@ -110,7 +108,7 @@ class PLOT_THERMAL(object):
 		
 		#polyfit thermal expansion:
 		
-		coeff = np.polyfit(trange,minl,4)
+		coeff = np.polyfit(trange,minl,3)
 		p = np.poly1d(coeff)
 		polyx = np.linspace(min(trange),max(trange),1000)
 		
@@ -127,7 +125,11 @@ class PLOT_THERMAL(object):
 		self.__minl = minl
 		self.__minF = minF
 		
+	def set_cellsize(self, cellsize):
+		self.__cellsize = cellsize
 		
+	def get_cellsize(self):
+		return self.__cellsize
 
 	def set_minl(self, minl):
 		self.__minl = minl
@@ -154,5 +156,6 @@ class PLOT_THERMAL(object):
 	minl = property(fget=get_minl,fset=set_minl)
 	minF = property(fget=get_minF,fset=set_minF)
 	alpha = property(fget=get_alpha,fset=set_alpha)
+	cellsize = property(fget=get_cellsize,fset=set_cellsize)
 		
 			

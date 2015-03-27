@@ -604,8 +604,10 @@ class POS(object):
         K_POINTS = i_dict['parameters']['K_POINTS']
         nat = i_dict['parameters']['nat']
         OATPO = i_dict['parameters']['OATPO']
-        
-        shutil.copy(os.getcwd()+'/espresso.in',path)
+        try:
+            shutil.copy(os.getcwd()+'/'+self.__fname,path)
+        except:
+            'Dind not copy input file'
         
         pwi = open(path, 'w')
         

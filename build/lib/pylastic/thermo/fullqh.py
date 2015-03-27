@@ -1,4 +1,5 @@
 import numpy as np
+import pickle
 import json
 import copy
 import os
@@ -6,7 +7,7 @@ import os
 from pylastic.distort import Distort
 from pylastic.elatoms import ElAtoms, Structures
 from pylastic.io.vasp import POS
-
+from pylastic.postprocess import ECs
 
 class Setup(Structures, Distort, POS):
     def __init__(self):
@@ -58,15 +59,103 @@ class Setup(Structures, Distort, POS):
     def distortions(self, volume, etamax, N):
         return self.__structures
     
-class Postprocess(object):
-    def __init__(self, structures):
-        self.__structures = structures
+class Postprocess(ECs):
+    def __init__(self):
+        super(Postprocess, self).__init__()
+        self.__allstructures = None
+        
+    def set_energies(self):
+        ec = ECs('vasp',True)
+        ec.set_structures()
+        ec.set_gsenergy()
+        self.__allstructures = ec.get_structures()
+        
         
     def eq_volumes(self, T_array):
         
         return self.__vmin, T_array
     
+    def rewrite_structures(self):
+        structures = []
+        self.__V=[]
+        for (a,b,v) in self.__allstructures.keys():
+            if not v in self.__V:
+                self.__V.append(v)
+        self.__V = sorted(self.__V)
+        i=0
+        
+        for v in self.__V:
+            
+            structures.append({})
+            for (a,b,c) in self.__allstructures.keys():
+                if c==v:
+                    
+                    structures[i][(a,b)] = self.__allstructures[(a,b,v)]
+            
+            f=open('./%s/structures.pkl'%v,'w')
+            pickle.dump(structures[i],f)
+            f.close()
+            i+=1 
+            
+        self.__structures = structures
+        return 
+    
     def ECs(self):
+        ec = ECs('vasp',True)
+        i=0
+        for structure in self.__structures:
+            ec = ECs('vasp',True)
+            os.chdir(str(self.__V[i]))
+            # T-dependent EC's ############
+            T = structure.values()[0].T
+            ec.T = T
+            ec.set_structures()
+            #print ec.get_structures()
+            ec.fitorder=[6,8,6]
+            ec.etacalc=['0.05','0.05','0.025']
+            ec.set_analytics()
+            ecs = ec.get_ec()
+            cvs = ec.get_CVS()
+            
+            ec.plot_cvs()
+            ec.plot_cvs('E0')
+            ec.plot_cvs('F')
+            
+            ec.plot_2nd()
+            ec.plot_2nd('E0')
+            ec.plot_2nd('F')
+            
+            ec.plot_energy()
+            ec.plot_energy(mod='E0')
+            ec.plot_energy(mod='F')
+            
+            f=open('ECs.pkl','w')
+            pickle.dump(ecs,f)
+            f.close()
+            f=open('CVS.pkl','w')
+            pickle.dump(cvs,f)
+            f.close()
+            ################################
+            
+            # T=0K EC's ####################
+            ec = ECs('vasp')
+            ec.set_structures()
+            ec.fitorder=[6,6,6]
+            ec.etacalc=['0.05','0.05','0.04']
+            ec.set_analytics()
+            ecs = ec.get_ec()
+            cvs = ec.get_CVS()
+            f=open('ECs_T0.pkl','w')
+            pickle.dump(ecs,f)
+            f.close()
+            f=open('CVS_T0.pkl','w')
+            pickle.dump(cvs,f)
+            f.close()
+            ################################
+            
+            
+            os.chdir('../')
+            i+=1
         return
     
     def interpolate(self):

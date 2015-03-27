@@ -49,12 +49,12 @@ class POS(object):
         i_dict = {}
         newlines = []
         lines = self.car.readlines()
-        for l in lines: newlines.append(l.strip().split('= '))
-        print newlines
+        for l in lines: newlines.append(l.strip().split(' = '))
+        #print newlines
         for pars in newlines:
             if not pars == ['']: i_dict[pars[0]] = pars[1]
         
-        print i_dict
+        #print i_dict
         return i_dict
         
         
@@ -179,21 +179,27 @@ class Energy():
     def set_gsenergy(self):
         """Get groundstate energy from vasprun.xml"""
         vasprun = et.parse(self.__fname)
-        elem = vasprun.xpath("//scstep[last()]/energy/i[@name = 'e_fr_energy']")
-        self.__gsenergy = float(elem[0].text)
+        elem = vasprun.xpath("//scstep/energy[i/@name='hartreedc']/i[@name = 'e_0_energy']")
+        self.__gsenergy = float(elem[1].text)
         
         
     def get_gsenergy(self):
         """Return groundstate energy."""
         return self.__gsenergy
     
-    def set_phenergy(self, phenergy):
+    def set_phenergy(self, ph_file):
         """Read phonon free energy from phonopy output (default filename: F_TV) for temperature T."""
-        g = open(self.__fname)
-        phenergy = float(g.readlines()[self.__T].split()[1])/96.47244
+        g = open(ph_file)
+        lines = g.readlines()
+        phenergy = []
+        T = []
+        for temp in lines:
+            phenergy.append(float(temp.split()[1])/96.47244)
+            T.append(float(temp.split()[0]))
         g.close()
         
         self.__phenergy = phenergy
+        self.__T=T
     
     def get_phenergy(self):
         """Return phonon free energy for temperature T"""

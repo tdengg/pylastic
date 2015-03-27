@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 class ECs(Check, Energy, Stress):
     """Calculation of elastic constants and post-processing."""
     
-    def __init__(self, cod='vasp'):
+    def __init__(self, cod='vasp', thermo=False):
         
         #super(Check, self).__init__()
         #super(FileStructure, self).__init__()
@@ -31,11 +31,11 @@ class ECs(Check, Energy, Stress):
         self.__structures = None
         self.__cod = cod
         self.__mthd = 'Energy'
-        self.__fitorder = 4
+        self.__fitorder = [6,6,6]
         self.__etacalc = None
         self.__rms = []
         self.__workdir = './'
-        self.__thermodyn = False
+        self.__thermodyn = thermo
         self.__T = 0
         #%%%%%%%%--- CONSTANTS ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         _e     = 1.602176565e-19              # elementary charge
@@ -83,12 +83,16 @@ class ECs(Check, Energy, Stress):
                 getData.set_gsenergy()
                 if self.__thermodyn:
                     outfile_ph = 'F_TV'
-                    getData.set_fname(self.__workdir + '%s/'%atoms[1].path.lstrip('.') + outfile_ph)
-                    getData.T = self.__T
-                    getData.set_phenergy()
+                    #getData.set_fname(self.__workdir + '%s/'%atoms[1].path.lstrip('.') + outfile_ph)
+                    #getData.T = self.__T
+                    
+                    getData.set_phenergy(self.__workdir + '%s/'%atoms[1].path.lstrip('.') + outfile_ph)
                     atoms[1].phenergy = getData.get_phenergy()
+                    atoms[1].T = getData.T
                 #atoms[1].gsenergy = getData.get_gsEnergy()
-                atoms[1].gsenergy = getData.get_gsenergy()
+                    atoms[1].gsenergy = getData.get_gsenergy()/1.
+                else:
+                    atoms[1].gsenergy = getData.get_gsenergy()
                     
         self.__gsenergy = gsenergy
 
@@ -101,6 +105,12 @@ class ECs(Check, Energy, Stress):
     
     def get_fenergy(self):
         return self.__fenergy
+    
+    def set_T(self,T):
+        self.__T = T
+    
+    def get_T(self):
+        return self.__T
     
     def set_stress(self, stress=None):
         """Read stress for all atoms in structures.
@@ -140,11 +150,13 @@ class ECs(Check, Energy, Stress):
         """Import structures object from file."""
         if not self.__structures: 
             with open('structures.pkl', 'rb') as input:
-                self.__structures = pickle.load(input).get_structures()
+                structures = pickle.load(input)
+            if type(structures)==dict: self.__structures = structures
+            else: self.__structures = structures.get_structures()
         else: pass
         
     def get_structures(self):
-        if not self.__structures:
+        if self.__structures == None:
             self.set_structures()
         else:
             return self.__structures
@@ -177,57 +189,119 @@ class ECs(Check, Energy, Stress):
             * cross validation score and
             * plot of energy vs. strain curves.
         """
-        
-        self.__A2 = []
-        
-        #self.status()
-        # Check status of every atoms object
-        strainList= self.__structures.items()[0][1].strainList
-        n=1
-        for stype in strainList:
-            atoms = self.get_atomsByStraintype(stype)
-            self.__V0 = atoms[0].V0
-            strainList = atoms[0].strainList
+        if self.__thermodyn:
+            self.__A2 = []
             
-            strain = [i.eta for i in atoms]
-            
-            if self.__mthd == 'Energy':
-                if self.__thermodyn:
-                    energy = [i.gsenergy+i.phenergy for i in atoms]
-                else:    
-                    energy = [i.gsenergy for i in atoms]
-                ans = Energy(code=self.__cod)
-                ans.energy = energy
+            for t in range(len(self.__T)):
                 
-            elif self.__mthd == 'Stress':
+                self.__A2.append([])
+                self.__CVS.append([])
+                self.__rms.append([])
+                #self.status()
+                # Check status of every atoms object
+                strainList= self.__structures.items()[0][1].strainList
                 
-                stress = [self.physicalToLagrangian(i.stress,i.defMatrix) for i in atoms]
-                print stress
-                plt.plot(strain,[i.stress[0][2] for i in atoms])
-                ans = Stress(code=self.__cod)
-                ans.set_stress(stress)
+                n=1
+                for stype in strainList:
+                    
+                    fitorder = self.__fitorder[n-1]
+                    atoms = self.get_atomsByStraintype(stype)
+                    self.__V0 = atoms[0].V0
+                    strainList = atoms[0].strainList
+                    
+                    strain = [i.eta for i in atoms]
+                    
+                    if self.__mthd == 'Energy':
+                        
+                        energy = [i.gsenergy+i.phenergy[t] for i in atoms]
+                        phenergy = [i.phenergy[t] for i in atoms]
+                        ans = Energy(code=self.__cod)
+                        ans.energy = energy
+                        #if t==10 or t==100: plt.plot(strain, phenergy)
+                        
+                    elif self.__mthd == 'Stress':
+                        
+                        stress = [self.physicalToLagrangian(i.stress,i.defMatrix) for i in atoms]
+                        print stress
+                        plt.plot(strain,[i.stress[0][2] for i in atoms])
+                        ans = Stress(code=self.__cod)
+                        ans.set_stress(stress)
+                        
+                    ans.set_strain(strain)
+                    
+                    ans.V0 = self.__V0
+                    
+                    ans.set_2nd(fitorder)
+                    
+                    ans.set_cvs(fitorder)
+                    self.__rms[t].append(ans.get_r())
+                    self.__CVS[t].append(ans.get_cvs())
+                    self.__A2[t].append(ans.get_2nd())
+                    
+                    #spl = str(len(strainList))+'1'+str(n)
+                    #plt.subplot(int(spl))
+                    #if self.__mthd == 'energy': ans.plot_energy(fitorder=self.__fitorder)
+                    n+=1
                 
-            ans.set_strain(strain)
+            if not self.__etacalc: self.__etacalc = str(strain[-1])
+            if self.__mthd == 'Energy': self.set_ec(self.__etacalc)
+            elif self.__mthd == 'Stress': 
+                self.__sigma = ans.get_sigma()
+                self.set_ec((self.__etacalc))
             
-            ans.V0 = self.__V0
+                
+                
+        else: 
+            self.__A2 = []
             
-            ans.set_2nd(self.__fitorder)
-            
-            ans.set_cvs(self.__fitorder)
-            self.__rms.append(ans.get_r())
-            self.__CVS.append(ans.get_cvs())
-            self.__A2.append(ans.get_2nd())
-            
-            #spl = str(len(strainList))+'1'+str(n)
-            #plt.subplot(int(spl))
-            #if self.__mthd == 'energy': ans.plot_energy(fitorder=self.__fitorder)
-            n+=1
-        if not self.__etacalc: self.__etacalc = str(strain[-1])
-        if self.__mthd == 'Energy': self.set_ec(self.__etacalc)
-        elif self.__mthd == 'Stress': 
-            self.__sigma = ans.get_sigma()
-            self.set_ec((self.__etacalc))
-        plt.show()
+            #self.status()
+            # Check status of every atoms object
+            strainList= self.__structures.items()[0][1].strainList
+            n=1
+            for stype in strainList:
+                atoms = self.get_atomsByStraintype(stype)
+                self.__V0 = atoms[0].V0
+                strainList = atoms[0].strainList
+                
+                strain = [i.eta for i in atoms]
+                
+                if self.__mthd == 'Energy':
+                    if self.__thermodyn:
+                        energy = [i.gsenergy+i.phenergy for i in atoms]
+                    else:    
+                        energy = [i.gsenergy for i in atoms]
+                    ans = Energy(code=self.__cod)
+                    ans.energy = energy
+                    
+                elif self.__mthd == 'Stress':
+                    
+                    stress = [self.physicalToLagrangian(i.stress,i.defMatrix) for i in atoms]
+                    print stress
+                    plt.plot(strain,[i.stress[0][2] for i in atoms])
+                    ans = Stress(code=self.__cod)
+                    ans.set_stress(stress)
+                    
+                ans.set_strain(strain)
+                
+                ans.V0 = self.__V0
+                
+                ans.set_2nd(self.__fitorder[n-1])
+                
+                ans.set_cvs(self.__fitorder[n-1])
+                self.__rms.append(ans.get_r())
+                self.__CVS.append(ans.get_cvs())
+                self.__A2.append(ans.get_2nd())
+                
+                #spl = str(len(strainList))+'1'+str(n)
+                #plt.subplot(int(spl))
+                #if self.__mthd == 'energy': ans.plot_energy(fitorder=self.__fitorder)
+                n+=1
+            if not self.__etacalc: self.__etacalc = str(strain[-1])
+            if self.__mthd == 'Energy': self.set_ec(self.__etacalc)
+            elif self.__mthd == 'Stress': 
+                self.__sigma = ans.get_sigma()
+                self.set_ec((self.__etacalc))
+            plt.show()
     
     def get_rms(self):
         return self.__rms
@@ -235,7 +309,7 @@ class ECs(Check, Energy, Stress):
     def get_CVS(self):
         return self.__CVS
     
-    def plot_cvs(self):
+    def plot_cvs(self, mod='F'):
         """Returns matplotlib axis instance of cross validation score plot."""
         f = plt.figure(figsize=(5,4), dpi=100)
         
@@ -246,8 +320,12 @@ class ECs(Check, Energy, Stress):
             atoms = self.get_atomsByStraintype(stype)
             self.__V0 = atoms[0].V0
             strainList = atoms[0].strainList
-            if self.__thermodyn:
-                energy = [i.gsenergy+i.phenergy for i in atoms]
+            if self.__thermodyn and mod=='F':
+                energy = [i.gsenergy+i.phenergy[-1] for i in atoms]
+            elif self.__thermodyn and mod=='E0':
+                energy = [i.gsenergy for i in atoms]
+            elif self.__thermodyn and mod=='Fvib':
+                energy = [i.phenergy[-1] for i in atoms]
             else:
                 energy = [i.gsenergy for i in atoms]
             strain = [i.eta for i in atoms]
@@ -279,7 +357,7 @@ class ECs(Check, Energy, Stress):
         
         return f
         
-    def plot_2nd(self):
+    def plot_2nd(self, mod = 'F'):
         """Returns matplotlib axis instance of d2E/d(eta) plot."""
         f = plt.figure(figsize=(5,4), dpi=100)
         
@@ -291,8 +369,12 @@ class ECs(Check, Energy, Stress):
             atoms = self.get_atomsByStraintype(stype)
             self.__V0 = atoms[0].V0
             strainList = atoms[0].strainList
-            if self.__thermodyn:
-                energy = [i.gsenergy+i.phenergy for i in atoms]
+            if self.__thermodyn and mod == 'F':
+                energy = [i.gsenergy+i.phenergy[-1] for i in atoms]
+            elif self.__thermodyn and mod=='E0':
+                energy = [i.gsenergy for i in atoms]
+            elif self.__thermodyn and mod=='Fvib':
+                energy = [i.phenergy[-1] for i in atoms]
             else:
                 energy = [i.gsenergy for i in atoms]
             
@@ -327,7 +409,7 @@ class ECs(Check, Energy, Stress):
         a.legend(title='Order of fit')
         return f
         
-    def plot_energy(self, color=['r','g','b','c','m','y','k']):
+    def plot_energy(self, color=['r','g','b','c','m','y','k'], mod = 'F'):
         """Return matplotlib axis instance for energy-strain curve.  """
         f = plt.figure(figsize=(5,4), dpi=100)
         a = f.add_subplot(111)
@@ -336,8 +418,12 @@ class ECs(Check, Energy, Stress):
         for stype in strainList:
             #self.search_for_failed()
             atoms = self.get_atomsByStraintype(stype)
-            if self.__thermodyn:
-                energy = [i.gsenergy+i.phenergy for i in atoms]
+            if self.__thermodyn and mod=='F':
+                energy = [i.gsenergy+i.phenergy[-1] for i in atoms]
+            elif self.__thermodyn and mod=='E0':
+                energy = [i.gsenergy for i in atoms]
+            elif self.__thermodyn and mod=='Fvib':
+                energy = [i.phenergy[-1] for i in atoms]
             else:
                 energy = [i.gsenergy for i in atoms]
             strain = [i.eta for i in atoms]
@@ -345,7 +431,7 @@ class ECs(Check, Energy, Stress):
             plt.plot(strain, energy, '%s*'%color[j])
             
             
-            poly = np.poly1d(np.polyfit(strain,energy,self.__fitorder))
+            poly = np.poly1d(np.polyfit(strain,energy,self.__fitorder[j]))
             xp = np.linspace(min(strain), max(strain), 100)
             a.plot(xp, poly(xp),color[j],label=stype)
             j+=1
@@ -391,499 +477,1007 @@ class ECs(Check, Energy, Stress):
             A2 : list
                 Coefficients of polynomial fit.
         """
-        C = np.zeros((6,6))
-        
-        LC = self.__structures.items()[0][1].LC
-        if self.__mthd == 'Energy':
-            if not etacalc in self.__A2[0].keys(): raise ValueError('Please coose one of %s'%(self.__A2[0].keys()))
-            A2 = [a2[etacalc] for a2 in self.__A2]
+        if not self.__thermodyn:
+            C = np.zeros((6,6))
             
-            #%%%--- Cubic structures ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            if (LC == 'CI' or \
-                LC == 'CII'):
-                C[0,0] =-2.*(A2[0]-3.*A2[1])/3.
-                C[1,1] = C[0,0]
-                C[2,2] = C[0,0]
-                C[3,3] = A2[2]/6.
-                C[4,4] = C[3,3]
-                C[5,5] = C[3,3]
-                C[0,1] = (2.*A2[0]-3.*A2[1])/3.
-                C[0,2] = C[0,1]
-                C[1,2] = C[0,1]
-            #--------------------------------------------------------------------------------------------------------------------------------
-            
-            #%%%--- Hexagonal structures ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            if (LC == 'HI' or \
-                LC == 'HII'):
-                C[0,0] = 2.*A2[3]
-                C[0,1] = 2./3.*A2[0] + 4./3.*A2[1] - 2.*A2[2] - 2.*A2[3]
-                C[0,2] = 1./6.*A2[0] - 2./3.*A2[1] + 0.5*A2[2]
-                C[1,1] = C[0,0]
-                C[1,2] = C[0,2]
-                C[2,2] = 2.*A2[2]
-                C[3,3] =-0.5*A2[2] + 0.5*A2[4]
-                C[4,4] = C[3,3]
-                C[5,5] = .5*(C[0,0] - C[0,1])
-            #--------------------------------------------------------------------------------------------------------------------------------
-            
-            #%%%--- Rhombohedral I structures ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            if (LC == 'RI'):
-                C[0,0] = 2.*A2[3]
-                C[0,1] = A2[1]- 2.*A2[3]
-                C[0,2] = .5*( A2[0] - A2[1] - A2[2])
-                C[0,3] = .5*(-A2[3] - A2[4] + A2[5])
-                C[1,1] = C[0,0]
-                C[1,2] = C[0,2]
-                C[1,3] =-C[0,3]
-                C[2,2] = 2.*A2[2]
-                C[3,3] = .5*A2[4]
-                C[4,4] = C[3,3]
-                C[4,5] = C[0,3]
-                C[5,5] = .5*(C[0,0] - C[0,1])
-            #--------------------------------------------------------------------------------------------------------------------------------
-            
-            #%%%--- Rhombohedral II structures ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            if (LC == 'RII'):
-                C[0,0] = 2.*A2[3]
-                C[0,1] = A2[1]- 2.*A2[3]
-                C[0,2] = .5*( A2[0] - A2[1] - A2[2])
-                C[0,3] = .5*(-A2[3] - A2[4] + A2[5])
-                C[0,4] = .5*(-A2[3] - A2[4] + A2[6])
-                C[1,1] = C[0,0]
-                C[1,2] = C[0,2]
-                C[1,3] =-C[0,3]
-                C[1,4] =-C[0,4]    
-                C[2,2] = 2.*A2[2]
-                C[3,3] = .5*A2[4]
-                C[3,5] =-C[0,4]
-                C[4,4] = C[3,3]
-                C[4,5] = C[0,3]
-                C[5,5] = .5*(C[0,0] - C[0,1])
-            #--------------------------------------------------------------------------------------------------------------------------------
-            
-            #%%%--- Tetragonal I structures ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            if (LC == 'TI'):
-                C[0,0] = (A2[0]+2.*A2[1])/3.+.5*A2[2]-A2[3]
-                C[0,1] = (A2[0]+2.*A2[1])/3.-.5*A2[2]-A2[3]
-                C[0,2] = A2[0]/6.-2.*A2[1]/3.+.5*A2[3]
-                C[1,1] = C[0,0]
-                C[1,2] = C[0,2]
-                C[2,2] = 2.*A2[3]
-                C[3,3] = .5*A2[4]
-                C[4,4] = C[3,3]
-                C[5,5] = .5*A2[5]
-            #--------------------------------------------------------------------------------------------------------------------------------
-            
-            #%%%--- Tetragonal II structures ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            if (LC == 'TII'):
-                C[0,0] = (A2[0]+2.*A2[1])/3.+.5*A2[2]-A2[4]
-                C[1,1] = C[0,0]
-                C[0,1] = (A2[0]+2.*A2[1])/3.-.5*A2[2]-A2[4]
-                C[0,2] = A2[0]/6.-(2./3.)*A2[1]+.5*A2[4]
-                C[0,5] = (-A2[2]+A2[3]-A2[6])/4.
-                C[1,2] = C[0,2]
-                C[1,5] =-C[0,5]
-                C[2,2] = 2.*A2[4]
-                C[3,3] = .5*A2[5]
-                C[4,4] = C[3,3]
-                C[5,5] = .5*A2[6]
-            #--------------------------------------------------------------------------------------------------------------------------------
-            
-            #%%%--- Orthorhombic structures ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            if (LC == 'O'):
-                C[0,0] = 2.*A2[0]/3.+4.*A2[1]/3.+A2[3]-2.*A2[4]-2.*A2[5]
-                C[0,1] = 1.*A2[0]/3.+2.*A2[1]/3.-.5*A2[3]-A2[5]
-                C[0,2] = 1.*A2[0]/3.-2.*A2[1]/3.+4.*A2[2]/3.-.5*A2[3]-A2[4]
-                C[1,1] = 2.*A2[4]
-                C[1,2] =-2.*A2[1]/3.-4.*A2[2]/3.+.5*A2[3]+A2[4]+A2[5]
-                C[2,2] = 2.*A2[5]
-                C[3,3] = .5*A2[6]
-                C[4,4] = .5*A2[7]
-                C[5,5] = .5*A2[8]
-            #--------------------------------------------------------------------------------------------------------------------------------
-            
-            #%%%--- Monoclinic structures ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            if (LC == 'M'):
-                C[0,0] = 2.*A2[0]/3.+8.*(A2[1]+A2[2])/3.-2.*(A2[5]+A2[8]+A2[9])
-                C[0,1] = A2[0]/3.+4.*(A2[1]+A2[2])/3.-2.*A2[5]-A2[9]
-                C[0,2] =(A2[0]-4.*A2[2])/3.+A2[5]-A2[8]
-                C[0,5] =-1.*A2[0]/6.-2.*(A2[1]+A2[2])/3.+.5*(A2[5]+A2[7]+A2[8]+A2[9]-A2[12])
-                C[1,1] = 2.*A2[8]
-                C[1,2] =-4.*(2.*A2[1]+A2[2])/3.+2.*A2[5]+A2[8]+A2[9]+A2[12]
-                C[1,5] =-1.*A2[0]/6.-2.*(A2[1]+A2[2])/3.-.5*A2[3]+A2[5]+.5*(A2[7]+A2[8]+A2[9])
-                C[2,2] = 2.*A2[9]
-                C[2,5] =-1.*A2[0]/6.+2.*A2[1]/3.-.5*(A2[3]+A2[4]-A2[7]-A2[8]-A2[9]-A2[12])
-                C[3,3] = .5*A2[10]
-                C[3,4] = .25*(A2[6]-A2[10]-A2[11])
-                C[4,4] = .5*A2[11]
-                C[5,5] = .5*A2[12]
-            #--------------------------------------------------------------------------------------------------------------------------------
-            
-            #%%%--- Triclinic structures ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            if (LC == 'N'):
-                C[0,0] = 2.*A2[0]
-                C[0,1] = 1.*(-A2[0]-A2[1]+A2[6])
-                C[0,2] = 1.*(-A2[0]-A2[2]+A2[7])
-                C[0,3] = .5*(-A2[0]-A2[3]+A2[8]) 
-                C[0,4] = .5*(-A2[0]+A2[9]-A2[4])
-                C[0,5] = .5*(-A2[0]+A2[10]-A2[5])
-                C[1,1] = 2.*A2[1]
-                C[1,2] = 1.*(A2[11]-A2[1]-A2[2])
-                C[1,3] = .5*(A2[12]-A2[1]-A2[3])
-                C[1,4] = .5*(A2[13]-A2[1]-A2[4])
-                C[1,5] = .5*(A2[14]-A2[1]-A2[5])
-                C[2,2] = 2.*A2[2] 
-                C[2,3] = .5*(A2[15]-A2[2]-A2[3])
-                C[2,4] = .5*(A2[16]-A2[2]-A2[4])
-                C[2,5] = .5*(A2[17]-A2[2]-A2[5])
-                C[3,3] = .5*A2[3]
-                C[3,4] = .25*(A2[18]-A2[3]-A2[4])
-                C[3,5] = .25*(A2[19]-A2[3]-A2[5])
-                C[4,4] = .5*A2[4]
-                C[4,5] = .25*(A2[20]-A2[4]-A2[5])
-                C[5,5] = .5*A2[5]
-            #--------------------------------------------------------------------------------------------------------------------------------
-            
-        elif self.__mthd == 'Stress':
-            
-            if (LC == 'CI' or \
-                LC == 'CII'):
-                Matrix = np.mat([[1.0,  5.0,  0.0],
-                              [2.0,  4.0,  0.0],
-                              [3.0,  3.0,  0.0],
-                              [0.0,  0.0,  4.0],
-                              [0.0,  0.0,  5.0],
-                              [0.0,  0.0,  6.0]])
-
-            if (LC == 'HI' or \
-                LC == 'HII'):
-                Matrix = np.mat([[ 1, 2, 3, 0, 0],
-                              [ 2, 1, 3, 0, 0],
-                              [ 0, 0, 3, 3, 0],
-                              [ 0, 0, 0, 0, 4],
-                              [ 0, 0, 0, 0, 5],
-                              [ 3,-3, 0, 0, 0],
-                              [ 3,-5,-1, 0, 0],
-                              [-5, 3,-1, 0, 0],
-                              [ 0, 0,-2,-1, 0],
-                              [ 0, 0, 0, 0, 6],
-                              [ 0, 0, 0, 0, 2],
-                              [-2, 2, 0, 0, 0]])
-            
-            if (LC == 'RI'):
-                Matrix = np.mat([[ 1, 2, 3, 4, 0, 0],
-                              [ 2, 1, 3,-4, 0, 0],
-                              [ 0, 0, 3, 0, 3, 0],
-                              [ 0, 0, 0,-1, 0, 4],
-                              [ 0, 0, 0, 6, 0, 5],
-                              [ 3,-3, 0, 5, 0, 0],
-                              [ 3,-5,-1, 6, 0, 0],
-                              [-5, 3,-1,-6, 0, 0],
-                              [ 0, 0,-2, 0,-1, 0],
-                              [ 0, 0, 0, 8, 0, 6],
-                              [ 0, 0, 0,-4, 0, 2],
-                              [-2, 2, 0, 2, 0, 0]])
-            
-            if (LC == 'RII'):
-                Matrix = np.mat([[ 1, 2, 3, 4, 5, 0, 0],
-                              [ 2, 1, 3,-4,-5, 0, 0],
-                              [ 0, 0, 3, 0, 0, 3, 0],
-                              [ 0, 0, 0,-1,-6, 0, 4],
-                              [ 0, 0, 0, 6,-1, 0, 5],
-                              [ 3,-3, 0, 5,-4, 0, 0],
-                              [ 3,-5,-1, 6, 2, 0, 0],
-                              [-5, 3,-1,-6,-2, 0, 0],
-                              [ 0, 0,-2, 0, 0,-1, 0],
-                              [ 0, 0, 0, 8, 4, 0, 6],
-                              [ 0, 0, 0,-4, 8, 0, 2],
-                              [-2, 2, 0, 2,-6, 0, 0]])
-            
-            if (LC == 'TI'):
-                Matrix = np.mat([[ 1, 2, 3, 0, 0, 0],
-                              [ 2, 1, 3, 0, 0, 0],
-                              [ 0, 0, 3, 3, 0, 0],
-                              [ 0, 0, 0, 0, 4, 0],
-                              [ 0, 0, 0, 0, 5, 0],
-                              [ 0, 0, 0, 0, 0, 6],
-                              [ 3,-5,-1, 0, 0, 0],
-                              [-5, 3,-1, 0, 0, 0],
-                              [ 0, 0,-2,-1, 0, 0],
-                              [ 0, 0, 0, 0, 6, 0],
-                              [ 0, 0, 0, 0, 2, 0],
-                              [ 0, 0, 0, 0, 0,-4]])
-            
-            if (LC == 'TII'):
-                Matrix = np.mat([[ 1, 2, 3, 6, 0, 0, 0],
-                              [ 2, 1, 3,-6, 0, 0, 0],
-                              [ 0, 0, 3, 0, 3, 0, 0],
-                              [ 0, 0, 0, 0, 0, 4, 0],
-                              [ 0, 0, 0, 0, 0, 5, 0],
-                              [ 0, 0, 0,-1, 0, 0, 6],
-                              [ 3,-5,-1,-4, 0, 0, 0],
-                              [-5, 3,-1, 4, 0, 0, 0],
-                              [ 0, 0,-2, 0,-1, 0, 0],
-                              [ 0, 0, 0, 0, 0, 6, 0],
-                              [ 0, 0, 0, 0, 0, 2, 0],
-                              [ 0, 0, 0, 8, 0, 0,-4]])
-            
-            if (LC == 'O'):
-                Matrix = np.mat([[1, 2, 3, 0, 0, 0, 0, 0, 0],
-                              [0, 1, 0, 2, 3, 0, 0, 0, 0],
-                              [0, 0, 1, 0, 2, 3, 0, 0, 0],
-                              [0, 0, 0, 0, 0, 0, 4, 0, 0],
-                              [0, 0, 0, 0, 0, 0, 0, 5, 0],
-                              [0, 0, 0, 0, 0, 0, 0, 0, 6],
-                              [3,-5,-1, 0, 0, 0, 0, 0, 0],
-                              [0, 3, 0,-5,-1, 0, 0, 0, 0],
-                              [0, 0, 3, 0,-5,-1, 0, 0, 0],
-                              [0, 0, 0, 0, 0, 0, 6, 0, 0],
-                              [0, 0, 0, 0, 0, 0, 0, 2, 0],
-                              [0, 0, 0, 0, 0, 0, 0, 0,-4],
-                              [5, 4, 6, 0, 0, 0, 0, 0, 0],
-                              [0, 5, 0, 4, 6, 0, 0, 0, 0],
-                              [0, 0, 5, 0, 4, 6, 0, 0, 0],
-                              [0, 0, 0, 0, 0, 0,-2, 0, 0],
-                              [0, 0, 0, 0, 0, 0, 0,-1, 0],
-                              [0, 0, 0, 0, 0, 0, 0, 0,-3]])
-            
-            if (LC == 'M'):
-                Matrix = np.mat([[ 1, 2, 3, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                              [ 0, 1, 0, 0, 2, 3, 6, 0, 0, 0, 0, 0, 0],
-                              [ 0, 0, 1, 0, 0, 2, 0, 3, 6, 0, 0, 0, 0],
-                              [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 5, 0, 0],
-                              [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 5, 0],
-                              [ 0, 0, 0, 1, 0, 0, 2, 0, 3, 0, 0, 0, 6],
-                              [-2, 1, 4,-5, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                              [ 0,-2, 0, 0, 1, 4,-5, 0, 0, 0, 0, 0, 0],
-                              [ 0, 0,-2, 0, 0, 1, 0, 4,-5, 0, 0, 0, 0],
-                              [ 0, 0, 0, 0, 0, 0, 0, 0, 0,-3, 6, 0, 0],
-                              [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,-3, 6, 0],
-                              [ 0, 0, 0,-2, 0, 0, 1, 0, 4, 0, 0,-5, 0],
-                              [ 3,-5,-1,-4, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                              [ 0, 3, 0, 0,-5,-1,-4, 0, 0, 0, 0, 0, 0],
-                              [ 0, 0, 3, 0, 0,-5, 0,-1,-4, 0, 0, 0, 0],
-                              [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 2, 0, 0],
-                              [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 2, 0],
-                              [ 0, 0, 0, 3, 0, 0,-5, 0,-1, 0, 0,-4, 0],
-                              [-4,-6, 5, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                              [ 0,-4, 0, 0,-6, 5, 2, 0, 0, 0, 0, 0, 0],
-                              [ 0, 0,-4, 0, 0,-6, 0, 5, 2, 0, 0, 0, 0],
-                              [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,-3, 0, 0],
-                              [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,-3, 0],
-                              [ 0, 0, 0,-4, 0, 0,-6, 0, 5, 0, 0, 2, 0],
-                              [ 5, 4, 6,-3, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                              [ 0, 5, 0, 0, 4, 6,-3, 0, 0, 0, 0, 0, 0],
-                              [ 0, 0, 5, 0, 0, 4, 0, 6,-3, 0, 0, 0, 0],
-                              [ 0, 0, 0, 0, 0, 0, 0, 0, 0,-2,-1, 0, 0],
-                              [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,-2,-1, 0],
-                              [ 0, 0, 0, 5, 0, 0, 4, 0, 6, 0, 0,-3, 0]])
-            
-            if (LC == 'N'):
-                Matrix = np.mat([[ 1, 2, 3, 4, 5, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                              [ 0, 1, 0, 0, 0, 0, 2, 3, 4, 5, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                              [ 0, 0, 1, 0, 0, 0, 0, 2, 0, 0, 0, 3, 4, 5, 6, 0, 0, 0, 0, 0, 0],
-                              [ 0, 0, 0, 1, 0, 0, 0, 0, 2, 0, 0, 0, 3, 0, 0, 4, 5, 6, 0, 0, 0],
-                              [ 0, 0, 0, 0, 1, 0, 0, 0, 0, 2, 0, 0, 0, 3, 0, 0, 4, 0, 5, 6, 0],
-                              [ 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 2, 0, 0, 0, 3, 0, 0, 4, 0, 5, 6],
-                              [-2, 1, 4,-3, 6,-5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                              [ 0,-2, 0, 0, 0, 0, 1, 4,-3, 6,-5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                              [ 0, 0,-2, 0, 0, 0, 0, 1, 0, 0, 0, 4,-3, 6,-5, 0, 0, 0, 0, 0, 0],
-                              [ 0, 0, 0,-2, 0, 0, 0, 0, 1, 0, 0, 0, 4, 0, 0,-3, 6,-5, 0, 0, 0],
-                              [ 0, 0, 0, 0,-2, 0, 0, 0, 0, 1, 0, 0, 0, 4, 0, 0,-3, 0, 6,-5, 0],
-                              [ 0, 0, 0, 0, 0,-2, 0, 0, 0, 0, 1, 0, 0, 0, 4, 0, 0,-3, 0, 6,-5],
-                              [ 3,-5,-1, 6, 2,-4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                              [ 0, 3, 0, 0, 0, 0,-5,-1, 6, 2,-4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                              [ 0, 0, 3, 0, 0, 0, 0,-5, 0, 0, 0,-1, 6, 2,-4, 0, 0, 0, 0, 0, 0],
-                              [ 0, 0, 0, 3, 0, 0, 0, 0,-5, 0, 0, 0,-1, 0, 0, 6, 2,-4, 0, 0, 0],
-                              [ 0, 0, 0, 0, 3, 0, 0, 0, 0,-5, 0, 0, 0,-1, 0, 0, 6, 0, 2,-4, 0],
-                              [ 0, 0, 0, 0, 0, 3, 0, 0, 0, 0,-5, 0, 0, 0,-1, 0, 0, 6, 0, 2,-4],
-                              [-4,-6, 5, 1,-3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                              [ 0,-4, 0, 0, 0, 0,-6, 5, 1,-3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                              [ 0, 0,-4, 0, 0, 0, 0,-6, 0, 0, 0, 5, 1,-3, 2, 0, 0, 0, 0, 0, 0],
-                              [ 0, 0, 0,-4, 0, 0, 0, 0,-6, 0, 0, 0, 5, 0, 0, 1,-3, 2, 0, 0, 0],
-                              [ 0, 0, 0, 0,-4, 0, 0, 0, 0,-6, 0, 0, 0, 5, 0, 0, 1, 0,-3, 2, 0],
-                              [ 0, 0, 0, 0, 0,-4, 0, 0, 0, 0,-6, 0, 0, 0, 5, 0, 0, 1, 0,-3, 2],
-                              [ 5, 4, 6,-2,-1,-3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                              [ 0, 5, 0, 0, 0, 0, 4, 6,-2,-1,-3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                              [ 0, 0, 5, 0, 0, 0, 0, 4, 0, 0, 0, 6,-2,-1,-3, 0, 0, 0, 0, 0, 0],
-                              [ 0, 0, 0, 5, 0, 0, 0, 0, 4, 0, 0, 0, 6, 0, 0,-2,-1,-3, 0, 0, 0],
-                              [ 0, 0, 0, 0, 5, 0, 0, 0, 0, 4, 0, 0, 0, 6, 0, 0,-2, 0,-1,-3, 0],
-                              [ 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 4, 0, 0, 0, 6, 0, 0,-2, 0,-1,-3],
-                              [-6, 3,-2, 5,-4, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                              [ 0,-6, 0, 0, 0, 0, 3,-2, 5,-4, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                              [ 0, 0,-6, 0, 0, 0, 0, 3, 0, 0, 0,-2, 5,-4, 1, 0, 0, 0, 0, 0, 0],
-                              [ 0, 0, 0,-6, 0, 0, 0, 0, 3, 0, 0, 0,-2, 0, 0, 5,-4, 1, 0, 0, 0],
-                              [ 0, 0, 0, 0,-6, 0, 0, 0, 0, 3, 0, 0, 0,-2, 0, 0, 5, 0,-4, 1, 0],
-                              [ 0, 0, 0, 0, 0,-6, 0, 0, 0, 0, 3, 0, 0, 0,-2, 0, 0, 5, 0,-4, 1]])
-            
-            sigma = np.array(self.__sigma[etacalc])
-            
-            ci = np.linalg.lstsq(Matrix,sigma)
-            
-            #-- Cubic structures ------------------------------------------------------------------------------
-            if (LC == 'CI' or \
-                LC == 'CII'):
+            LC = self.__structures.items()[0][1].LC
+            if self.__mthd == 'Energy':
+                if type(etacalc)==list:
+                    A2=[]
+                    for i in range(len(etacalc)):
+                        A2.append(self.__A2[i][etacalc[i]])
+                else:
+                    if not etacalc in self.__A2[0].keys(): raise ValueError('Please coose one of %s'%(self.__A2[0].keys()))
+                    A2 = [a2[etacalc] for a2 in self.__A2]
                 
-                C[0,0]=ci[0][0]
-                C[0,1]=ci[0][1]
-                C[3,3]=ci[0][2]
-                C[1,1]=C[0,0]
-                C[2,2]=C[0,0]
-                C[0,2]=C[0,1]
-                C[1,2]=C[0,1]
-                C[4,4]=C[3,3]
-                C[5,5]=C[3,3]
-            
-            #-- Hexagonal Structures --------------------------------------------------------------------------
-            if (LC == 'HI' or \
-                LC == 'HII'):
-                C[0,0]=ci[0][0]
-                C[0,1]=ci[0][1]
-                C[0,2]=ci[0][2]
-                C[2,2]=ci[0][3]
-                C[3,3]=ci[0][4]
-                C[1,1]=C[0,0]
-                C[1,2]=C[0,2]
-                C[4,4]=C[3,3]
-                C[5,5]=0.5*(C[0,0]-C[0,1])
-            
-            #-- Rhombohedral I Structures ---------------------------------------------------------------------
-            if (LC == 'RI'):
-                C[0,0]= ci[0][0]
-                C[0,1]= ci[0][1]
-                C[0,2]= ci[0][2]
-                C[0,3]= ci[0][3]
-                C[2,2]= ci[0][4]
-                C[3,3]= ci[0][5]
-                C[1,1]= C[0,0]
-                C[1,2]= C[0,2]
-                C[1,3]=-C[0,3]
-                C[4,5]= C[0,3]
-                C[4,4]= C[3,3]
-                C[5,5]=0.5*(C[0,0]-C[0,1])
-            
-            #-- Rhombohedral II Structures --------------------------------------------------------------------
-            if (LC == 'RII'):
-                C[0,0]= ci[0][0]
-                C[0,1]= ci[0][1]
-                C[0,2]= ci[0][2]
-                C[0,3]= ci[0][3]
-                C[0,4]= ci[0][4]
-                C[2,2]= ci[0][5]
-                C[3,3]= ci[0][6]
-                C[1,1]= C[0,0]
-                C[1,2]= C[0,2]
-                C[1,3]=-C[0,3]
-                C[4,5]= C[0,3]
-                C[1,4]=-C[0,4]
-                C[3,5]=-C[0,4]
-                C[4,4]= C[3,3]
-                C[5,5]=0.5*(C[0,0]-C[0,1])
-            
-            #-- Tetragonal I Structures -----------------------------------------------------------------------
-            if (LC == 'TI'):
-                C[0,0]= ci[0][0]
-                C[0,1]= ci[0][1]
-                C[0,2]= ci[0][2]
-                C[2,2]= ci[0][3]
-                C[3,3]= ci[0][4]
-                C[5,5]= ci[0][5]
-                C[1,1]= C[0,0]
-                C[1,2]= C[0,2]
-                C[4,4]= C[3,3]
-            
-            #-- Tetragonal II Structures ----------------------------------------------------------------------
-            if (LC == 'TII'):
-                C[0,0]= ci[0][0]
-                C[0,1]= ci[0][1]
-                C[0,2]= ci[0][2]
-                C[0,5]= ci[0][3]
-                C[2,2]= ci[0][4]
-                C[3,3]= ci[0][5]
-                C[5,5]= ci[0][6]
-                C[1,1]= C[0,0]
-                C[1,2]= C[0,2]
-                C[1,5]=-C[0,5]
-                C[4,4]= C[3,3]
-            
-            #-- Orthorhombic Structures -----------------------------------------------------------------------
-            if (LC == 'O'):
-                C[0,0]=ci[0][0]
-                C[0,1]=ci[0][1]
-                C[0,2]=ci[0][2]
-                C[1,1]=ci[0][3]
-                C[1,2]=ci[0][4]
-                C[2,2]=ci[0][5]
-                C[3,3]=ci[0][6]
-                C[4,4]=ci[0][7]
-                C[5,5]=ci[0][8]
-            
-            #-- Monoclinic Structures -------------------------------------------------------------------------
-            if (LC == 'M'):
-                C[0,0]=ci[0][0]
-                C[0,1]=ci[0][1]
-                C[0,2]=ci[0][2]
-                C[0,5]=ci[0][3]
-                C[1,1]=ci[0][4]
-                C[1,2]=ci[0][5]
-                C[1,5]=ci[0][6]
-                C[2,2]=ci[0][7]
-                C[2,5]=ci[0][8]
-                C[3,3]=ci[0][9]
-                C[3,4]=ci[0][10]
-                C[4,4]=ci[0][11]
-                C[5,5]=ci[0][12]
-            
-            #-- Triclinic Structures --------------------------------------------------------------------------
-            if (LC == 'N'):
-                C[0,0]=ci[0][0]
-                C[0,1]=ci[0][1]
-                C[0,2]=ci[0][2]
-                C[0,3]=ci[0][3]
-                C[0,4]=ci[0][4]
-                C[0,5]=ci[0][5]
-                C[1,1]=ci[0][6]
-                C[1,2]=ci[0][7]
-                C[1,3]=ci[0][8]
-                C[1,4]=ci[0][9]
-                C[1,5]=ci[0][10]
-                C[2,2]=ci[0][11]
-                C[2,3]=ci[0][12]
-                C[2,4]=ci[0][13]
-                C[2,5]=ci[0][14]
-                C[3,3]=ci[0][15]
-                C[3,4]=ci[0][16]
-                C[3,5]=ci[0][17]
-                C[4,4]=ci[0][18]
-                C[4,5]=ci[0][19]
-                C[5,5]=ci[0][20]
-            #--------------------------------------------------------------------------------------------------
-
-
-
-        for i in range(5):
-            for j in range(i+1,6):
-                C[j,i] = C[i,j] 
-        #%%%--- Calculating the elastic moduli ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        if self.__cod == 'espresso': C = -C/10.
-        elif self.__cod == 'vasp': C = C/4.
-        self.BV = (C[0,0]+C[1,1]+C[2,2]+2*(C[0,1]+C[0,2]+C[1,2]))/9
-        self.GV = ((C[0,0]+C[1,1]+C[2,2])-(C[0,1]+C[0,2]+C[1,2])+3*(C[3,3]+C[4,4]+C[5,5]))/15
-        self.EV = (9*self.BV*self.GV)/(3*self.BV+self.GV)
-        self.nuV= (1.5*self.BV-self.GV)/(3*self.BV+self.GV)
-        self.S  = np.linalg.inv(C)
-        self.BR = 1/(self.S[0,0]+self.S[1,1]+self.S[2,2]+2*(self.S[0,1]+self.S[0,2]+self.S[1,2]))
-        self.GR =15/(4*(self.S[0,0]+self.S[1,1]+self.S[2,2])-4*(self.S[0,1]+self.S[0,2]+self.S[1,2])+3*(self.S[3,3]+self.S[4,4]+self.S[5,5]))
-        self.ER = (9*self.BR*self.GR)/(3*self.BR+self.GR)
-        self.nuR= (1.5*self.BR-self.GR)/(3*self.BR+self.GR)
-        self.BH = 0.50*(self.BV+self.BR)
-        self.GH = 0.50*(self.GV+self.GR)
-        self.EH = (9.*self.BH*self.GH)/(3.*self.BH+self.GH)
-        self.nuH= (1.5*self.BH-self.GH)/(3.*self.BH+self.GH)
-        self.AVR= 100.*(self.GV-self.GR)/(self.GV+self.GR)
-        #--------------------------------------------------------------------------------------------------------------------------------
-        self.__C = C
+                #%%%--- Cubic structures ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                if (LC == 'CI' or \
+                    LC == 'CII'):
+                    C[0,0] =-2.*(A2[0]-3.*A2[1])/3.
+                    C[1,1] = C[0,0]
+                    C[2,2] = C[0,0]
+                    C[3,3] = A2[2]/6.
+                    C[4,4] = C[3,3]
+                    C[5,5] = C[3,3]
+                    C[0,1] = (2.*A2[0]-3.*A2[1])/3.
+                    C[0,2] = C[0,1]
+                    C[1,2] = C[0,1]
+                #--------------------------------------------------------------------------------------------------------------------------------
+                
+                #%%%--- Hexagonal structures ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                if (LC == 'HI' or \
+                    LC == 'HII'):
+                    C[0,0] = 2.*A2[3]
+                    C[0,1] = 2./3.*A2[0] + 4./3.*A2[1] - 2.*A2[2] - 2.*A2[3]
+                    C[0,2] = 1./6.*A2[0] - 2./3.*A2[1] + 0.5*A2[2]
+                    C[1,1] = C[0,0]
+                    C[1,2] = C[0,2]
+                    C[2,2] = 2.*A2[2]
+                    C[3,3] =-0.5*A2[2] + 0.5*A2[4]
+                    C[4,4] = C[3,3]
+                    C[5,5] = .5*(C[0,0] - C[0,1])
+                #--------------------------------------------------------------------------------------------------------------------------------
+                
+                #%%%--- Rhombohedral I structures ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                if (LC == 'RI'):
+                    C[0,0] = 2.*A2[3]
+                    C[0,1] = A2[1]- 2.*A2[3]
+                    C[0,2] = .5*( A2[0] - A2[1] - A2[2])
+                    C[0,3] = .5*(-A2[3] - A2[4] + A2[5])
+                    C[1,1] = C[0,0]
+                    C[1,2] = C[0,2]
+                    C[1,3] =-C[0,3]
+                    C[2,2] = 2.*A2[2]
+                    C[3,3] = .5*A2[4]
+                    C[4,4] = C[3,3]
+                    C[4,5] = C[0,3]
+                    C[5,5] = .5*(C[0,0] - C[0,1])
+                #--------------------------------------------------------------------------------------------------------------------------------
+                
+                #%%%--- Rhombohedral II structures ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                if (LC == 'RII'):
+                    C[0,0] = 2.*A2[3]
+                    C[0,1] = A2[1]- 2.*A2[3]
+                    C[0,2] = .5*( A2[0] - A2[1] - A2[2])
+                    C[0,3] = .5*(-A2[3] - A2[4] + A2[5])
+                    C[0,4] = .5*(-A2[3] - A2[4] + A2[6])
+                    C[1,1] = C[0,0]
+                    C[1,2] = C[0,2]
+                    C[1,3] =-C[0,3]
+                    C[1,4] =-C[0,4]    
+                    C[2,2] = 2.*A2[2]
+                    C[3,3] = .5*A2[4]
+                    C[3,5] =-C[0,4]
+                    C[4,4] = C[3,3]
+                    C[4,5] = C[0,3]
+                    C[5,5] = .5*(C[0,0] - C[0,1])
+                #--------------------------------------------------------------------------------------------------------------------------------
+                
+                #%%%--- Tetragonal I structures ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                if (LC == 'TI'):
+                    C[0,0] = (A2[0]+2.*A2[1])/3.+.5*A2[2]-A2[3]
+                    C[0,1] = (A2[0]+2.*A2[1])/3.-.5*A2[2]-A2[3]
+                    C[0,2] = A2[0]/6.-2.*A2[1]/3.+.5*A2[3]
+                    C[1,1] = C[0,0]
+                    C[1,2] = C[0,2]
+                    C[2,2] = 2.*A2[3]
+                    C[3,3] = .5*A2[4]
+                    C[4,4] = C[3,3]
+                    C[5,5] = .5*A2[5]
+                #--------------------------------------------------------------------------------------------------------------------------------
+                
+                #%%%--- Tetragonal II structures ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                if (LC == 'TII'):
+                    C[0,0] = (A2[0]+2.*A2[1])/3.+.5*A2[2]-A2[4]
+                    C[1,1] = C[0,0]
+                    C[0,1] = (A2[0]+2.*A2[1])/3.-.5*A2[2]-A2[4]
+                    C[0,2] = A2[0]/6.-(2./3.)*A2[1]+.5*A2[4]
+                    C[0,5] = (-A2[2]+A2[3]-A2[6])/4.
+                    C[1,2] = C[0,2]
+                    C[1,5] =-C[0,5]
+                    C[2,2] = 2.*A2[4]
+                    C[3,3] = .5*A2[5]
+                    C[4,4] = C[3,3]
+                    C[5,5] = .5*A2[6]
+                #--------------------------------------------------------------------------------------------------------------------------------
+                
+                #%%%--- Orthorhombic structures ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                if (LC == 'O'):
+                    C[0,0] = 2.*A2[0]/3.+4.*A2[1]/3.+A2[3]-2.*A2[4]-2.*A2[5]
+                    C[0,1] = 1.*A2[0]/3.+2.*A2[1]/3.-.5*A2[3]-A2[5]
+                    C[0,2] = 1.*A2[0]/3.-2.*A2[1]/3.+4.*A2[2]/3.-.5*A2[3]-A2[4]
+                    C[1,1] = 2.*A2[4]
+                    C[1,2] =-2.*A2[1]/3.-4.*A2[2]/3.+.5*A2[3]+A2[4]+A2[5]
+                    C[2,2] = 2.*A2[5]
+                    C[3,3] = .5*A2[6]
+                    C[4,4] = .5*A2[7]
+                    C[5,5] = .5*A2[8]
+                #--------------------------------------------------------------------------------------------------------------------------------
+                
+                #%%%--- Monoclinic structures ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                if (LC == 'M'):
+                    C[0,0] = 2.*A2[0]/3.+8.*(A2[1]+A2[2])/3.-2.*(A2[5]+A2[8]+A2[9])
+                    C[0,1] = A2[0]/3.+4.*(A2[1]+A2[2])/3.-2.*A2[5]-A2[9]
+                    C[0,2] =(A2[0]-4.*A2[2])/3.+A2[5]-A2[8]
+                    C[0,5] =-1.*A2[0]/6.-2.*(A2[1]+A2[2])/3.+.5*(A2[5]+A2[7]+A2[8]+A2[9]-A2[12])
+                    C[1,1] = 2.*A2[8]
+                    C[1,2] =-4.*(2.*A2[1]+A2[2])/3.+2.*A2[5]+A2[8]+A2[9]+A2[12]
+                    C[1,5] =-1.*A2[0]/6.-2.*(A2[1]+A2[2])/3.-.5*A2[3]+A2[5]+.5*(A2[7]+A2[8]+A2[9])
+                    C[2,2] = 2.*A2[9]
+                    C[2,5] =-1.*A2[0]/6.+2.*A2[1]/3.-.5*(A2[3]+A2[4]-A2[7]-A2[8]-A2[9]-A2[12])
+                    C[3,3] = .5*A2[10]
+                    C[3,4] = .25*(A2[6]-A2[10]-A2[11])
+                    C[4,4] = .5*A2[11]
+                    C[5,5] = .5*A2[12]
+                #--------------------------------------------------------------------------------------------------------------------------------
+                
+                #%%%--- Triclinic structures ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                if (LC == 'N'):
+                    C[0,0] = 2.*A2[0]
+                    C[0,1] = 1.*(-A2[0]-A2[1]+A2[6])
+                    C[0,2] = 1.*(-A2[0]-A2[2]+A2[7])
+                    C[0,3] = .5*(-A2[0]-A2[3]+A2[8]) 
+                    C[0,4] = .5*(-A2[0]+A2[9]-A2[4])
+                    C[0,5] = .5*(-A2[0]+A2[10]-A2[5])
+                    C[1,1] = 2.*A2[1]
+                    C[1,2] = 1.*(A2[11]-A2[1]-A2[2])
+                    C[1,3] = .5*(A2[12]-A2[1]-A2[3])
+                    C[1,4] = .5*(A2[13]-A2[1]-A2[4])
+                    C[1,5] = .5*(A2[14]-A2[1]-A2[5])
+                    C[2,2] = 2.*A2[2] 
+                    C[2,3] = .5*(A2[15]-A2[2]-A2[3])
+                    C[2,4] = .5*(A2[16]-A2[2]-A2[4])
+                    C[2,5] = .5*(A2[17]-A2[2]-A2[5])
+                    C[3,3] = .5*A2[3]
+                    C[3,4] = .25*(A2[18]-A2[3]-A2[4])
+                    C[3,5] = .25*(A2[19]-A2[3]-A2[5])
+                    C[4,4] = .5*A2[4]
+                    C[4,5] = .25*(A2[20]-A2[4]-A2[5])
+                    C[5,5] = .5*A2[5]
+                #--------------------------------------------------------------------------------------------------------------------------------
+                
+            elif self.__mthd == 'Stress':
+                
+                if (LC == 'CI' or \
+                    LC == 'CII'):
+                    Matrix = np.mat([[1.0,  5.0,  0.0],
+                                  [2.0,  4.0,  0.0],
+                                  [3.0,  3.0,  0.0],
+                                  [0.0,  0.0,  4.0],
+                                  [0.0,  0.0,  5.0],
+                                  [0.0,  0.0,  6.0]])
+    
+                if (LC == 'HI' or \
+                    LC == 'HII'):
+                    Matrix = np.mat([[ 1, 2, 3, 0, 0],
+                                  [ 2, 1, 3, 0, 0],
+                                  [ 0, 0, 3, 3, 0],
+                                  [ 0, 0, 0, 0, 4],
+                                  [ 0, 0, 0, 0, 5],
+                                  [ 3,-3, 0, 0, 0],
+                                  [ 3,-5,-1, 0, 0],
+                                  [-5, 3,-1, 0, 0],
+                                  [ 0, 0,-2,-1, 0],
+                                  [ 0, 0, 0, 0, 6],
+                                  [ 0, 0, 0, 0, 2],
+                                  [-2, 2, 0, 0, 0]])
+                
+                if (LC == 'RI'):
+                    Matrix = np.mat([[ 1, 2, 3, 4, 0, 0],
+                                  [ 2, 1, 3,-4, 0, 0],
+                                  [ 0, 0, 3, 0, 3, 0],
+                                  [ 0, 0, 0,-1, 0, 4],
+                                  [ 0, 0, 0, 6, 0, 5],
+                                  [ 3,-3, 0, 5, 0, 0],
+                                  [ 3,-5,-1, 6, 0, 0],
+                                  [-5, 3,-1,-6, 0, 0],
+                                  [ 0, 0,-2, 0,-1, 0],
+                                  [ 0, 0, 0, 8, 0, 6],
+                                  [ 0, 0, 0,-4, 0, 2],
+                                  [-2, 2, 0, 2, 0, 0]])
+                
+                if (LC == 'RII'):
+                    Matrix = np.mat([[ 1, 2, 3, 4, 5, 0, 0],
+                                  [ 2, 1, 3,-4,-5, 0, 0],
+                                  [ 0, 0, 3, 0, 0, 3, 0],
+                                  [ 0, 0, 0,-1,-6, 0, 4],
+                                  [ 0, 0, 0, 6,-1, 0, 5],
+                                  [ 3,-3, 0, 5,-4, 0, 0],
+                                  [ 3,-5,-1, 6, 2, 0, 0],
+                                  [-5, 3,-1,-6,-2, 0, 0],
+                                  [ 0, 0,-2, 0, 0,-1, 0],
+                                  [ 0, 0, 0, 8, 4, 0, 6],
+                                  [ 0, 0, 0,-4, 8, 0, 2],
+                                  [-2, 2, 0, 2,-6, 0, 0]])
+                
+                if (LC == 'TI'):
+                    Matrix = np.mat([[ 1, 2, 3, 0, 0, 0],
+                                  [ 2, 1, 3, 0, 0, 0],
+                                  [ 0, 0, 3, 3, 0, 0],
+                                  [ 0, 0, 0, 0, 4, 0],
+                                  [ 0, 0, 0, 0, 5, 0],
+                                  [ 0, 0, 0, 0, 0, 6],
+                                  [ 3,-5,-1, 0, 0, 0],
+                                  [-5, 3,-1, 0, 0, 0],
+                                  [ 0, 0,-2,-1, 0, 0],
+                                  [ 0, 0, 0, 0, 6, 0],
+                                  [ 0, 0, 0, 0, 2, 0],
+                                  [ 0, 0, 0, 0, 0,-4]])
+                
+                if (LC == 'TII'):
+                    Matrix = np.mat([[ 1, 2, 3, 6, 0, 0, 0],
+                                  [ 2, 1, 3,-6, 0, 0, 0],
+                                  [ 0, 0, 3, 0, 3, 0, 0],
+                                  [ 0, 0, 0, 0, 0, 4, 0],
+                                  [ 0, 0, 0, 0, 0, 5, 0],
+                                  [ 0, 0, 0,-1, 0, 0, 6],
+                                  [ 3,-5,-1,-4, 0, 0, 0],
+                                  [-5, 3,-1, 4, 0, 0, 0],
+                                  [ 0, 0,-2, 0,-1, 0, 0],
+                                  [ 0, 0, 0, 0, 0, 6, 0],
+                                  [ 0, 0, 0, 0, 0, 2, 0],
+                                  [ 0, 0, 0, 8, 0, 0,-4]])
+                
+                if (LC == 'O'):
+                    Matrix = np.mat([[1, 2, 3, 0, 0, 0, 0, 0, 0],
+                                  [0, 1, 0, 2, 3, 0, 0, 0, 0],
+                                  [0, 0, 1, 0, 2, 3, 0, 0, 0],
+                                  [0, 0, 0, 0, 0, 0, 4, 0, 0],
+                                  [0, 0, 0, 0, 0, 0, 0, 5, 0],
+                                  [0, 0, 0, 0, 0, 0, 0, 0, 6],
+                                  [3,-5,-1, 0, 0, 0, 0, 0, 0],
+                                  [0, 3, 0,-5,-1, 0, 0, 0, 0],
+                                  [0, 0, 3, 0,-5,-1, 0, 0, 0],
+                                  [0, 0, 0, 0, 0, 0, 6, 0, 0],
+                                  [0, 0, 0, 0, 0, 0, 0, 2, 0],
+                                  [0, 0, 0, 0, 0, 0, 0, 0,-4],
+                                  [5, 4, 6, 0, 0, 0, 0, 0, 0],
+                                  [0, 5, 0, 4, 6, 0, 0, 0, 0],
+                                  [0, 0, 5, 0, 4, 6, 0, 0, 0],
+                                  [0, 0, 0, 0, 0, 0,-2, 0, 0],
+                                  [0, 0, 0, 0, 0, 0, 0,-1, 0],
+                                  [0, 0, 0, 0, 0, 0, 0, 0,-3]])
+                
+                if (LC == 'M'):
+                    Matrix = np.mat([[ 1, 2, 3, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                  [ 0, 1, 0, 0, 2, 3, 6, 0, 0, 0, 0, 0, 0],
+                                  [ 0, 0, 1, 0, 0, 2, 0, 3, 6, 0, 0, 0, 0],
+                                  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 5, 0, 0],
+                                  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 5, 0],
+                                  [ 0, 0, 0, 1, 0, 0, 2, 0, 3, 0, 0, 0, 6],
+                                  [-2, 1, 4,-5, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                  [ 0,-2, 0, 0, 1, 4,-5, 0, 0, 0, 0, 0, 0],
+                                  [ 0, 0,-2, 0, 0, 1, 0, 4,-5, 0, 0, 0, 0],
+                                  [ 0, 0, 0, 0, 0, 0, 0, 0, 0,-3, 6, 0, 0],
+                                  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,-3, 6, 0],
+                                  [ 0, 0, 0,-2, 0, 0, 1, 0, 4, 0, 0,-5, 0],
+                                  [ 3,-5,-1,-4, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                  [ 0, 3, 0, 0,-5,-1,-4, 0, 0, 0, 0, 0, 0],
+                                  [ 0, 0, 3, 0, 0,-5, 0,-1,-4, 0, 0, 0, 0],
+                                  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 2, 0, 0],
+                                  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 2, 0],
+                                  [ 0, 0, 0, 3, 0, 0,-5, 0,-1, 0, 0,-4, 0],
+                                  [-4,-6, 5, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                  [ 0,-4, 0, 0,-6, 5, 2, 0, 0, 0, 0, 0, 0],
+                                  [ 0, 0,-4, 0, 0,-6, 0, 5, 2, 0, 0, 0, 0],
+                                  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,-3, 0, 0],
+                                  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,-3, 0],
+                                  [ 0, 0, 0,-4, 0, 0,-6, 0, 5, 0, 0, 2, 0],
+                                  [ 5, 4, 6,-3, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                  [ 0, 5, 0, 0, 4, 6,-3, 0, 0, 0, 0, 0, 0],
+                                  [ 0, 0, 5, 0, 0, 4, 0, 6,-3, 0, 0, 0, 0],
+                                  [ 0, 0, 0, 0, 0, 0, 0, 0, 0,-2,-1, 0, 0],
+                                  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,-2,-1, 0],
+                                  [ 0, 0, 0, 5, 0, 0, 4, 0, 6, 0, 0,-3, 0]])
+                
+                if (LC == 'N'):
+                    Matrix = np.mat([[ 1, 2, 3, 4, 5, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                  [ 0, 1, 0, 0, 0, 0, 2, 3, 4, 5, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                  [ 0, 0, 1, 0, 0, 0, 0, 2, 0, 0, 0, 3, 4, 5, 6, 0, 0, 0, 0, 0, 0],
+                                  [ 0, 0, 0, 1, 0, 0, 0, 0, 2, 0, 0, 0, 3, 0, 0, 4, 5, 6, 0, 0, 0],
+                                  [ 0, 0, 0, 0, 1, 0, 0, 0, 0, 2, 0, 0, 0, 3, 0, 0, 4, 0, 5, 6, 0],
+                                  [ 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 2, 0, 0, 0, 3, 0, 0, 4, 0, 5, 6],
+                                  [-2, 1, 4,-3, 6,-5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                  [ 0,-2, 0, 0, 0, 0, 1, 4,-3, 6,-5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                  [ 0, 0,-2, 0, 0, 0, 0, 1, 0, 0, 0, 4,-3, 6,-5, 0, 0, 0, 0, 0, 0],
+                                  [ 0, 0, 0,-2, 0, 0, 0, 0, 1, 0, 0, 0, 4, 0, 0,-3, 6,-5, 0, 0, 0],
+                                  [ 0, 0, 0, 0,-2, 0, 0, 0, 0, 1, 0, 0, 0, 4, 0, 0,-3, 0, 6,-5, 0],
+                                  [ 0, 0, 0, 0, 0,-2, 0, 0, 0, 0, 1, 0, 0, 0, 4, 0, 0,-3, 0, 6,-5],
+                                  [ 3,-5,-1, 6, 2,-4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                  [ 0, 3, 0, 0, 0, 0,-5,-1, 6, 2,-4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                  [ 0, 0, 3, 0, 0, 0, 0,-5, 0, 0, 0,-1, 6, 2,-4, 0, 0, 0, 0, 0, 0],
+                                  [ 0, 0, 0, 3, 0, 0, 0, 0,-5, 0, 0, 0,-1, 0, 0, 6, 2,-4, 0, 0, 0],
+                                  [ 0, 0, 0, 0, 3, 0, 0, 0, 0,-5, 0, 0, 0,-1, 0, 0, 6, 0, 2,-4, 0],
+                                  [ 0, 0, 0, 0, 0, 3, 0, 0, 0, 0,-5, 0, 0, 0,-1, 0, 0, 6, 0, 2,-4],
+                                  [-4,-6, 5, 1,-3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                  [ 0,-4, 0, 0, 0, 0,-6, 5, 1,-3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                  [ 0, 0,-4, 0, 0, 0, 0,-6, 0, 0, 0, 5, 1,-3, 2, 0, 0, 0, 0, 0, 0],
+                                  [ 0, 0, 0,-4, 0, 0, 0, 0,-6, 0, 0, 0, 5, 0, 0, 1,-3, 2, 0, 0, 0],
+                                  [ 0, 0, 0, 0,-4, 0, 0, 0, 0,-6, 0, 0, 0, 5, 0, 0, 1, 0,-3, 2, 0],
+                                  [ 0, 0, 0, 0, 0,-4, 0, 0, 0, 0,-6, 0, 0, 0, 5, 0, 0, 1, 0,-3, 2],
+                                  [ 5, 4, 6,-2,-1,-3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                  [ 0, 5, 0, 0, 0, 0, 4, 6,-2,-1,-3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                  [ 0, 0, 5, 0, 0, 0, 0, 4, 0, 0, 0, 6,-2,-1,-3, 0, 0, 0, 0, 0, 0],
+                                  [ 0, 0, 0, 5, 0, 0, 0, 0, 4, 0, 0, 0, 6, 0, 0,-2,-1,-3, 0, 0, 0],
+                                  [ 0, 0, 0, 0, 5, 0, 0, 0, 0, 4, 0, 0, 0, 6, 0, 0,-2, 0,-1,-3, 0],
+                                  [ 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 4, 0, 0, 0, 6, 0, 0,-2, 0,-1,-3],
+                                  [-6, 3,-2, 5,-4, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                  [ 0,-6, 0, 0, 0, 0, 3,-2, 5,-4, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                  [ 0, 0,-6, 0, 0, 0, 0, 3, 0, 0, 0,-2, 5,-4, 1, 0, 0, 0, 0, 0, 0],
+                                  [ 0, 0, 0,-6, 0, 0, 0, 0, 3, 0, 0, 0,-2, 0, 0, 5,-4, 1, 0, 0, 0],
+                                  [ 0, 0, 0, 0,-6, 0, 0, 0, 0, 3, 0, 0, 0,-2, 0, 0, 5, 0,-4, 1, 0],
+                                  [ 0, 0, 0, 0, 0,-6, 0, 0, 0, 0, 3, 0, 0, 0,-2, 0, 0, 5, 0,-4, 1]])
+                
+                sigma = np.array(self.__sigma[etacalc])
+                
+                ci = np.linalg.lstsq(Matrix,sigma)
+                
+                #-- Cubic structures ------------------------------------------------------------------------------
+                if (LC == 'CI' or \
+                    LC == 'CII'):
+                    
+                    C[0,0]=ci[0][0]
+                    C[0,1]=ci[0][1]
+                    C[3,3]=ci[0][2]
+                    C[1,1]=C[0,0]
+                    C[2,2]=C[0,0]
+                    C[0,2]=C[0,1]
+                    C[1,2]=C[0,1]
+                    C[4,4]=C[3,3]
+                    C[5,5]=C[3,3]
+                
+                #-- Hexagonal Structures --------------------------------------------------------------------------
+                if (LC == 'HI' or \
+                    LC == 'HII'):
+                    C[0,0]=ci[0][0]
+                    C[0,1]=ci[0][1]
+                    C[0,2]=ci[0][2]
+                    C[2,2]=ci[0][3]
+                    C[3,3]=ci[0][4]
+                    C[1,1]=C[0,0]
+                    C[1,2]=C[0,2]
+                    C[4,4]=C[3,3]
+                    C[5,5]=0.5*(C[0,0]-C[0,1])
+                
+                #-- Rhombohedral I Structures ---------------------------------------------------------------------
+                if (LC == 'RI'):
+                    C[0,0]= ci[0][0]
+                    C[0,1]= ci[0][1]
+                    C[0,2]= ci[0][2]
+                    C[0,3]= ci[0][3]
+                    C[2,2]= ci[0][4]
+                    C[3,3]= ci[0][5]
+                    C[1,1]= C[0,0]
+                    C[1,2]= C[0,2]
+                    C[1,3]=-C[0,3]
+                    C[4,5]= C[0,3]
+                    C[4,4]= C[3,3]
+                    C[5,5]=0.5*(C[0,0]-C[0,1])
+                
+                #-- Rhombohedral II Structures --------------------------------------------------------------------
+                if (LC == 'RII'):
+                    C[0,0]= ci[0][0]
+                    C[0,1]= ci[0][1]
+                    C[0,2]= ci[0][2]
+                    C[0,3]= ci[0][3]
+                    C[0,4]= ci[0][4]
+                    C[2,2]= ci[0][5]
+                    C[3,3]= ci[0][6]
+                    C[1,1]= C[0,0]
+                    C[1,2]= C[0,2]
+                    C[1,3]=-C[0,3]
+                    C[4,5]= C[0,3]
+                    C[1,4]=-C[0,4]
+                    C[3,5]=-C[0,4]
+                    C[4,4]= C[3,3]
+                    C[5,5]=0.5*(C[0,0]-C[0,1])
+                
+                #-- Tetragonal I Structures -----------------------------------------------------------------------
+                if (LC == 'TI'):
+                    C[0,0]= ci[0][0]
+                    C[0,1]= ci[0][1]
+                    C[0,2]= ci[0][2]
+                    C[2,2]= ci[0][3]
+                    C[3,3]= ci[0][4]
+                    C[5,5]= ci[0][5]
+                    C[1,1]= C[0,0]
+                    C[1,2]= C[0,2]
+                    C[4,4]= C[3,3]
+                
+                #-- Tetragonal II Structures ----------------------------------------------------------------------
+                if (LC == 'TII'):
+                    C[0,0]= ci[0][0]
+                    C[0,1]= ci[0][1]
+                    C[0,2]= ci[0][2]
+                    C[0,5]= ci[0][3]
+                    C[2,2]= ci[0][4]
+                    C[3,3]= ci[0][5]
+                    C[5,5]= ci[0][6]
+                    C[1,1]= C[0,0]
+                    C[1,2]= C[0,2]
+                    C[1,5]=-C[0,5]
+                    C[4,4]= C[3,3]
+                
+                #-- Orthorhombic Structures -----------------------------------------------------------------------
+                if (LC == 'O'):
+                    C[0,0]=ci[0][0]
+                    C[0,1]=ci[0][1]
+                    C[0,2]=ci[0][2]
+                    C[1,1]=ci[0][3]
+                    C[1,2]=ci[0][4]
+                    C[2,2]=ci[0][5]
+                    C[3,3]=ci[0][6]
+                    C[4,4]=ci[0][7]
+                    C[5,5]=ci[0][8]
+                
+                #-- Monoclinic Structures -------------------------------------------------------------------------
+                if (LC == 'M'):
+                    C[0,0]=ci[0][0]
+                    C[0,1]=ci[0][1]
+                    C[0,2]=ci[0][2]
+                    C[0,5]=ci[0][3]
+                    C[1,1]=ci[0][4]
+                    C[1,2]=ci[0][5]
+                    C[1,5]=ci[0][6]
+                    C[2,2]=ci[0][7]
+                    C[2,5]=ci[0][8]
+                    C[3,3]=ci[0][9]
+                    C[3,4]=ci[0][10]
+                    C[4,4]=ci[0][11]
+                    C[5,5]=ci[0][12]
+                
+                #-- Triclinic Structures --------------------------------------------------------------------------
+                if (LC == 'N'):
+                    C[0,0]=ci[0][0]
+                    C[0,1]=ci[0][1]
+                    C[0,2]=ci[0][2]
+                    C[0,3]=ci[0][3]
+                    C[0,4]=ci[0][4]
+                    C[0,5]=ci[0][5]
+                    C[1,1]=ci[0][6]
+                    C[1,2]=ci[0][7]
+                    C[1,3]=ci[0][8]
+                    C[1,4]=ci[0][9]
+                    C[1,5]=ci[0][10]
+                    C[2,2]=ci[0][11]
+                    C[2,3]=ci[0][12]
+                    C[2,4]=ci[0][13]
+                    C[2,5]=ci[0][14]
+                    C[3,3]=ci[0][15]
+                    C[3,4]=ci[0][16]
+                    C[3,5]=ci[0][17]
+                    C[4,4]=ci[0][18]
+                    C[4,5]=ci[0][19]
+                    C[5,5]=ci[0][20]
+                #--------------------------------------------------------------------------------------------------
+    
+    
+    
+            for i in range(5):
+                for j in range(i+1,6):
+                    C[j,i] = C[i,j] 
+            #%%%--- Calculating the elastic moduli ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            if self.__cod == 'espresso': C = -C/10.
+            elif self.__cod == 'vasp': C = C/4.
+            self.BV = (C[0,0]+C[1,1]+C[2,2]+2*(C[0,1]+C[0,2]+C[1,2]))/9
+            self.GV = ((C[0,0]+C[1,1]+C[2,2])-(C[0,1]+C[0,2]+C[1,2])+3*(C[3,3]+C[4,4]+C[5,5]))/15
+            self.EV = (9*self.BV*self.GV)/(3*self.BV+self.GV)
+            self.nuV= (1.5*self.BV-self.GV)/(3*self.BV+self.GV)
+            self.S  = np.linalg.inv(C)
+            self.BR = 1/(self.S[0,0]+self.S[1,1]+self.S[2,2]+2*(self.S[0,1]+self.S[0,2]+self.S[1,2]))
+            self.GR =15/(4*(self.S[0,0]+self.S[1,1]+self.S[2,2])-4*(self.S[0,1]+self.S[0,2]+self.S[1,2])+3*(self.S[3,3]+self.S[4,4]+self.S[5,5]))
+            self.ER = (9*self.BR*self.GR)/(3*self.BR+self.GR)
+            self.nuR= (1.5*self.BR-self.GR)/(3*self.BR+self.GR)
+            self.BH = 0.50*(self.BV+self.BR)
+            self.GH = 0.50*(self.GV+self.GR)
+            self.EH = (9.*self.BH*self.GH)/(3.*self.BH+self.GH)
+            self.nuH= (1.5*self.BH-self.GH)/(3.*self.BH+self.GH)
+            self.AVR= 100.*(self.GV-self.GR)/(self.GV+self.GR)
+            #--------------------------------------------------------------------------------------------------------------------------------
+            self.__C = C
         
+        else:
+            Cs = []
+            for t in range(len(self.__T)):
+                C = np.zeros((6,6))
+                
+                LC = self.__structures.items()[0][1].LC
+                if self.__mthd == 'Energy':
+                    if type(etacalc)==list:
+                        A2=[]
+                        for i in range(len(etacalc)):
+                            A2.append(self.__A2[t][i][etacalc[i]])
+                    else:
+                        if not etacalc in self.__A2[t][0].keys(): raise ValueError('Please coose one of %s'%(self.__A2[t][0].keys()))
+                        A2 = [a2[etacalc] for a2 in self.__A2[t]]
+                    
+                    #%%%--- Cubic structures ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                    if (LC == 'CI' or \
+                        LC == 'CII'):
+                        C[0,0] =-2.*(A2[0]-3.*A2[1])/3.
+                        C[1,1] = C[0,0]
+                        C[2,2] = C[0,0]
+                        C[3,3] = A2[2]/6.
+                        C[4,4] = C[3,3]
+                        C[5,5] = C[3,3]
+                        C[0,1] = (2.*A2[0]-3.*A2[1])/3.
+                        C[0,2] = C[0,1]
+                        C[1,2] = C[0,1]
+                    #--------------------------------------------------------------------------------------------------------------------------------
+                    
+                    #%%%--- Hexagonal structures ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                    if (LC == 'HI' or \
+                        LC == 'HII'):
+                        C[0,0] = 2.*A2[3]
+                        C[0,1] = 2./3.*A2[0] + 4./3.*A2[1] - 2.*A2[2] - 2.*A2[3]
+                        C[0,2] = 1./6.*A2[0] - 2./3.*A2[1] + 0.5*A2[2]
+                        C[1,1] = C[0,0]
+                        C[1,2] = C[0,2]
+                        C[2,2] = 2.*A2[2]
+                        C[3,3] =-0.5*A2[2] + 0.5*A2[4]
+                        C[4,4] = C[3,3]
+                        C[5,5] = .5*(C[0,0] - C[0,1])
+                    #--------------------------------------------------------------------------------------------------------------------------------
+                    
+                    #%%%--- Rhombohedral I structures ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                    if (LC == 'RI'):
+                        C[0,0] = 2.*A2[3]
+                        C[0,1] = A2[1]- 2.*A2[3]
+                        C[0,2] = .5*( A2[0] - A2[1] - A2[2])
+                        C[0,3] = .5*(-A2[3] - A2[4] + A2[5])
+                        C[1,1] = C[0,0]
+                        C[1,2] = C[0,2]
+                        C[1,3] =-C[0,3]
+                        C[2,2] = 2.*A2[2]
+                        C[3,3] = .5*A2[4]
+                        C[4,4] = C[3,3]
+                        C[4,5] = C[0,3]
+                        C[5,5] = .5*(C[0,0] - C[0,1])
+                    #--------------------------------------------------------------------------------------------------------------------------------
+                    
+                    #%%%--- Rhombohedral II structures ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                    if (LC == 'RII'):
+                        C[0,0] = 2.*A2[3]
+                        C[0,1] = A2[1]- 2.*A2[3]
+                        C[0,2] = .5*( A2[0] - A2[1] - A2[2])
+                        C[0,3] = .5*(-A2[3] - A2[4] + A2[5])
+                        C[0,4] = .5*(-A2[3] - A2[4] + A2[6])
+                        C[1,1] = C[0,0]
+                        C[1,2] = C[0,2]
+                        C[1,3] =-C[0,3]
+                        C[1,4] =-C[0,4]    
+                        C[2,2] = 2.*A2[2]
+                        C[3,3] = .5*A2[4]
+                        C[3,5] =-C[0,4]
+                        C[4,4] = C[3,3]
+                        C[4,5] = C[0,3]
+                        C[5,5] = .5*(C[0,0] - C[0,1])
+                    #--------------------------------------------------------------------------------------------------------------------------------
+                    
+                    #%%%--- Tetragonal I structures ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                    if (LC == 'TI'):
+                        C[0,0] = (A2[0]+2.*A2[1])/3.+.5*A2[2]-A2[3]
+                        C[0,1] = (A2[0]+2.*A2[1])/3.-.5*A2[2]-A2[3]
+                        C[0,2] = A2[0]/6.-2.*A2[1]/3.+.5*A2[3]
+                        C[1,1] = C[0,0]
+                        C[1,2] = C[0,2]
+                        C[2,2] = 2.*A2[3]
+                        C[3,3] = .5*A2[4]
+                        C[4,4] = C[3,3]
+                        C[5,5] = .5*A2[5]
+                    #--------------------------------------------------------------------------------------------------------------------------------
+                    
+                    #%%%--- Tetragonal II structures ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                    if (LC == 'TII'):
+                        C[0,0] = (A2[0]+2.*A2[1])/3.+.5*A2[2]-A2[4]
+                        C[1,1] = C[0,0]
+                        C[0,1] = (A2[0]+2.*A2[1])/3.-.5*A2[2]-A2[4]
+                        C[0,2] = A2[0]/6.-(2./3.)*A2[1]+.5*A2[4]
+                        C[0,5] = (-A2[2]+A2[3]-A2[6])/4.
+                        C[1,2] = C[0,2]
+                        C[1,5] =-C[0,5]
+                        C[2,2] = 2.*A2[4]
+                        C[3,3] = .5*A2[5]
+                        C[4,4] = C[3,3]
+                        C[5,5] = .5*A2[6]
+                    #--------------------------------------------------------------------------------------------------------------------------------
+                    
+                    #%%%--- Orthorhombic structures ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                    if (LC == 'O'):
+                        C[0,0] = 2.*A2[0]/3.+4.*A2[1]/3.+A2[3]-2.*A2[4]-2.*A2[5]
+                        C[0,1] = 1.*A2[0]/3.+2.*A2[1]/3.-.5*A2[3]-A2[5]
+                        C[0,2] = 1.*A2[0]/3.-2.*A2[1]/3.+4.*A2[2]/3.-.5*A2[3]-A2[4]
+                        C[1,1] = 2.*A2[4]
+                        C[1,2] =-2.*A2[1]/3.-4.*A2[2]/3.+.5*A2[3]+A2[4]+A2[5]
+                        C[2,2] = 2.*A2[5]
+                        C[3,3] = .5*A2[6]
+                        C[4,4] = .5*A2[7]
+                        C[5,5] = .5*A2[8]
+                    #--------------------------------------------------------------------------------------------------------------------------------
+                    
+                    #%%%--- Monoclinic structures ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                    if (LC == 'M'):
+                        C[0,0] = 2.*A2[0]/3.+8.*(A2[1]+A2[2])/3.-2.*(A2[5]+A2[8]+A2[9])
+                        C[0,1] = A2[0]/3.+4.*(A2[1]+A2[2])/3.-2.*A2[5]-A2[9]
+                        C[0,2] =(A2[0]-4.*A2[2])/3.+A2[5]-A2[8]
+                        C[0,5] =-1.*A2[0]/6.-2.*(A2[1]+A2[2])/3.+.5*(A2[5]+A2[7]+A2[8]+A2[9]-A2[12])
+                        C[1,1] = 2.*A2[8]
+                        C[1,2] =-4.*(2.*A2[1]+A2[2])/3.+2.*A2[5]+A2[8]+A2[9]+A2[12]
+                        C[1,5] =-1.*A2[0]/6.-2.*(A2[1]+A2[2])/3.-.5*A2[3]+A2[5]+.5*(A2[7]+A2[8]+A2[9])
+                        C[2,2] = 2.*A2[9]
+                        C[2,5] =-1.*A2[0]/6.+2.*A2[1]/3.-.5*(A2[3]+A2[4]-A2[7]-A2[8]-A2[9]-A2[12])
+                        C[3,3] = .5*A2[10]
+                        C[3,4] = .25*(A2[6]-A2[10]-A2[11])
+                        C[4,4] = .5*A2[11]
+                        C[5,5] = .5*A2[12]
+                    #--------------------------------------------------------------------------------------------------------------------------------
+                    
+                    #%%%--- Triclinic structures ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                    if (LC == 'N'):
+                        C[0,0] = 2.*A2[0]
+                        C[0,1] = 1.*(-A2[0]-A2[1]+A2[6])
+                        C[0,2] = 1.*(-A2[0]-A2[2]+A2[7])
+                        C[0,3] = .5*(-A2[0]-A2[3]+A2[8]) 
+                        C[0,4] = .5*(-A2[0]+A2[9]-A2[4])
+                        C[0,5] = .5*(-A2[0]+A2[10]-A2[5])
+                        C[1,1] = 2.*A2[1]
+                        C[1,2] = 1.*(A2[11]-A2[1]-A2[2])
+                        C[1,3] = .5*(A2[12]-A2[1]-A2[3])
+                        C[1,4] = .5*(A2[13]-A2[1]-A2[4])
+                        C[1,5] = .5*(A2[14]-A2[1]-A2[5])
+                        C[2,2] = 2.*A2[2] 
+                        C[2,3] = .5*(A2[15]-A2[2]-A2[3])
+                        C[2,4] = .5*(A2[16]-A2[2]-A2[4])
+                        C[2,5] = .5*(A2[17]-A2[2]-A2[5])
+                        C[3,3] = .5*A2[3]
+                        C[3,4] = .25*(A2[18]-A2[3]-A2[4])
+                        C[3,5] = .25*(A2[19]-A2[3]-A2[5])
+                        C[4,4] = .5*A2[4]
+                        C[4,5] = .25*(A2[20]-A2[4]-A2[5])
+                        C[5,5] = .5*A2[5]
+                    #--------------------------------------------------------------------------------------------------------------------------------
+                    
+                elif self.__mthd == 'Stress':
+                    
+                    if (LC == 'CI' or \
+                        LC == 'CII'):
+                        Matrix = np.mat([[1.0,  5.0,  0.0],
+                                      [2.0,  4.0,  0.0],
+                                      [3.0,  3.0,  0.0],
+                                      [0.0,  0.0,  4.0],
+                                      [0.0,  0.0,  5.0],
+                                      [0.0,  0.0,  6.0]])
+        
+                    if (LC == 'HI' or \
+                        LC == 'HII'):
+                        Matrix = np.mat([[ 1, 2, 3, 0, 0],
+                                      [ 2, 1, 3, 0, 0],
+                                      [ 0, 0, 3, 3, 0],
+                                      [ 0, 0, 0, 0, 4],
+                                      [ 0, 0, 0, 0, 5],
+                                      [ 3,-3, 0, 0, 0],
+                                      [ 3,-5,-1, 0, 0],
+                                      [-5, 3,-1, 0, 0],
+                                      [ 0, 0,-2,-1, 0],
+                                      [ 0, 0, 0, 0, 6],
+                                      [ 0, 0, 0, 0, 2],
+                                      [-2, 2, 0, 0, 0]])
+                    
+                    if (LC == 'RI'):
+                        Matrix = np.mat([[ 1, 2, 3, 4, 0, 0],
+                                      [ 2, 1, 3,-4, 0, 0],
+                                      [ 0, 0, 3, 0, 3, 0],
+                                      [ 0, 0, 0,-1, 0, 4],
+                                      [ 0, 0, 0, 6, 0, 5],
+                                      [ 3,-3, 0, 5, 0, 0],
+                                      [ 3,-5,-1, 6, 0, 0],
+                                      [-5, 3,-1,-6, 0, 0],
+                                      [ 0, 0,-2, 0,-1, 0],
+                                      [ 0, 0, 0, 8, 0, 6],
+                                      [ 0, 0, 0,-4, 0, 2],
+                                      [-2, 2, 0, 2, 0, 0]])
+                    
+                    if (LC == 'RII'):
+                        Matrix = np.mat([[ 1, 2, 3, 4, 5, 0, 0],
+                                      [ 2, 1, 3,-4,-5, 0, 0],
+                                      [ 0, 0, 3, 0, 0, 3, 0],
+                                      [ 0, 0, 0,-1,-6, 0, 4],
+                                      [ 0, 0, 0, 6,-1, 0, 5],
+                                      [ 3,-3, 0, 5,-4, 0, 0],
+                                      [ 3,-5,-1, 6, 2, 0, 0],
+                                      [-5, 3,-1,-6,-2, 0, 0],
+                                      [ 0, 0,-2, 0, 0,-1, 0],
+                                      [ 0, 0, 0, 8, 4, 0, 6],
+                                      [ 0, 0, 0,-4, 8, 0, 2],
+                                      [-2, 2, 0, 2,-6, 0, 0]])
+                    
+                    if (LC == 'TI'):
+                        Matrix = np.mat([[ 1, 2, 3, 0, 0, 0],
+                                      [ 2, 1, 3, 0, 0, 0],
+                                      [ 0, 0, 3, 3, 0, 0],
+                                      [ 0, 0, 0, 0, 4, 0],
+                                      [ 0, 0, 0, 0, 5, 0],
+                                      [ 0, 0, 0, 0, 0, 6],
+                                      [ 3,-5,-1, 0, 0, 0],
+                                      [-5, 3,-1, 0, 0, 0],
+                                      [ 0, 0,-2,-1, 0, 0],
+                                      [ 0, 0, 0, 0, 6, 0],
+                                      [ 0, 0, 0, 0, 2, 0],
+                                      [ 0, 0, 0, 0, 0,-4]])
+                    
+                    if (LC == 'TII'):
+                        Matrix = np.mat([[ 1, 2, 3, 6, 0, 0, 0],
+                                      [ 2, 1, 3,-6, 0, 0, 0],
+                                      [ 0, 0, 3, 0, 3, 0, 0],
+                                      [ 0, 0, 0, 0, 0, 4, 0],
+                                      [ 0, 0, 0, 0, 0, 5, 0],
+                                      [ 0, 0, 0,-1, 0, 0, 6],
+                                      [ 3,-5,-1,-4, 0, 0, 0],
+                                      [-5, 3,-1, 4, 0, 0, 0],
+                                      [ 0, 0,-2, 0,-1, 0, 0],
+                                      [ 0, 0, 0, 0, 0, 6, 0],
+                                      [ 0, 0, 0, 0, 0, 2, 0],
+                                      [ 0, 0, 0, 8, 0, 0,-4]])
+                    
+                    if (LC == 'O'):
+                        Matrix = np.mat([[1, 2, 3, 0, 0, 0, 0, 0, 0],
+                                      [0, 1, 0, 2, 3, 0, 0, 0, 0],
+                                      [0, 0, 1, 0, 2, 3, 0, 0, 0],
+                                      [0, 0, 0, 0, 0, 0, 4, 0, 0],
+                                      [0, 0, 0, 0, 0, 0, 0, 5, 0],
+                                      [0, 0, 0, 0, 0, 0, 0, 0, 6],
+                                      [3,-5,-1, 0, 0, 0, 0, 0, 0],
+                                      [0, 3, 0,-5,-1, 0, 0, 0, 0],
+                                      [0, 0, 3, 0,-5,-1, 0, 0, 0],
+                                      [0, 0, 0, 0, 0, 0, 6, 0, 0],
+                                      [0, 0, 0, 0, 0, 0, 0, 2, 0],
+                                      [0, 0, 0, 0, 0, 0, 0, 0,-4],
+                                      [5, 4, 6, 0, 0, 0, 0, 0, 0],
+                                      [0, 5, 0, 4, 6, 0, 0, 0, 0],
+                                      [0, 0, 5, 0, 4, 6, 0, 0, 0],
+                                      [0, 0, 0, 0, 0, 0,-2, 0, 0],
+                                      [0, 0, 0, 0, 0, 0, 0,-1, 0],
+                                      [0, 0, 0, 0, 0, 0, 0, 0,-3]])
+                    
+                    if (LC == 'M'):
+                        Matrix = np.mat([[ 1, 2, 3, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                      [ 0, 1, 0, 0, 2, 3, 6, 0, 0, 0, 0, 0, 0],
+                                      [ 0, 0, 1, 0, 0, 2, 0, 3, 6, 0, 0, 0, 0],
+                                      [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 5, 0, 0],
+                                      [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 5, 0],
+                                      [ 0, 0, 0, 1, 0, 0, 2, 0, 3, 0, 0, 0, 6],
+                                      [-2, 1, 4,-5, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                      [ 0,-2, 0, 0, 1, 4,-5, 0, 0, 0, 0, 0, 0],
+                                      [ 0, 0,-2, 0, 0, 1, 0, 4,-5, 0, 0, 0, 0],
+                                      [ 0, 0, 0, 0, 0, 0, 0, 0, 0,-3, 6, 0, 0],
+                                      [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,-3, 6, 0],
+                                      [ 0, 0, 0,-2, 0, 0, 1, 0, 4, 0, 0,-5, 0],
+                                      [ 3,-5,-1,-4, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                      [ 0, 3, 0, 0,-5,-1,-4, 0, 0, 0, 0, 0, 0],
+                                      [ 0, 0, 3, 0, 0,-5, 0,-1,-4, 0, 0, 0, 0],
+                                      [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 2, 0, 0],
+                                      [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 2, 0],
+                                      [ 0, 0, 0, 3, 0, 0,-5, 0,-1, 0, 0,-4, 0],
+                                      [-4,-6, 5, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                      [ 0,-4, 0, 0,-6, 5, 2, 0, 0, 0, 0, 0, 0],
+                                      [ 0, 0,-4, 0, 0,-6, 0, 5, 2, 0, 0, 0, 0],
+                                      [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,-3, 0, 0],
+                                      [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,-3, 0],
+                                      [ 0, 0, 0,-4, 0, 0,-6, 0, 5, 0, 0, 2, 0],
+                                      [ 5, 4, 6,-3, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                      [ 0, 5, 0, 0, 4, 6,-3, 0, 0, 0, 0, 0, 0],
+                                      [ 0, 0, 5, 0, 0, 4, 0, 6,-3, 0, 0, 0, 0],
+                                      [ 0, 0, 0, 0, 0, 0, 0, 0, 0,-2,-1, 0, 0],
+                                      [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,-2,-1, 0],
+                                      [ 0, 0, 0, 5, 0, 0, 4, 0, 6, 0, 0,-3, 0]])
+                    
+                    if (LC == 'N'):
+                        Matrix = np.mat([[ 1, 2, 3, 4, 5, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                      [ 0, 1, 0, 0, 0, 0, 2, 3, 4, 5, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                      [ 0, 0, 1, 0, 0, 0, 0, 2, 0, 0, 0, 3, 4, 5, 6, 0, 0, 0, 0, 0, 0],
+                                      [ 0, 0, 0, 1, 0, 0, 0, 0, 2, 0, 0, 0, 3, 0, 0, 4, 5, 6, 0, 0, 0],
+                                      [ 0, 0, 0, 0, 1, 0, 0, 0, 0, 2, 0, 0, 0, 3, 0, 0, 4, 0, 5, 6, 0],
+                                      [ 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 2, 0, 0, 0, 3, 0, 0, 4, 0, 5, 6],
+                                      [-2, 1, 4,-3, 6,-5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                      [ 0,-2, 0, 0, 0, 0, 1, 4,-3, 6,-5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                      [ 0, 0,-2, 0, 0, 0, 0, 1, 0, 0, 0, 4,-3, 6,-5, 0, 0, 0, 0, 0, 0],
+                                      [ 0, 0, 0,-2, 0, 0, 0, 0, 1, 0, 0, 0, 4, 0, 0,-3, 6,-5, 0, 0, 0],
+                                      [ 0, 0, 0, 0,-2, 0, 0, 0, 0, 1, 0, 0, 0, 4, 0, 0,-3, 0, 6,-5, 0],
+                                      [ 0, 0, 0, 0, 0,-2, 0, 0, 0, 0, 1, 0, 0, 0, 4, 0, 0,-3, 0, 6,-5],
+                                      [ 3,-5,-1, 6, 2,-4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                      [ 0, 3, 0, 0, 0, 0,-5,-1, 6, 2,-4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                      [ 0, 0, 3, 0, 0, 0, 0,-5, 0, 0, 0,-1, 6, 2,-4, 0, 0, 0, 0, 0, 0],
+                                      [ 0, 0, 0, 3, 0, 0, 0, 0,-5, 0, 0, 0,-1, 0, 0, 6, 2,-4, 0, 0, 0],
+                                      [ 0, 0, 0, 0, 3, 0, 0, 0, 0,-5, 0, 0, 0,-1, 0, 0, 6, 0, 2,-4, 0],
+                                      [ 0, 0, 0, 0, 0, 3, 0, 0, 0, 0,-5, 0, 0, 0,-1, 0, 0, 6, 0, 2,-4],
+                                      [-4,-6, 5, 1,-3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                      [ 0,-4, 0, 0, 0, 0,-6, 5, 1,-3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                      [ 0, 0,-4, 0, 0, 0, 0,-6, 0, 0, 0, 5, 1,-3, 2, 0, 0, 0, 0, 0, 0],
+                                      [ 0, 0, 0,-4, 0, 0, 0, 0,-6, 0, 0, 0, 5, 0, 0, 1,-3, 2, 0, 0, 0],
+                                      [ 0, 0, 0, 0,-4, 0, 0, 0, 0,-6, 0, 0, 0, 5, 0, 0, 1, 0,-3, 2, 0],
+                                      [ 0, 0, 0, 0, 0,-4, 0, 0, 0, 0,-6, 0, 0, 0, 5, 0, 0, 1, 0,-3, 2],
+                                      [ 5, 4, 6,-2,-1,-3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                      [ 0, 5, 0, 0, 0, 0, 4, 6,-2,-1,-3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                      [ 0, 0, 5, 0, 0, 0, 0, 4, 0, 0, 0, 6,-2,-1,-3, 0, 0, 0, 0, 0, 0],
+                                      [ 0, 0, 0, 5, 0, 0, 0, 0, 4, 0, 0, 0, 6, 0, 0,-2,-1,-3, 0, 0, 0],
+                                      [ 0, 0, 0, 0, 5, 0, 0, 0, 0, 4, 0, 0, 0, 6, 0, 0,-2, 0,-1,-3, 0],
+                                      [ 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 4, 0, 0, 0, 6, 0, 0,-2, 0,-1,-3],
+                                      [-6, 3,-2, 5,-4, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                      [ 0,-6, 0, 0, 0, 0, 3,-2, 5,-4, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                      [ 0, 0,-6, 0, 0, 0, 0, 3, 0, 0, 0,-2, 5,-4, 1, 0, 0, 0, 0, 0, 0],
+                                      [ 0, 0, 0,-6, 0, 0, 0, 0, 3, 0, 0, 0,-2, 0, 0, 5,-4, 1, 0, 0, 0],
+                                      [ 0, 0, 0, 0,-6, 0, 0, 0, 0, 3, 0, 0, 0,-2, 0, 0, 5, 0,-4, 1, 0],
+                                      [ 0, 0, 0, 0, 0,-6, 0, 0, 0, 0, 3, 0, 0, 0,-2, 0, 0, 5, 0,-4, 1]])
+                    
+                    sigma = np.array(self.__sigma[etacalc])
+                    
+                    ci = np.linalg.lstsq(Matrix,sigma)
+                    
+                    #-- Cubic structures ------------------------------------------------------------------------------
+                    if (LC == 'CI' or \
+                        LC == 'CII'):
+                        
+                        C[0,0]=ci[0][0]
+                        C[0,1]=ci[0][1]
+                        C[3,3]=ci[0][2]
+                        C[1,1]=C[0,0]
+                        C[2,2]=C[0,0]
+                        C[0,2]=C[0,1]
+                        C[1,2]=C[0,1]
+                        C[4,4]=C[3,3]
+                        C[5,5]=C[3,3]
+                    
+                    #-- Hexagonal Structures --------------------------------------------------------------------------
+                    if (LC == 'HI' or \
+                        LC == 'HII'):
+                        C[0,0]=ci[0][0]
+                        C[0,1]=ci[0][1]
+                        C[0,2]=ci[0][2]
+                        C[2,2]=ci[0][3]
+                        C[3,3]=ci[0][4]
+                        C[1,1]=C[0,0]
+                        C[1,2]=C[0,2]
+                        C[4,4]=C[3,3]
+                        C[5,5]=0.5*(C[0,0]-C[0,1])
+                    
+                    #-- Rhombohedral I Structures ---------------------------------------------------------------------
+                    if (LC == 'RI'):
+                        C[0,0]= ci[0][0]
+                        C[0,1]= ci[0][1]
+                        C[0,2]= ci[0][2]
+                        C[0,3]= ci[0][3]
+                        C[2,2]= ci[0][4]
+                        C[3,3]= ci[0][5]
+                        C[1,1]= C[0,0]
+                        C[1,2]= C[0,2]
+                        C[1,3]=-C[0,3]
+                        C[4,5]= C[0,3]
+                        C[4,4]= C[3,3]
+                        C[5,5]=0.5*(C[0,0]-C[0,1])
+                    
+                    #-- Rhombohedral II Structures --------------------------------------------------------------------
+                    if (LC == 'RII'):
+                        C[0,0]= ci[0][0]
+                        C[0,1]= ci[0][1]
+                        C[0,2]= ci[0][2]
+                        C[0,3]= ci[0][3]
+                        C[0,4]= ci[0][4]
+                        C[2,2]= ci[0][5]
+                        C[3,3]= ci[0][6]
+                        C[1,1]= C[0,0]
+                        C[1,2]= C[0,2]
+                        C[1,3]=-C[0,3]
+                        C[4,5]= C[0,3]
+                        C[1,4]=-C[0,4]
+                        C[3,5]=-C[0,4]
+                        C[4,4]= C[3,3]
+                        C[5,5]=0.5*(C[0,0]-C[0,1])
+                    
+                    #-- Tetragonal I Structures -----------------------------------------------------------------------
+                    if (LC == 'TI'):
+                        C[0,0]= ci[0][0]
+                        C[0,1]= ci[0][1]
+                        C[0,2]= ci[0][2]
+                        C[2,2]= ci[0][3]
+                        C[3,3]= ci[0][4]
+                        C[5,5]= ci[0][5]
+                        C[1,1]= C[0,0]
+                        C[1,2]= C[0,2]
+                        C[4,4]= C[3,3]
+                    
+                    #-- Tetragonal II Structures ----------------------------------------------------------------------
+                    if (LC == 'TII'):
+                        C[0,0]= ci[0][0]
+                        C[0,1]= ci[0][1]
+                        C[0,2]= ci[0][2]
+                        C[0,5]= ci[0][3]
+                        C[2,2]= ci[0][4]
+                        C[3,3]= ci[0][5]
+                        C[5,5]= ci[0][6]
+                        C[1,1]= C[0,0]
+                        C[1,2]= C[0,2]
+                        C[1,5]=-C[0,5]
+                        C[4,4]= C[3,3]
+                    
+                    #-- Orthorhombic Structures -----------------------------------------------------------------------
+                    if (LC == 'O'):
+                        C[0,0]=ci[0][0]
+                        C[0,1]=ci[0][1]
+                        C[0,2]=ci[0][2]
+                        C[1,1]=ci[0][3]
+                        C[1,2]=ci[0][4]
+                        C[2,2]=ci[0][5]
+                        C[3,3]=ci[0][6]
+                        C[4,4]=ci[0][7]
+                        C[5,5]=ci[0][8]
+                    
+                    #-- Monoclinic Structures -------------------------------------------------------------------------
+                    if (LC == 'M'):
+                        C[0,0]=ci[0][0]
+                        C[0,1]=ci[0][1]
+                        C[0,2]=ci[0][2]
+                        C[0,5]=ci[0][3]
+                        C[1,1]=ci[0][4]
+                        C[1,2]=ci[0][5]
+                        C[1,5]=ci[0][6]
+                        C[2,2]=ci[0][7]
+                        C[2,5]=ci[0][8]
+                        C[3,3]=ci[0][9]
+                        C[3,4]=ci[0][10]
+                        C[4,4]=ci[0][11]
+                        C[5,5]=ci[0][12]
+                    
+                    #-- Triclinic Structures --------------------------------------------------------------------------
+                    if (LC == 'N'):
+                        C[0,0]=ci[0][0]
+                        C[0,1]=ci[0][1]
+                        C[0,2]=ci[0][2]
+                        C[0,3]=ci[0][3]
+                        C[0,4]=ci[0][4]
+                        C[0,5]=ci[0][5]
+                        C[1,1]=ci[0][6]
+                        C[1,2]=ci[0][7]
+                        C[1,3]=ci[0][8]
+                        C[1,4]=ci[0][9]
+                        C[1,5]=ci[0][10]
+                        C[2,2]=ci[0][11]
+                        C[2,3]=ci[0][12]
+                        C[2,4]=ci[0][13]
+                        C[2,5]=ci[0][14]
+                        C[3,3]=ci[0][15]
+                        C[3,4]=ci[0][16]
+                        C[3,5]=ci[0][17]
+                        C[4,4]=ci[0][18]
+                        C[4,5]=ci[0][19]
+                        C[5,5]=ci[0][20]
+                    #--------------------------------------------------------------------------------------------------
+        
+        
+        
+                for i in range(5):
+                    for j in range(i+1,6):
+                        C[j,i] = C[i,j] 
+                #%%%--- Calculating the elastic moduli ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                if self.__cod == 'espresso': C = -C/10.
+                elif self.__cod == 'vasp': C = C/4.
+                self.BV = (C[0,0]+C[1,1]+C[2,2]+2*(C[0,1]+C[0,2]+C[1,2]))/9
+                self.GV = ((C[0,0]+C[1,1]+C[2,2])-(C[0,1]+C[0,2]+C[1,2])+3*(C[3,3]+C[4,4]+C[5,5]))/15
+                self.EV = (9*self.BV*self.GV)/(3*self.BV+self.GV)
+                self.nuV= (1.5*self.BV-self.GV)/(3*self.BV+self.GV)
+                self.S  = np.linalg.inv(C)
+                self.BR = 1/(self.S[0,0]+self.S[1,1]+self.S[2,2]+2*(self.S[0,1]+self.S[0,2]+self.S[1,2]))
+                self.GR =15/(4*(self.S[0,0]+self.S[1,1]+self.S[2,2])-4*(self.S[0,1]+self.S[0,2]+self.S[1,2])+3*(self.S[3,3]+self.S[4,4]+self.S[5,5]))
+                self.ER = (9*self.BR*self.GR)/(3*self.BR+self.GR)
+                self.nuR= (1.5*self.BR-self.GR)/(3*self.BR+self.GR)
+                self.BH = 0.50*(self.BV+self.BR)
+                self.GH = 0.50*(self.GV+self.GR)
+                self.EH = (9.*self.BH*self.GH)/(3.*self.BH+self.GH)
+                self.nuH= (1.5*self.BH-self.GH)/(3.*self.BH+self.GH)
+                self.AVR= 100.*(self.GV-self.GR)/(self.GV+self.GR)
+                #--------------------------------------------------------------------------------------------------------------------------------
+                Cs.append(C)
+            self.__C = Cs
+                
     def get_ec(self):
         return self.__C
     
@@ -930,5 +1524,6 @@ class ECs(Check, Energy, Stress):
     code = property( fget = get_code        , fset = set_code    )
     mthd = property( fget = get_method        , fset = set_method    )
     workdir = property( fget = get_workdir       , fset = set_workdir    )
+    T =  property( fget = get_T       , fset = set_T    )
             
         
