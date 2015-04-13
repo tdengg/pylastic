@@ -111,23 +111,23 @@ class Postprocess(ECs):
             ec.T = T
             ec.set_structures()
             #print ec.get_structures()
-            ec.fitorder=[6,8,6]
-            ec.etacalc=['0.05','0.05','0.025']
+            ec.fitorder=[6,8,4]
+            ec.etacalc=['0.04','0.05','0.025']
             ec.set_analytics()
             ecs = ec.get_ec()
             cvs = ec.get_CVS()
             
-            ec.plot_cvs()
-            ec.plot_cvs('E0')
-            ec.plot_cvs('F')
+            #ec.plot_cvs()
+            #ec.plot_cvs('E0')
+            #ec.plot_cvs('Fvib')
             
-            ec.plot_2nd()
-            ec.plot_2nd('E0')
-            ec.plot_2nd('F')
+            #ec.plot_2nd()
+            #ec.plot_2nd('E0')
+            #ec.plot_2nd('Fvib')
             
-            ec.plot_energy()
-            ec.plot_energy(mod='E0')
-            ec.plot_energy(mod='F')
+            #ec.plot_energy()
+            #ec.plot_energy(mod='E0')
+            #ec.plot_energy(mod='Fvib')
             
             f=open('ECs.pkl','w')
             pickle.dump(ecs,f)

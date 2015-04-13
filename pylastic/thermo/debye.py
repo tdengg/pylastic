@@ -80,9 +80,9 @@ class Debye():
         for j in range(6):
             for i in range(6):
                 C[i,j] = Cij_V[i+6*j]
-        BV = (C[0,0]+C[1,1]+C[2,2]+2*(C[0,1]+C[0,2]+C[1,2]))/9
-        GV = ((C[0,0]+C[1,1]+C[2,2])-(C[0,1]+C[0,2]+C[1,2])+3*(C[3,3]+C[4,4]+C[5,5]))/15
-        EV = (9*BV*GV)/(3*BV+GV)
+        BV = (C[0,0]+C[1,1]+C[2,2]+2.*(C[0,1]+C[0,2]+C[1,2]))/9.
+        GV = ((C[0,0]+C[1,1]+C[2,2])-(C[0,1]+C[0,2]+C[1,2])+3.*(C[3,3]+C[4,4]+C[5,5]))/15.
+        EV = (9.*BV*GV)/(3.*BV+GV)
         
         return BV, GV/BV, EV/BV, GV, EV
     
@@ -121,7 +121,7 @@ class Debye():
         D2=0.
         for k in range(len(Brillouin)):
             D2 = D2+Brillouin[k]/( (2*(k+1)+3)*fc(2*(k+1)) )*x**(2*(k+1))
-        return 1- 3./8.*x + 3*D2
+        return 1.- 3./8.*x + 3.*D2
     
     def debye_T(self, x):
         
@@ -134,6 +134,7 @@ class Debye():
         
         dic = self.get_Cij()
         for scale in sorted(dic.keys()):
+            
             (a, b, c, d, e) = self.calculate_moduli(scale)
             self.__EoB.append(c)
             self.__GoB.append(b)
@@ -177,7 +178,7 @@ class Debye():
         c1= np.polyfit(V0, E0, self.__fitorder)
         p_E0 = np.poly1d(c1)
         #print self.debye_function(self.debye_T(x)/self.T),self.debye_T(x),self.T
-        return (p_E0(x) + ( self.debye_function(T_Deb/self.T) + 3.*np.log(1.-np.exp(-T_Deb/self.T)) ) * self.__kb * self.T - 9./8.*self.__kb*T_Deb)
+        return (p_E0(x) + (( -self.debye_function(T_Deb/self.T) + 3.*np.log(1.-np.exp(-T_Deb/self.T)) ) * self.__kb * self.T - 9./8.*self.__kb*T_Deb))
     
     def free_energy_vib(self,x):
         E0 = self.get_gsenergy()
