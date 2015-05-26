@@ -14,7 +14,24 @@ class Debye():
         self.__mod='X/B-fit'
         self.__E_fname = '/Energy_vol_W.dat'
         self.__C_fname = '/Cij_0.json'
+        self.__artificial_deformation=np.zeros((6,6))
+        self.__artdef=False
     
+    def set_artificial_deformation(self, eta=0.1 ,typeis='tetragonal'):
+        self.__artdef = True
+        if typeis=='tetragonal':
+            print 'Setting artificial deformation to tetragonal'
+            
+            self.__artificial_deformation[0,0] = eta
+            self.__artificial_deformation[1,1] = eta
+            self.__artificial_deformation[2,2] = eta
+            #self.__artificial_deformation[0,1] = eta
+            #self.__artificial_deformation[1,0] = eta
+            #self.__artificial_deformation[2,0] = eta
+            #self.__artificial_deformation[3,3] = eta
+            #self.__artificial_deformation[4,4] = eta
+            #self.__artificial_deformation[5,5] = eta
+            
     def get_mod(self):
         return self.__mod
     
@@ -80,9 +97,14 @@ class Debye():
         for j in range(6):
             for i in range(6):
                 C[i,j] = Cij_V[i+6*j]
+        if self.__artdef:   
+            #print 'Modifying elastic tensor.'
+            C = C+self.__artificial_deformation
         BV = (C[0,0]+C[1,1]+C[2,2]+2.*(C[0,1]+C[0,2]+C[1,2]))/9.
         GV = ((C[0,0]+C[1,1]+C[2,2])-(C[0,1]+C[0,2]+C[1,2])+3.*(C[3,3]+C[4,4]+C[5,5]))/15.
-        EV = (9.*BV*GV)/(3.*BV+GV)
+        #EV = (9.*BV*GV)/(3.*BV+GV)
+        #### calculate p-wave modulus ####
+        EV = BV + 4./3.*GV
         
         return BV, GV/BV, EV/BV, GV, EV
     
@@ -172,13 +194,13 @@ class Debye():
     def free_energy(self,x):
         E0 = self.get_gsenergy()
         
-        T_Deb = self.debye_T(x)
+        self.T_Deb = self.debye_T(x)
         
         V0=[float(l)**3./2.*10.**(-30.) for l in self.__l]
         c1= np.polyfit(V0, E0, self.__fitorder)
         p_E0 = np.poly1d(c1)
         #print self.debye_function(self.debye_T(x)/self.T),self.debye_T(x),self.T
-        return (p_E0(x) + (( -self.debye_function(T_Deb/self.T) + 3.*np.log(1.-np.exp(-T_Deb/self.T)) ) * self.__kb * self.T - 9./8.*self.__kb*T_Deb))
+        return (p_E0(x) + (( -self.debye_function(self.T_Deb/self.T) + 3.*np.log(1.-np.exp(-self.T_Deb/self.T)) ) * self.__kb * self.T - 9./8.*self.__kb*self.T_Deb))
     
     def free_energy_vib(self,x):
         E0 = self.get_gsenergy()
