@@ -427,7 +427,7 @@ class ECs(Check, Energy, Stress):
             else:
                 energy = [i.gsenergy for i in atoms]
             strain = [i.eta for i in atoms]
-            
+            print stype, energy, [i.scale for i in atoms]
             plt.plot(strain, energy, '%s*'%color[j])
             
             

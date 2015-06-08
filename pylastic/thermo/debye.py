@@ -9,13 +9,15 @@ class Debye():
         self.__h =4.135667516*10.**(-15.) #eV s
         self.__path = './'
         self.T = 1.
-        self.__fitorder = 2
+        self.__fitorder_EC = 3
+        self.__fitorder_EOS = 6
         self.m = 183.84 * 1.66053892173 * 10.**(-27.)#Atomic weight in kg
         self.__mod='X/B-fit'
         self.__E_fname = '/Energy_vol_W.dat'
         self.__C_fname = '/Cij_0.json'
         self.__artificial_deformation=np.zeros((6,6))
         self.__artdef=False
+        #self.__fout_EC = open('out_EC','a')
     
     def set_artificial_deformation(self, eta=0.1 ,typeis='tetragonal'):
         self.__artdef = True
@@ -39,12 +41,19 @@ class Debye():
         print 'setting mod'
         self.__mod =  mod
     
-    def get_fitorder(self):
-        return self.__path
+    def get_fitorder_EC(self):
+        return self.__fitorder_EC
     
-    def set_fitorder(self, fitorder):
+    def set_fitorder_EC(self, fitorder):
         print 'setting fitorder'
-        self.__path = fitorder
+        self.__fitorder_EC = fitorder
+        
+    def get_fitorder_EOS(self):
+        return self.__fitorder_EOS
+    
+    def set_fitorder_EOS(self, fitorder):
+        print 'setting fitorder'
+        self.__fitorder_EOS = fitorder        
         
     def get_E_fname(self):
         return self.__E_fname
@@ -105,7 +114,8 @@ class Debye():
         #EV = (9.*BV*GV)/(3.*BV+GV)
         #### calculate p-wave modulus ####
         EV = BV + 4./3.*GV
-        
+        #if self.__outmod == 'massiveoutput':
+        #   self.__fout_EC.write(str(scale) +' '+ str(BV) +' '+ str(GV) +' '+ str(EV) + '\n')
         return BV, GV/BV, EV/BV, GV, EV
     
     def debye_function(self, x):
@@ -135,7 +145,8 @@ class Debye():
             
                 
             D = 3.*(6.493939402-D)/(x**3.)
-        
+        else: 
+            print 'ERROR: Debye ffnction out of bounds: D(%s)!'%(x)
         return D
     
     def debye_function_exp(self, x):
@@ -166,21 +177,21 @@ class Debye():
             self.__V.append(float(scale)**3./2.*10.**(-30.))
         
         
-        c1= np.polyfit(self.__V, self.__EoB, self.__fitorder)
+        c1= np.polyfit(self.__V, self.__EoB, self.__fitorder_EC)
         p_EoB = np.poly1d(c1)
            
-        c2= np.polyfit(self.__V, self.__GoB, self.__fitorder)
+        c2= np.polyfit(self.__V, self.__GoB, self.__fitorder_EC)
         p_GoB = np.poly1d(c2)
         
-        c3= np.polyfit(self.__V, self.__B, self.__fitorder)
+        c3= np.polyfit(self.__V, self.__B, self.__fitorder_EC)
         p_B = np.poly1d(c3)
         
         rho = self.m/x
         
-        c4= np.polyfit(self.__V, self.__E, self.__fitorder)
+        c4= np.polyfit(self.__V, self.__E, self.__fitorder_EC)
         p_E = np.poly1d(c4)
         
-        c5= np.polyfit(self.__V, self.__G, self.__fitorder)
+        c5= np.polyfit(self.__V, self.__G, self.__fitorder_EC)
         p_G = np.poly1d(c5)
         
         Const = self.__h/self.__kb* (3./(4.*np.pi))**(1./3.)
@@ -192,18 +203,19 @@ class Debye():
         return theta
     
     def free_energy(self,x):
-        E0 = self.get_gsenergy()
+        self.__E0 = self.get_gsenergy()
         
         self.T_Deb = self.debye_T(x)
         
         V0=[float(l)**3./2.*10.**(-30.) for l in self.__l]
-        c1= np.polyfit(V0, E0, self.__fitorder)
+        c1= np.polyfit(V0, self.__E0, self.__fitorder_EOS)
         p_E0 = np.poly1d(c1)
         #print self.debye_function(self.debye_T(x)/self.T),self.debye_T(x),self.T
+        #return (p_E0(x) + (( +self.debye_function(self.T_Deb/self.T) + 3.*np.log(1.-np.exp(-self.T_Deb/self.T)) ) * self.__kb * self.T + 9./8.*self.__kb*self.T_Deb))
         return (p_E0(x) + (( -self.debye_function(self.T_Deb/self.T) + 3.*np.log(1.-np.exp(-self.T_Deb/self.T)) ) * self.__kb * self.T - 9./8.*self.__kb*self.T_Deb))
-    
+
     def free_energy_vib(self,x):
-        E0 = self.get_gsenergy()
+        #E0 = self.get_gsenergy()
         
         
         #print self.__GoB
@@ -211,7 +223,6 @@ class Debye():
         return +(  self.debye_function(self.debye_T(x)/self.T) + 3.*np.log(1.-np.exp(-self.debye_T(x)/self.T)) ) * self.__kb * self.T + 9./8.*self.__kb*self.debye_T(x)
     
         
-    
     def optimization(self):
         #return brent(self.free_energy, brack=(15.5*10.**(-30.),17.*10.**(-30.)))
         return fmin(self.free_energy, 15.6*10.**(-30.))
@@ -225,7 +236,8 @@ class Debye():
     E0 = property(fget=get_E0, fset=set_E0)
     V = property(fget=get_V, fset=set_V)  
     path = property(fget=get_path, fset=set_path)
-    fitorder = property(fget=get_fitorder, fset=set_fitorder)
+    fitorder_EC = property(fget=get_fitorder_EC, fset=set_fitorder_EC)
+    fitorder_EOS = property(fget=get_fitorder_EOS, fset=set_fitorder_EOS)
     E_fname = property(fget=get_E_fname, fset=set_E_fname)
     C_fname = property(fget=get_C_fname, fset=set_C_fname)
     mod = property(fget=get_mod, fset=set_mod)
