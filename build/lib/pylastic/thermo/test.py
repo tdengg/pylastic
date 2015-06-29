@@ -11,7 +11,7 @@ print vasp.__file__
 class GET_THERMO(object):
     def __init__(self):
         
-        species = 'WRe_B2'
+        species = 'WRe_0.25_conv'
         
         ###read force constants from vasprun.xml###
         vasprun = etree.iterparse('vasprun.xml', tag='varray')
@@ -19,8 +19,8 @@ class GET_THERMO(object):
         ###########################################
         
         ########### read positionsl ###############
-        primitive = vasp.get_atoms_from_poscar(open('POSCAR-p'),'W')
-        superc =  vasp.get_atoms_from_poscar(open('POSCAR'),'W')
+        primitive = vasp.get_atoms_from_poscar(open('POSCAR-p'),'Mo')
+        superc =  vasp.get_atoms_from_poscar(open('POSCAR'),'Mo')
         ###########################################
         numbatom =  superc.get_number_of_atoms()
         #print primitive.get_cell()
@@ -31,7 +31,7 @@ class GET_THERMO(object):
         if species=='W':
         #Tungsten
             fc = vasp.get_force_constants_vasprun_xml(vasprun,1,0)
-            s = 5.
+            s = 4.
             a = superc.get_cell()[0][0]*2.
             print a
             bulk = PhonopyAtoms(symbols=['W'] * 1,
@@ -54,6 +54,60 @@ class GET_THERMO(object):
             phonon.set_thermal_properties(t_step=10,
                                           t_max=3700,
                                           t_min=0)
+        elif species=='W_conv':
+        #Tungsten
+            fc = vasp.get_force_constants_vasprun_xml(vasprun,1,2)
+            s = 4.
+            a = superc.get_cell()[0][0]*2.
+            print a
+            bulk = PhonopyAtoms(symbols=['W','W'] * 1,
+                                scaled_positions= primitive.get_scaled_positions())
+            bulk.set_cell(np.diag((a, a, a)))
+            phonon = Phonopy(bulk,
+                             [[s,0.,0.],[0.,s,0.],[0.,0.,s]],
+                             primitive_matrix=[[-0.5, 0.5, 0.5],[0.5, -0.5, 0.5],[0.5, 0.5, -0.5]],
+                             distance=0.01, factor=15.633302)
+            print fc
+            phonon.set_force_constants(fc[0])
+            phonon.set_dynamical_matrix()
+            #print phonon.get_dynamical_matrix_at_q([0,0,0])
+            mesh = [100, 100, 100]
+            phonon.set_mesh(mesh)
+            qpoints, weights, frequencies, eigvecs = phonon.get_mesh()
+            print frequencies
+            phonon.set_total_DOS()
+            
+            phonon.set_thermal_properties(t_step=10,
+                                          t_max=3700,
+                                          t_min=0)
+        
+        elif species=='WRe_0.25_conv':
+        #Tungsten
+            fc = vasp.get_force_constants_vasprun_xml(vasprun,3,2)
+            s = 4.
+            a = superc.get_cell()[0][0]*2.
+            print a
+            bulk = PhonopyAtoms(symbols=['W','W'] * 1,
+                                scaled_positions= primitive.get_scaled_positions())
+            bulk.set_cell(np.diag((a, a, a)))
+            phonon = Phonopy(bulk,
+                             [[s,0.,0.],[0.,s,0.],[0.,0.,s]],
+                             primitive_matrix=[[-0.5, 0.5, 0.5],[0.5, -0.5, 0.5],[0.5, 0.5, -0.5]],
+                             distance=0.01, factor=15.633302)
+            print fc
+            phonon.set_force_constants(fc[0])
+            phonon.set_dynamical_matrix()
+            #print phonon.get_dynamical_matrix_at_q([0,0,0])
+            mesh = [100, 100, 100]
+            phonon.set_mesh(mesh)
+            qpoints, weights, frequencies, eigvecs = phonon.get_mesh()
+            print frequencies
+            phonon.set_total_DOS()
+            
+            phonon.set_thermal_properties(t_step=10,
+                                          t_max=3700,
+                                          t_min=0)
+        
         elif species == 'WRe_B2': 
             fc = vasp.get_force_constants_vasprun_xml(vasprun,1,1)
             s = 5.
@@ -183,10 +237,35 @@ class GET_THERMO(object):
             phonon.set_thermal_properties(t_step=10,
                                           t_max=1300,
                                           t_min=0)
+        
+        elif species == 'Mo': 
+            fc = vasp.get_force_constants_vasprun_xml(vasprun,7,0)
+            s = 5.
+            a = superc.get_cell()[0][0]*2.
+            print a
+            bulk = PhonopyAtoms(symbols=['Mo'] * 1,
+                                scaled_positions= primitive.get_scaled_positions())
+            bulk.set_cell(np.diag((a, a, a)))
+            phonon = Phonopy(bulk,
+                             [[s,0.,0.],[0.,s,0.],[0.,0.,s]],
+                             primitive_matrix=[[-0.5, 0.5, 0.5],[0.5, -0.5, 0.5],[0.5, 0.5, -0.5]],
+                             distance=0.01, factor=15.633302)
+            print fc
+            phonon.set_force_constants(fc[0])
+            phonon.set_dynamical_matrix()
+            #print phonon.get_dynamical_matrix_at_q([0,0,0])
+            mesh = [100, 100, 100]
+            phonon.set_mesh(mesh)
+            qpoints, weights, frequencies, eigvecs = phonon.get_mesh()
+            print frequencies
+            phonon.set_total_DOS()
             
+            phonon.set_thermal_properties(t_step=10,
+                                          t_max=2500,
+                                          t_min=0)
         
         
-        """
+        
         f = open('F_TV','w')
         for t, free_energy, entropy, cv in np.array(phonon.get_thermal_properties()).T:
             print t, cv
@@ -198,7 +277,7 @@ class GET_THERMO(object):
         for t, free_energy, entropy, cv in np.array(phonon.get_thermal_properties()).T:
             fc.write(("%12.3f " + "%15.7f" *3 + "\n") % ( t, free_energy, entropy, cv ))
         fc.close()
-        """
+        
         #phonon.plot_thermal_properties().show()
         
         #phonon.plot_total_DOS().show()
@@ -211,7 +290,9 @@ class GET_THERMO(object):
         
         
         q_start  = np.array([0.0, 0.0, 0.0])
+        #q_start  = np.array([0.5, 0.5, 0.0])
         q_end    = np.array([-0.5, 0.5, 0.5])
+        #q_end    = np.array([0., 0., 0.])
         band = []
         for i in range(101):
             band.append(q_start + (q_end - q_start) / 100 * i)
@@ -219,26 +300,28 @@ class GET_THERMO(object):
         
         
         q_start  = np.array([-0.5, 0.5, 0.5])
+        #q_start  = np.array([0., 0., 0.])
         q_end    = np.array([1./4., 1./4., 1./4.])
+        #q_end    = np.array([1., 0., 0.])
         band = []
         for i in range(101):
             band.append(q_start + (q_end - q_start) / 100 * i)
         bands.append(band)
         q_start  = np.array([1./4., 1./4., 1./4.])
-        q_end    = np.array([0.0, 0.0, 0.0])
+        q_end    = np.array([0., 0., 0.])
         band = []
         for i in range(101):
             band.append(q_start + (q_end - q_start) / 100 * i)
         bands.append(band)
         q_start  = np.array([0.0, 0.0, 0.0])
-        q_end    = np.array([0.0, 0.5, 0.0])
+        q_end    = np.array([0.5, 0., 0.])
         band = []
         for i in range(101):
             band.append(q_start + (q_end - q_start) / 100 * i)
         bands.append(band)
         
         q_start  = np.array([0.0, 0.0, 0.0])
-        q_end    = np.array([0.5, 0.5, 0.0])
+        q_end    = np.array([0.5, 0., 0.0])
         band = []
         for i in range(101):
             band.append(q_start + (q_end - q_start) / 100 * i)

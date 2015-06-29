@@ -62,6 +62,7 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
         self.__V0 = None
         self.__verbose = True
         self.__code = cod
+        self.__path = os.getcwd()
         
         
         
@@ -171,6 +172,7 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
         """Hydrostatic deformation"""    
         def_matrix = np.array([[1,0,0],[0,1,0],[0,0,1]])+np.array([[eta,0,0],[0,eta,0],[0,0,eta]])
         M_new = np.dot(self.__cell, def_matrix)
+        self.eta=eta
         self.__cell = M_new
         self.__poscarnew = copy.deepcopy(self.__poscar)
         self.__poscarnew['vlatt_1'] = self.__cell[0]
@@ -318,7 +320,7 @@ class Structures(ElAtoms, Sgroup):
         super(Structures, self).__init__()
         self.__structures = {}
         self.__fnames = []
-        self.__workdir = './'
+        self.__workdir = os.getcwd()+'/'
         self.__code = cod
         self.__thermo = thermo
         
@@ -444,11 +446,16 @@ class Structures(ElAtoms, Sgroup):
         else:
             dirnames = []
             os.chdir(self.__workdir)
+            print self.__structures
             for atoms in self.__structures:
-                self.__path = '%s/eta%s'%(atoms[0],atoms[1])
-                self.__structures[atoms].path = '%s/eta%s'%(atoms[0],atoms[1])
+                if atoms[0] != None:
+                    self.__path = '%s/eta%s'%(atoms[0],atoms[1])
+                    self.__structures[atoms].path = '%s/eta%s'%(atoms[0],atoms[1])
+                else:
+                    self.__path = 'eta%s'%(atoms[1])
+                    self.__structures[atoms].path = 'eta%s'%(atoms[1])
                 try:
-                    if not atoms[0] in dirnames: os.mkdir(atoms[0]) 
+                    if not atoms[0] in dirnames and atoms[0] != None: os.mkdir(atoms[0]) 
                     os.mkdir('%s'%(self.__path))
                 except:
                     print "Directory '%s' already exists."%(atoms[0])
@@ -548,8 +555,8 @@ class Structures(ElAtoms, Sgroup):
             sp.communicate()
             time.sleep(0.01)
             if not lock==None: lock.release()
-            
-            os.chdir('../../')
+            print 'WORKDIR: ', self.workdir
+            os.chdir(self.__workdir)
         
         
     def append_structure(self, atoms):

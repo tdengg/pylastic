@@ -11,7 +11,7 @@ class PLOT_THERMAL(object):
 		self.style = style
 		self.conv = 96.47244
 		self.__E0 = []
-		self.__cellsize = 1.
+		self.__cellsize = 125.
 	def get_data(self):
 		f = []
 		l = []
@@ -19,7 +19,7 @@ class PLOT_THERMAL(object):
 		
 		for d in sorted(os.listdir(self.dir)):
 			
-			if '1' in d and os.path.isdir(d):
+			if 'scale' in d and os.path.isdir(d):
 				
 				l = float(d.lstrip('scale_'))
 				
@@ -45,7 +45,7 @@ class PLOT_THERMAL(object):
 		
 		
 		j = 0
-		for out in dic:
+		for out in sorted(dic):
 			
 			T = []
 			F = []
@@ -74,7 +74,7 @@ class PLOT_THERMAL(object):
 			ydata = []
 			i=0
 			
-			for out in ndic:
+			for out in sorted(ndic):
 				xdata.append(out)
 				ind = self.__dic[out]['T'].index(temp)
 				
@@ -87,7 +87,7 @@ class PLOT_THERMAL(object):
 			
 			i=0
 			for root in np.roots(p.deriv()):
-				if np.imag(root) == 0. and min(xdata)*0.8 < np.real(root) < max(xdata)*1.1:
+				if np.imag(root) == 0. and min(xdata)*0.8 < np.real(root) < max(xdata)*1.03:
 					minl.append(float(np.real(root)))
 					minF.append(p(np.real(root)))
 					break
@@ -114,13 +114,13 @@ class PLOT_THERMAL(object):
 		
 		#ax1 = plt.plot(polyx,p(polyx))
 		#ax1 = plt.plot(trange,minl,'o')
-		plt.show()
+		#plt.show()
 		#thermal expansion/T
 		
 		alpha = []
 		for i in range(len(trange)-1):
 			alpha.append((minl[i+1]-minl[i])/(trange[i+1]-trange[i])/minl[0]*10**6.)
-		#plt.plot(trange[:-1], alpha, label = self._lname, lw=2., ls=self.style)
+		plt.plot(trange[:-1], alpha, label = self._lname, lw=3., ls=self.style)
 		self.__alpha = alpha
 		self.__minl = minl
 		self.__minF = minF

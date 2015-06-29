@@ -13,8 +13,8 @@ dic = {}
 dict =  {}
 for d in sorted(os.listdir('./')):
     
-    if '1' in d and os.path.isdir(d):
-        
+    if 'scale' in d and os.path.isdir(d):
+        print d
         os.chdir(d)
         print os.getcwd()
         l = float(d.lstrip('scale_'))
@@ -37,14 +37,14 @@ for d in sorted(os.listdir('./')):
         #gsenergy = trueengys[-1]
         gsenergy = float(elem[1].text)
         print gsenergy
-        dic[l]['E0']=gsenergy/1.
+        dic[l]['E0']=gsenergy/125.
         os.chdir('..')
     else:
         continue
 
 
 j = 0
-for out in dic:
+for out in sorted(dic):
     
     T = []
     F = []
@@ -54,7 +54,7 @@ for out in dic:
         
     dic[out]['F'] = F
     dic[out]['T'] = T
-    #plt.plot(T,F)
+    plt.plot(T,F)
     
     j+=1
 
@@ -83,10 +83,10 @@ for temp in trange:
     polyx = np.linspace(min(xdata),max(xdata),1000)
     plt.plot(polyx,p(polyx))
     i=0
-    print np.roots(p.deriv())
+    #print np.roots(p.deriv())
     for root in np.roots(p.deriv()):
     
-        if np.imag(root) == 0. and min(xdata)*0.8 < np.real(root) < max(xdata)*1.1:
+        if np.imag(root) == 0. and min(xdata)*0.8 < np.real(root) < max(xdata)*1.03:
             minl.append(float(np.real(root)))
             minF.append(p(np.real(root)))
             break
