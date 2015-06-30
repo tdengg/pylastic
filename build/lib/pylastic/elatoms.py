@@ -206,14 +206,18 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
     
     def atomsToPoscar(self):
         """Create poscar out of atoms object."""
-        self.__poscar = {}
-        self.__poscar['vlatt_1'] = self.__cell[0]
-        self.__poscar['vlatt_2'] = self.__cell[1]
-        self.__poscar['vlatt_3'] = self.__cell[2]
-        self.__poscar['natoms'] = self.__natom
-        self.__poscar['vbasis'] = self.__species
-        self.__poscar['scale'] = self.__scale
-        return self.__poscar
+        poscar = {}
+        #print 'creating poscar: cell shape=%s'%self.__cell
+        poscar['vlatt_1'] = self.__cell[0]
+        poscar['vlatt_2'] = self.__cell[1]
+        poscar['vlatt_3'] = self.__cell[2]
+        poscar['natoms'] = self.__natom
+        poscar['vbasis'] = self.__species
+        poscar['scale'] = self.__scale
+        ### Not defined
+        poscar['selective'] = False
+        poscar['csystem'] = 'direct'
+        return poscar
     
     def set_poscar(self, poscar):
         """Assign the dictionary poscar."""
@@ -225,7 +229,7 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
     
     def set_poscarnew(self, poscar):
         """"""
-        self.__poscar = poscar
+        self.__poscarnew = poscar
         
     def get_poscarnew(self):
         return self.__poscarnew
@@ -374,11 +378,13 @@ class Structures(ElAtoms, Sgroup):
         overwrite : boolean
             Specify if existing files should be overwritten (default=True)
         """
+        
         if self.__thermo:
             dirnames = []
             pardirnames = []
             os.chdir(self.__workdir)
             for atoms in self.__structures:
+                if self.__structures[atoms].poscarnew==None: self.__structures[atoms].poscarnew=self.atomsToPoscar()
                 self.__path = '%s/%s/eta%s'%(atoms[2],atoms[0],atoms[1])
                 self.__structures[atoms].path = '%s/%s/eta%s'%(atoms[2],atoms[0],atoms[1])
                 
@@ -448,12 +454,16 @@ class Structures(ElAtoms, Sgroup):
             os.chdir(self.__workdir)
             print self.__structures
             for atoms in self.__structures:
+                if self.__structures[atoms].poscarnew==None: 
+                    self.__structures[atoms].poscarnew=self.__structures[atoms].atomsToPoscar()
+                    print self.__structures[atoms].poscarnew
+                    print self.__structures[atoms].cell
                 if atoms[0] != None:
                     self.__path = '%s/eta%s'%(atoms[0],atoms[1])
                     self.__structures[atoms].path = '%s/eta%s'%(atoms[0],atoms[1])
                 else:
-                    self.__path = 'eta%s'%(atoms[1])
-                    self.__structures[atoms].path = 'eta%s'%(atoms[1])
+                    self.__path = 'scale_%s'%(self.__structures[atoms].scale)
+                    self.__structures[atoms].path = 'scale_%s'%(self.__structures[atoms].scale)
                 try:
                     if not atoms[0] in dirnames and atoms[0] != None: os.mkdir(atoms[0]) 
                     os.mkdir('%s'%(self.__path))
@@ -569,6 +579,8 @@ class Structures(ElAtoms, Sgroup):
         """
         if self.__thermo:
             self.__structures[(atoms.strainType,round(atoms.eta,3),round(atoms.V0,3))]= atoms
+        elif atoms.strainType==None:
+            self.__structures[(atoms.strainType,round(atoms.scale,3))]= atoms
         else:
             self.__structures[(atoms.strainType,round(atoms.eta,3))]= atoms
         

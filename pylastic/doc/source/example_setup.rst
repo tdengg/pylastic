@@ -35,7 +35,7 @@ ______
 			structures.append_structure(atom)
 			
 	####################### Write vasp input files: #######################
-	structures.write_structures()
+	structures.write_structures(structures)
 	
 	#################### Start local vasp calculation: ####################
 	structures.executable = '/home/t.dengg/bin/vasp/vasp.5.3/vasp'

@@ -34,7 +34,7 @@ class ECs(Check, Energy, Stress):
         self.__fitorder = [6,6,6]
         self.__etacalc = None
         self.__rms = []
-        self.__workdir = './'
+        self.__workdir = ''
         self.__thermodyn = thermo
         self.__T = 0
         #%%%%%%%%--- CONSTANTS ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
