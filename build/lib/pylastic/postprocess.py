@@ -34,7 +34,7 @@ class ECs(Check, Energy, Stress):
         self.__fitorder = [6,6,6]
         self.__etacalc = None
         self.__rms = []
-        self.__workdir = ''
+        self.__workdir = '.'
         self.__thermodyn = thermo
         self.__T = 0
         #%%%%%%%%--- CONSTANTS ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -42,7 +42,7 @@ class ECs(Check, Energy, Stress):
         #Bohr   = 5.291772086e-11              # a.u. to meter
         #Ryd2eV = 13.605698066                 # Ryd to eV
         Angstroem = 1.e-10
-        self.__cnvrtr = (_e)/(1e9*Angstroem**3)    # Ryd/[a.u.^3] to GPa
+        self.__cnvrtr = (_e)/(1e9*Angstroem**3.)    # Ryd/[a.u.^3] to GPa
         #--------------------------------------------------------------------------------------------------------------------------------
         
     def set_gsenergy(self, gsenergy=None):
@@ -276,7 +276,7 @@ class ECs(Check, Energy, Stress):
                 elif self.__mthd == 'Stress':
                     
                     stress = [self.physicalToLagrangian(i.stress,i.defMatrix) for i in atoms]
-                    print stress
+                    
                     plt.plot(strain,[i.stress[0][2] for i in atoms])
                     ans = Stress(code=self.__cod)
                     ans.set_stress(stress)

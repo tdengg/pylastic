@@ -105,7 +105,9 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
         scale : float
             Unit cell scaling.
         """
-        if isinstance(scale, float) or isinstance(scale, list): self.__scale = scale
+        if isinstance(scale, float) or isinstance(scale, list): 
+            self.__scale = scale
+            self.__V = np.linalg.det(self.__cell*scale)
         else: print 'Scale is of invalid type: %s. Must be float (or list of float values) instead!'%(type(scale))
         
     def get_scale(self):
@@ -162,6 +164,7 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
         def_matrix = self.defMatrix
         M_new = np.dot(self.__cell, def_matrix)
         self.__cell = M_new
+        self.__V = np.linalg.det(self.__cell*self.__scale)
         self.__poscarnew = copy.deepcopy(self.__poscar)
         self.__poscarnew['vlatt_1'] = self.__cell[0]
         self.__poscarnew['vlatt_2'] = self.__cell[1]
@@ -250,6 +253,18 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
     def get_V0(self):
         return self.__V0
     
+    def set_V(self, V):
+        """Set volume of distorted cell.
+        
+        Parameters
+        ----------
+        V : float
+            Volume of distorted crystal cell.
+        """
+        self.__V = V
+        
+    def get_V(self):
+        return self.__V
     
     def set_gsenergy(self, gsenergy):
         """Give atoms object a groundstate energy.
@@ -301,6 +316,7 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
     
     
     V0      = property( fget = get_V0       , fset = set_V0   )
+    V       = property( fget = get_V      , fset = set_V   )
     cell    = property( fget = get_cell         , fset = set_cell    )
     natom   = property( fget = get_natom        , fset = set_natom   )
     scale   = property( fget = get_scale        , fset = set_scale   )

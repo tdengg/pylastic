@@ -8,6 +8,7 @@ from pylastic.distort import Distort
 from pylastic.elatoms import ElAtoms, Structures
 from pylastic.io.vasp import POS
 from pylastic.postprocess import ECs
+from pylastic.tools.CVS_2nd_deriv import ANALYTICS
 
 class Setup(Structures, Distort, POS):
     def __init__(self):
@@ -68,6 +69,7 @@ class Postprocess(ECs):
         ec = ECs('vasp',True)
         ec.set_structures()
         ec.set_gsenergy()
+        ec.set_fenergy()
         self.__allstructures = ec.get_structures()
         
         
@@ -111,8 +113,38 @@ class Postprocess(ECs):
             ec.T = T
             ec.set_structures()
             #print ec.get_structures()
-            ec.fitorder=[6,8,4]
-            ec.etacalc=['0.04','0.05','0.025']
+            
+            eta=[]
+            scale=[]
+            gsenergy=[]
+
+            for atom in ec.get_atomsByStraintype('01'):
+                eta.append(atom.eta)
+                scale.append(atom.scale)
+                gsenergy.append(atom.gsenergy)
+            print eta,gsenergy
+            a1,b1,c1,d1 = ANALYTICS(eta,gsenergy).phist(50, 100, 0.0000001)
+            eta=[]
+            scale=[]
+            gsenergy=[]
+            for atom in ec.get_atomsByStraintype('08'):
+                eta.append(atom.eta)
+                scale.append(atom.scale)
+                gsenergy.append(atom.gsenergy)
+            print eta,gsenergy
+            a2,b2,c2,d2 = ANALYTICS(eta,gsenergy).phist(50, 100, 0.0000001)
+            eta=[]
+            scale=[]
+            gsenergy=[]
+            for atom in ec.get_atomsByStraintype('23'):
+                eta.append(atom.eta)
+                scale.append(atom.scale)
+                gsenergy.append(atom.gsenergy)
+            print eta,gsenergy
+            a3,b3,c3,d3 = ANALYTICS(eta,gsenergy).phist(50, 100, 0.0000001)
+            
+            ec.fitorder=[a1[1],a2[1],a3[1]]
+            ec.etacalc=[str(a1[0]),str(a2[0]),str(a3[0])]
             ec.set_analytics()
             ecs = ec.get_ec()
             cvs = ec.get_CVS()
