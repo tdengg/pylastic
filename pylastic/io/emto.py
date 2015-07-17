@@ -12,6 +12,41 @@ class POS(object):
         self.__pos={}
         self.__NQ3=1
         self.__N_species+=0
+        
+        self.__format = {"kgrn":{"SWS":{"read":(8,14) , "write":"{0:7.4f}"}}, "kstr":{"A.....":{"read":(10,19) , "write":"{0:10.7f}"},"B.....":{"read":(30,39) , "write":"{0:10.7f}"},"C.....":{"read":(50,59) , "write":"{0:10.7f}"},"BSX":{"read":(10,19) , "write":"{0:10.7f}"},"BSY":{"read":(30,39) , "write":"{0:10.7f}"},"BSZ":{"read":(50,59) , "write":"{0:10.7f}"}}}
+        
+    def find(self, ifile, fname, parname):
+        j=0
+        val=[]
+        for line in ifile:
+            if parname in line:
+                f_read=self.__format[fname][parname]["read"]
+                val.append(float(line[f_read[0]:f_read[1]]))
+            
+                j+=1
+        if len(val)==1: val=val[0]
+        
+        return val
+    
+    def replace(self, ifile, fname, parname, val):
+        i=0
+        j=0
+        for line in ifile:
+            if parname in line:
+        
+                f_read=self.__format[fname][parname]["read"]
+                li = list(line)
+                del li[f_read[0]:f_read[1]]
+                if type(val) is list: li[f_read[0]] = self.__format[fname][parname]["write"].format(float(val[j]))
+                else: li[f_read[0]] = self.__format[fname][parname]["write"].format(float(val))
+        
+                line = ''.join(li)
+                ifile[i] = line
+            
+                j+=1
+            i+=1
+        return ifile
+    
     def read_in(self):
         
         return
@@ -19,24 +54,21 @@ class POS(object):
     def read_kstr(self, fname):
         if fname: self.__kstr = open(fname)
         
-        lines = self.__kstr.readlines()
-        self.__split_kstr =  [re.split(r'(\s+)', l) for l in lines]
-        i=0
-        j=0
-        k=0
-        for line in self.__split_kstr:
-            if line[0].startswith('BS'): 
-                self.__pos['vlatt_%s'%i] = [line[2],line[6],line[10]]
-                if self.__lattvect_pos==None: self.__lattvect_pos=j
-                i+=1
-            elif line[0].startswith('QX'):
-                self.__natoms+=1
-                self.__basevect.append([line[2],line[6],line[10]])
-                k+=1
-            elif line[0].startswith('NQ3'):
-                self.__NQ3=int(line[2])
-            j+=1
+        kstr = self.__kstr.readlines()
+        A = self.find(kstr, "kstr", "A.....")
+        B = self.find(kstr, "kstr", "B.....")
+        C = self.find(kstr, "kstr", "C.....")
         
+        BSX = self.find(kstr, "kstr", "BSX")
+        BSY = self.find(kstr, "kstr", "BSY")
+        BSZ = self.find(kstr, "kstr", "BSZ")
+        
+        for i in range(len(BSX)):
+            self.__pos['vlatt_%s'%i][0] = BSX[i]
+            self.__pos['vlatt_%s'%i][1] = BSY[i]
+            self.__pos['vlatt_%s'%i][2] = BSZ[i]
+            
+            
         return
     
     def write_kstr(self):
