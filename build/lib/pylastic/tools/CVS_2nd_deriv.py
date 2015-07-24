@@ -215,6 +215,11 @@ class ANALYTICS(object):
         ax2=fig.add_subplot(222)
         ax3=fig.add_subplot(223)
         ax4=fig.add_subplot(224)
+        
+        fig2 = plt.figure()
+        ax5=fig2.add_subplot(211)
+        ax6=fig2.add_subplot(212)
+        
         eta = self.__strain
         gsenergy = self.__E
         
@@ -273,6 +278,8 @@ class ANALYTICS(object):
                     energy.pop()
             ax1.plot([c[1] for c in E2nd_0],[c[0] for c in E2nd_0],color=color[m],label='n=%s'%fitorder)
             ax2.plot([c[1] for c in CV_0],[c[0] for c in CV_0],color=color[m])
+            
+            ax5.plot(strain,energy, color=color[m])
             ###################################################
             CVN=np.zeros((len(eta),Nsample))
             CVmin= np.zeros(len(eta))
@@ -341,6 +348,8 @@ class ANALYTICS(object):
                 j+=1
                 ax1.plot([c[1] for c in E2nd],[c[0] for c in E2nd],marker[m],color='y')
                 ax2.plot([c[1] for c in CV],[c[0] for c in CV],marker[m],color='y')
+                
+                ax5.plot(strain,energy,marker[m],color='y')
             
                 
                 
@@ -378,7 +387,7 @@ class ANALYTICS(object):
         
         
         hist_vect = self.make_hist(Ndiv,hist_E2nd)
-        
+        """
         temp_vec=copy(hist_vect)
         for index in range(4):
             max1 = max(temp_vec)
@@ -386,12 +395,32 @@ class ANALYTICS(object):
             temp_vec.pop(i1)
             max2 = max(temp_vec)
             i2 = temp_vec.index(max2)
-            if abs(i1-i2)>len(hist_vect)/50 and not 0.8<(max1/max2)<1.2:
+            if abs(i1-i2)>len(hist_vect)/50 and 0.9<(max1/max2)<1.1:
                 Ndiv = Ndiv*2
                 hist_vect = self.make_hist(Ndiv,hist_E2nd)
                 print 'Changeing divisions in histogram method to %s'%(Ndiv)
-        
-        
+        """
+        maxi=[]
+        ndiv=[]
+        temp_vec=copy(hist_vect)
+        max1 = max(temp_vec)
+        i1 = temp_vec.index(max1)
+        k=0
+        while temp_vec[i1-1] < temp_vec[i1]*0.95 and temp_vec[i1+1] < temp_vec[i1]*0.95:
+            Ndiv=int(Ndiv*1.2)
+            temp_vec = self.make_hist(Ndiv,hist_E2nd)
+            max1 = max(temp_vec)
+            i1 = temp_vec.index(max1)
+            print 'Changeing divisions in histogram method to %s'%(Ndiv)
+            maxi.append(min(hist_E2nd)+i1*(max(hist_E2nd)-min(hist_E2nd))/(Ndiv+1))
+            ndiv.append(Ndiv)
+            if k>2 and (maxi[k]-maxi[k-1])<1. and (maxi[k-1]-maxi[k-2])<1.: break 
+            k+=1
+        ax6.plot(ndiv,maxi)
+        if not 19*Ndiv/20<i1<Ndiv/20: 
+            Ndiv=Ndiv*2
+            temp_vec = self.make_hist(Ndiv,hist_E2nd)
+        hist_vect=temp_vec
         x= np.linspace(min(hist_E2nd),max(hist_E2nd),Ndiv+1)
         
         ax4.plot(x, hist_vect)

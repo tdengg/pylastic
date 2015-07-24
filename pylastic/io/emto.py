@@ -52,16 +52,16 @@ class POS(object):
         return
     
     def read_kstr(self, fname):
-        if fname: self.__kstr = open(fname)
+        if fname: kstr = open(fname)
         
-        kstr = self.__kstr.readlines()
-        A = self.find(kstr, "kstr", "A.....")
-        B = self.find(kstr, "kstr", "B.....")
-        C = self.find(kstr, "kstr", "C.....")
+        self.__kstr = kstr.readlines()
+        A = self.find(self.__kstr, "kstr", "A.....")
+        B = self.find(self.__kstr, "kstr", "B.....")
+        C = self.find(self.__kstr, "kstr", "C.....")
         
-        BSX = self.find(kstr, "kstr", "BSX")
-        BSY = self.find(kstr, "kstr", "BSY")
-        BSZ = self.find(kstr, "kstr", "BSZ")
+        BSX = self.find(self.__kstr, "kstr", "BSX")
+        BSY = self.find(self.__kstr, "kstr", "BSY")
+        BSZ = self.find(self.__kstr, "kstr", "BSZ")
         
         for i in range(len(BSX)):
             self.__pos['vlatt_%s'%i][0] = BSX[i]
@@ -71,14 +71,26 @@ class POS(object):
             
         return
     
-    def write_kstr(self):
+    def write_kstr(self, fname):
+        BSX = np.zeros(3)
+        BSY = np.zeros(3)
+        BSZ = np.zeros(3)
         
+        for i in range(len(BSX)):
+            BSX[i] = self.__pos['vlatt_%s'%i][0]
+            BSY[i] = self.__pos['vlatt_%s'%i][1]
+            BSZ[i] = self.__pos['vlatt_%s'%i][2]
+        
+        self.__kstr = self.replace(self.__kstr,"kstr","BSX", BSX)
+        self.__kstr = self.replace(self.__kstr,"kstr","BSY", BSY)
+        self.__kstr = self.replace(self.__kstr,"kstr","BSZ", BSZ)
         return
     
     def read_shape(self, fname):
-        if fname: self.__shape = open(fname)
-        lines = self.__shape.readlines()
-        self.__split_shape =  [re.split(r'(\s+)', l) for l in lines]
+        if fname: shape = open(fname)
+        self.__shape = shape.readlines()
+        
+        
         return
     
     def write_shape(self):
@@ -86,28 +98,16 @@ class POS(object):
         return
     
     def read_kgrn(self, fname):
-        if fname: self.__kgrn = open(fname)
-        lines = self.__kgrn.readlines()
-        self.__split_kgrn =  [re.split(r'(\s+)', l) for l in lines]
-        i=0
-        j=0
-        k=0
-        for line in self.__split_kstr:
-            if line[0].startswith('SWS'): 
-                self.__SWS = line[2]
-            elif line[0].startswith('Symb'):
-                i+=1
-            elif 0<i<(self.__NQ3+1): 
-                self.__N_species+=1
-                i+=1
-            
-            
-            
-            j+=1
+        if fname: kgrn = open(fname)
+        self.__kgrn = kgrn.readlines()
+        
+        SWS = self.find(self.__kgrn,"kgrn","SWS")
+        self.__pos['scale'] = SWS
         return
     
     def write_kgrn(self):
-        
+        SWS = self.__pos['scale']
+        self.__kgrn = self.replace(self.__kgrn,"kgrn","SWS", SWS)
         return
     
     def read_kfcd(self, fname):
@@ -145,7 +145,8 @@ class POS(object):
         
 class Energy(object):
     """Get energies from EMTO output file."""
-    def __init__(self, fname = 'vasprun.xml'):
+    def __init__(self, fname = 'etot.dat', funct='PBEsol'):
+        self.__funct = funct
         self.__fname = fname
         
     def set_T(self, T):
@@ -156,8 +157,10 @@ class Energy(object):
 
     def set_gsenergy(self):
         """Get groundstate energy from vasprun.xml"""
-        self.__gsenergy = float(0)
-        
+        if self.__funct == 'LDA': ind = 1
+        elif self.__funct == 'GGA': ind = 2
+        elif self.__funct == 'PBEsol': ind = 3
+        for line in open(self.__fname,'r'): self.__gsenergy = float(line.split()[ind])
         
     def get_gsenergy(self):
         """Return groundstate energy."""

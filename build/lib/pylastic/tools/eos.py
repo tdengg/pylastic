@@ -7,8 +7,9 @@ import matplotlib.pyplot as plt
 from pylastic.tools import convert_latt_vol
 from lxml import etree
 
+
 class Birch(object):
-    def __init__(self, V, E):
+    def __init__(self, V, E, structure):
         
         
         #%%%%%%%%--- CONSTANTS ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -28,7 +29,7 @@ class Birch(object):
         verbose = False
         self.verbose = verbose
         
-        self.__structure='fcc'
+        self.__structure=structure
         
         ## start parameters:
         self.__b0 = np.float32(60000) # Bulk-Modulus
@@ -314,3 +315,74 @@ class Birch(object):
             i+=1
         print deltamin  
         return amin, deltamin
+    
+class Setup(object):
+    def __init__(self, Vmin, Vmax, N, cod='vasp', executable='/home/t.dengg/bin/vasp/vasp.5.3/vasp'):
+        self.__cod=cod
+        if self.__cod=='vasp': from pylastic.io.vasp import POS
+        from pylastic.elatoms import Structures, ElAtoms
+
+
+        ########################## Read in POSCAR file: ######################
+        poscar = POS('POSCAR').read_pos()
+
+        ###################### Create Structures instance: ###################
+        structures = Structures('vasp')
+
+        ## Generate distorted structures and add them to structures object: ##
+        atom = ElAtoms('vasp')
+        atom.poscarToAtoms(poscar)
+        for scale in np.linspace(Vmin,Vmax,N):
+
+            atom = ElAtoms('vasp')
+            atom.poscarToAtoms(poscar)
+            atom.scale = scale
+            structures.append_structure(atom)
+            print atom.scale
+
+        ####################### Write vasp input files: #######################
+        structures.write_structures(structures)
+
+        #################### Start local vasp calculation: ####################
+        structures.executable = executable
+        structures.calc_vasp()
+
+class Analyze(Birch):
+    def __init__(self, verbous=False):
+        
+        from pylastic.postprocess import ECs
+        self.__structure='bcc'
+        
+        
+        ec = ECs('vasp')
+        ec.set_structures()
+        ec.set_gsenergy()
+        V=[]
+        scale=[]
+        gsenergy=[]
+        
+        for atom in ec.get_atomsByStraintype(None):
+            V.append(atom.V)
+            scale.append(atom.scale)
+            gsenergy.append(atom.gsenergy)
+        birch = Birch(V,gsenergy, self.__structure)
+        birch.fit()
+        plt.plot(V,gsenergy)
+        if verbous: plt.show()
+        self.__a0 = birch.a0[0]
+        
+    def set_structure(self, structure):
+        self.__structure = structure
+        
+    def get_structure(self):
+        return self.__structure
+    
+    def get_a0(self):
+        return self.__a0
+    
+    def set_a0(self):
+        return self.__a0
+    
+    a0 = property( fget = get_a0       , fset = set_a0)
+    
+    

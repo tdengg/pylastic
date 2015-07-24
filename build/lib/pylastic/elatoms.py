@@ -181,8 +181,8 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
         self.__poscarnew['vlatt_1'] = self.__cell[0]
         self.__poscarnew['vlatt_2'] = self.__cell[1]
         self.__poscarnew['vlatt_3'] = self.__cell[2]
-        print np.linalg.det(self.__cell*self.__scale)
-        self.__V0 = np.linalg.det(self.__cell*self.__scale)
+        #print np.linalg.det(self.__cell*self.__scale)
+        self.__V = np.linalg.det(self.__cell*self.__scale)
         self.set_strainType('vol')
         
     ### VASP
@@ -210,7 +210,7 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
     def atomsToPoscar(self):
         """Create poscar out of atoms object."""
         poscar = {}
-        #print 'creating poscar: cell shape=%s'%self.__cell
+        print 'creating poscar: scale=%s'%self.__scale
         poscar['vlatt_1'] = self.__cell[0]
         poscar['vlatt_2'] = self.__cell[1]
         poscar['vlatt_3'] = self.__cell[2]
@@ -473,6 +473,7 @@ class Structures(ElAtoms, Sgroup):
                 if self.__structures[atoms].poscarnew==None: 
                     self.__structures[atoms].poscarnew=self.__structures[atoms].atomsToPoscar()
                     print self.__structures[atoms].poscarnew
+                    print self.__structures[atoms].scale
                     print self.__structures[atoms].cell
                 if atoms[0] != None:
                     self.__path = '%s/eta%s'%(atoms[0],atoms[1])
