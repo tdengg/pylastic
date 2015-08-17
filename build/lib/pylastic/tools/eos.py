@@ -307,7 +307,7 @@ class Birch(object):
             if delta[i]<delta[i-1]:
                 deltamin = delta[i]
                 amin = anew
-                print "ADJUSTING"
+                
             else:
                 amin = aold
                 deltamin = delta[0]

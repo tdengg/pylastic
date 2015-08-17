@@ -11,16 +11,17 @@ print vasp.__file__
 class GET_THERMO(object):
     def __init__(self):
         
-        species = 'WRe_0.25_conv'
-        
+        #species = 'WRe_0.25_conv'
+        species = 'WRe_0.25'
+        #species = 'Re'
         ###read force constants from vasprun.xml###
         vasprun = etree.iterparse('vasprun.xml', tag='varray')
         #fc = vasp.get_force_constants_vasprun_xml(vasprun,1) #pass xml input and species atomic weight.
         ###########################################
         
         ########### read positionsl ###############
-        primitive = vasp.get_atoms_from_poscar(open('POSCAR-p'),'Mo')
-        superc =  vasp.get_atoms_from_poscar(open('POSCAR'),'Mo')
+        primitive = vasp.get_atoms_from_poscar(open('POSCAR-p'),'W')
+        superc =  vasp.get_atoms_from_poscar(open('POSCAR'),'W')
         ###########################################
         numbatom =  superc.get_number_of_atoms()
         #print primitive.get_cell()
@@ -86,7 +87,7 @@ class GET_THERMO(object):
             fc = vasp.get_force_constants_vasprun_xml(vasprun,3,2)
             s = 4.
             a = superc.get_cell()[0][0]*2.
-            print a
+            print a, primitive.get_scaled_positions()
             bulk = PhonopyAtoms(symbols=['W','W'] * 1,
                                 scaled_positions= primitive.get_scaled_positions())
             bulk.set_cell(np.diag((a, a, a)))
@@ -94,14 +95,14 @@ class GET_THERMO(object):
                              [[s,0.,0.],[0.,s,0.],[0.,0.,s]],
                              primitive_matrix=[[-0.5, 0.5, 0.5],[0.5, -0.5, 0.5],[0.5, 0.5, -0.5]],
                              distance=0.01, factor=15.633302)
-            print fc
+            #print fc
             phonon.set_force_constants(fc[0])
             phonon.set_dynamical_matrix()
             #print phonon.get_dynamical_matrix_at_q([0,0,0])
             mesh = [100, 100, 100]
             phonon.set_mesh(mesh)
             qpoints, weights, frequencies, eigvecs = phonon.get_mesh()
-            print frequencies
+            #print frequencies
             phonon.set_total_DOS()
             
             phonon.set_thermal_properties(t_step=10,
@@ -163,8 +164,8 @@ class GET_THERMO(object):
         elif species == 'WRe_0.25': 
             fc = vasp.get_force_constants_vasprun_xml(vasprun,3,0)
             s = 5.
-            a = superc.get_cell()[0][0]*2.
-            print a
+            a = primitive.get_cell()[0][0]*2.
+            print a, primitive.get_scaled_positions()
             bulk = PhonopyAtoms(symbols=['W'] * 1,
                                 scaled_positions= primitive.get_scaled_positions())
             bulk.set_cell(np.diag((a, a, a)))
@@ -181,7 +182,7 @@ class GET_THERMO(object):
             qpoints, weights, frequencies, eigvecs = phonon.get_mesh()
             print frequencies
             phonon.set_total_DOS()
-            phonon.set_partial_DOS()
+            #phonon.set_partial_DOS()
             phonon.set_thermal_properties(t_step=10,
                                           t_max=3700,
                                           t_min=0)    
@@ -265,7 +266,31 @@ class GET_THERMO(object):
                                           t_min=0)
         
         
-        
+        elif species == 'Re': 
+            fc = vasp.get_force_constants_vasprun_xml(vasprun,8,0)
+            s = 5.
+            a = superc.get_cell()[0][0]*2.
+            print a
+            bulk = PhonopyAtoms(symbols=['Re'] * 1,
+                                scaled_positions= primitive.get_scaled_positions())
+            bulk.set_cell(np.diag((a, a, a)))
+            phonon = Phonopy(bulk,
+                             [[s,0.,0.],[0.,s,0.],[0.,0.,s]],
+                             primitive_matrix=[[-0.5, 0.5, 0.5],[0.5, -0.5, 0.5],[0.5, 0.5, -0.5]],
+                             distance=0.01, factor=15.633302)
+            print fc
+            phonon.set_force_constants(fc[0])
+            phonon.set_dynamical_matrix()
+            #print phonon.get_dynamical_matrix_at_q([0,0,0])
+            mesh = [100, 100, 100]
+            phonon.set_mesh(mesh)
+            qpoints, weights, frequencies, eigvecs = phonon.get_mesh()
+            print frequencies
+            phonon.set_total_DOS()
+            
+            phonon.set_thermal_properties(t_step=10,
+                                          t_max=2500,
+                                          t_min=0)
         f = open('F_TV','w')
         for t, free_energy, entropy, cv in np.array(phonon.get_thermal_properties()).T:
             print t, cv
@@ -287,12 +312,55 @@ class GET_THERMO(object):
         
         bands = []
         
-        
+        #### PRIMITIVE
         
         q_start  = np.array([0.0, 0.0, 0.0])
         #q_start  = np.array([0.5, 0.5, 0.0])
-        q_end    = np.array([-0.5, 0.5, 0.5])
+        q_end    = np.array([0.5, -0.5, -0.5])
         #q_end    = np.array([0., 0., 0.])
+        band = []
+        for i in range(101):
+            band.append(q_start + (q_end - q_start) / 100 * i)
+        bands.append(band)
+        
+        band = []
+        
+        
+        q_start  = np.array([0.5, -0.5, -0.5])
+        #q_start  = np.array([0., 0., 0.])
+        q_end    = np.array([-0.25, -0.25, -0.25])
+        #q_end    = np.array([1., 0., 0.])
+        
+        for i in range(101):
+            #band.append([-0.5+3*1/400*i, 0.5-1/400*i, 0.5-1/400*i])
+            band.append(q_start + (q_end - q_start) / 100 * i)
+        bands.append(band)
+        print band
+        q_start  = np.array([-0.25, -0.25, -0.25])
+        q_end    = np.array([0., 0., 0.])
+        band = []
+        for i in range(101):
+            band.append(q_start + (q_end - q_start) / 100 * i)
+        bands.append(band)
+        
+        q_start  = np.array([0., 0., 0.])
+        q_end    = np.array([-0.0, 0., 0.5])
+        band = []
+        for i in range(101):
+            band.append(q_start + (q_end - q_start) / 100 * i)
+        bands.append(band)
+        
+        #q_start  = np.array([0.0, 0.0, 0.0])
+        #q_end    = np.array([0.5, 0.5, 0.5])
+        #band = []
+        #for i in range(101):
+        #    band.append(q_start + (q_end - q_start) / 100 * i)
+        #bands.append(band)
+        
+        """
+        ###### CONVENTIONAL CELL ######
+        q_start  = np.array([0.0, 0.0, 0.0])
+        q_end    = np.array([-0.5, 0.5, 0.5])
         band = []
         for i in range(101):
             band.append(q_start + (q_end - q_start) / 100 * i)
@@ -300,56 +368,19 @@ class GET_THERMO(object):
         
         
         q_start  = np.array([-0.5, 0.5, 0.5])
-        #q_start  = np.array([0., 0., 0.])
         q_end    = np.array([1./4., 1./4., 1./4.])
-        #q_end    = np.array([1., 0., 0.])
         band = []
         for i in range(101):
             band.append(q_start + (q_end - q_start) / 100 * i)
         bands.append(band)
         q_start  = np.array([1./4., 1./4., 1./4.])
-        q_end    = np.array([0., 0., 0.])
-        band = []
-        for i in range(101):
-            band.append(q_start + (q_end - q_start) / 100 * i)
-        bands.append(band)
-        q_start  = np.array([0.0, 0.0, 0.0])
-        q_end    = np.array([0.5, 0., 0.])
-        band = []
-        for i in range(101):
-            band.append(q_start + (q_end - q_start) / 100 * i)
-        bands.append(band)
-        
-        q_start  = np.array([0.0, 0.0, 0.0])
-        q_end    = np.array([0.5, 0., 0.0])
-        band = []
-        for i in range(101):
-            band.append(q_start + (q_end - q_start) / 100 * i)
-        bands.append(band)
-        
-        """
-        q_start  = np.array([0.0, 0.0, 0.0])
-        q_end    = np.array([0.0, 0.0, 1.0])
-        band = []
-        for i in range(101):
-            band.append(q_start + (q_end - q_start) / 100 * i)
-        bands.append(band)
-        
-        
-        q_start  = np.array([0.0, 0.0, 1.0])
-        q_end    = np.array([1./2., 1./2., 1./2.])
-        band = []
-        for i in range(101):
-            band.append(q_start + (q_end - q_start) / 100 * i)
-        bands.append(band)
-        q_start  = np.array([1./2., 1./2., 1./2.])
         q_end    = np.array([0.0, 0.0, 0.0])
         band = []
         for i in range(101):
             band.append(q_start + (q_end - q_start) / 100 * i)
         bands.append(band)
         q_start  = np.array([0.0, 0.0, 0.0])
-        q_end    = np.array([0.5, 0.5, 0.0])
+        q_end    = np.array([0.5, 0.0, 0.0])
         band = []
         for i in range(101):
             band.append(q_start + (q_end - q_start) / 100 * i)
