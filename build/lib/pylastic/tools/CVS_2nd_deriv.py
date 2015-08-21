@@ -387,6 +387,14 @@ class ANALYTICS(object):
         
         
         hist_vect = self.make_hist(Ndiv,hist_E2nd)
+        
+        deltasum = 0
+        for i in range(len(hist_vect)):
+            
+            if max(hist_vect[i-1],hist_vect[i])!=0: deltasum += abs(hist_vect[i-1]-hist_vect[i])/max(hist_vect[i-1],hist_vect[i])
+        
+        print deltasum/Ndiv
+        
         """
         temp_vec=copy(hist_vect)
         for index in range(4):
@@ -400,11 +408,14 @@ class ANALYTICS(object):
                 hist_vect = self.make_hist(Ndiv,hist_E2nd)
                 print 'Changeing divisions in histogram method to %s'%(Ndiv)
         """
+        
+        """
         maxi=[]
         ndiv=[]
         temp_vec=copy(hist_vect)
         max1 = max(temp_vec)
         i1 = temp_vec.index(max1)
+        
         k=0
         while temp_vec[i1-1] < temp_vec[i1]*0.95 and temp_vec[i1+1] < temp_vec[i1]*0.95:
             Ndiv=int(Ndiv*1.2)
@@ -421,9 +432,14 @@ class ANALYTICS(object):
             Ndiv=Ndiv*2
             temp_vec = self.make_hist(Ndiv,hist_E2nd)
         hist_vect=temp_vec
+        
+        """
+        
         x= np.linspace(min(hist_E2nd),max(hist_E2nd),Ndiv+1)
         
         ax4.plot(x, hist_vect)
+        
+        
         #plt.plot(pvol,)
         #plt.plot(pvol,poly(pvol),'--')
         pw_prediction=[]
@@ -437,6 +453,12 @@ class ANALYTICS(object):
             pwCVS.pop(pw_ind)
                     
         hist_prediction  = x[hist_vect.index(max(hist_vect))]
+        
+        
+        dist_x = np.linspace(stat.norm.ppf(0.001, loc=hist_prediction, scale = 0.1),stat.norm.ppf(0.999, loc=hist_prediction, scale = 0.1),100) 
+        dist_y = stat.norm.pdf(dist_x, loc=hist_prediction, scale = 0.1)
+        ax4.plot(dist_x,[y*100. for y in dist_y])
+        
         
         
         ax1.hlines(hist_prediction, 0., max(eta), lw=4., alpha=0.5, color='g')

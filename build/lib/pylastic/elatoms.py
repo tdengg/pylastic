@@ -64,7 +64,11 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
         self.__code = cod
         self.__path = os.getcwd()
         
+        self.__enforce_sg = 0
         
+    def enforce_sg(self, sgn):
+        self.__enforce_sg = sgn
+    
         
     def set_cell(self, cell):
         """Set lattice vectors of crystal cell.
@@ -203,7 +207,9 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
         self.__scale = self.__poscar['scale']
         D = np.linalg.det(self.__cell)
         self.__V0 = abs(self.__scale**3*D)
-        if self.__code=='vasp': self.sgn = Sgroup(self.__poscar, self.__poscar['path']).sgn
+        
+        if self.__code=='vasp' and self.__enforce_sg==0: self.sgn = Sgroup(self.__poscar, self.__poscar['path']).sgn
+        elif self.__enforce_sg!=0: self.sgn=self.__enforce_sg
         else: self.sgn = self.__poscar['sgn']
         self.__sgn = self.sgn
     

@@ -12,7 +12,7 @@ class GET_THERMO(object):
     def __init__(self):
         
         #species = 'WRe_0.25_conv'
-        species = 'WRe_0.25'
+        species = 'WRe_0.25_conv'
         #species = 'Re'
         ###read force constants from vasprun.xml###
         vasprun = etree.iterparse('vasprun.xml', tag='varray')
