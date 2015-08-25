@@ -1,6 +1,10 @@
 import numpy as np
 from copy import copy
-import matplotlib.pyplot as plt
+try:
+    import matplotlib.pyplot as plt
+    mpl=True
+except:
+    mpl=False
 import scipy.stats as stat
 
 class CVS(object):
@@ -60,10 +64,11 @@ class ANALYTICS(object):
         
         
     def pwcvs(self):
-        fig = plt.figure()
-        ax1=fig.add_subplot(311)
-        ax2=fig.add_subplot(312)
-        ax3=fig.add_subplot(313)
+        if mpl:
+            fig = plt.figure()
+            ax1=fig.add_subplot(311)
+            ax2=fig.add_subplot(312)
+            ax3=fig.add_subplot(313)
         
         strain = self.__strain
         gsenergy = self.__E
@@ -111,8 +116,9 @@ class ANALYTICS(object):
                 if (abs(strain[len(strain)-1]-emax) < 1.e-7):
                     strain.pop()
                     energy.pop()
-            ax1.plot([c[1] for c in E2nd_0],[c[0] for c in E2nd_0])
-            ax2.plot([c[1] for c in CV_0],[c[0] for c in CV_0])
+            if mpl:
+                ax1.plot([c[1] for c in E2nd_0],[c[0] for c in E2nd_0])
+                ax2.plot([c[1] for c in CV_0],[c[0] for c in CV_0])
             ###################################################
             CVN=np.zeros((len(strain),100))
             CVmin= np.zeros(len(strain))
@@ -176,8 +182,9 @@ class ANALYTICS(object):
                     a+=1
         
                 j+=1
-                ax1.plot([c[1] for c in E2nd],[c[0] for c in E2nd],marker[m])
-                ax2.plot([c[1] for c in CV],[c[0] for c in CV],marker[m])
+                if mpl:
+                    ax1.plot([c[1] for c in E2nd],[c[0] for c in E2nd],marker[m])
+                    ax2.plot([c[1] for c in CV],[c[0] for c in CV],marker[m])
             
             
                 
@@ -209,16 +216,16 @@ class ANALYTICS(object):
         plt.show()
 
     def phist(self, Ndiv=100, Nsample=100, rand_dev=0.00001):
+        if mpl:
+            fig = plt.figure()
+            ax1=fig.add_subplot(221)
+            ax2=fig.add_subplot(222)
+            ax3=fig.add_subplot(223)
+            ax4=fig.add_subplot(224)
         
-        fig = plt.figure()
-        ax1=fig.add_subplot(221)
-        ax2=fig.add_subplot(222)
-        ax3=fig.add_subplot(223)
-        ax4=fig.add_subplot(224)
-        
-        fig2 = plt.figure()
-        ax5=fig2.add_subplot(211)
-        ax6=fig2.add_subplot(212)
+            fig2 = plt.figure()
+            ax5=fig2.add_subplot(211)
+            ax6=fig2.add_subplot(212)
         
         eta = self.__strain
         gsenergy = self.__E
@@ -276,10 +283,11 @@ class ANALYTICS(object):
                 if (abs(strain[len(strain)-1]-emax) < 1.e-7):
                     strain.pop()
                     energy.pop()
-            ax1.plot([c[1] for c in E2nd_0],[c[0] for c in E2nd_0],color=color[m],label='n=%s'%fitorder)
-            ax2.plot([c[1] for c in CV_0],[c[0] for c in CV_0],color=color[m])
+            if mpl:
+                ax1.plot([c[1] for c in E2nd_0],[c[0] for c in E2nd_0],color=color[m],label='n=%s'%fitorder)
+                ax2.plot([c[1] for c in CV_0],[c[0] for c in CV_0],color=color[m])
             
-            ax5.plot(strain,energy, color=color[m])
+                ax5.plot(strain,energy, color=color[m])
             ###################################################
             CVN=np.zeros((len(eta),Nsample))
             CVmin= np.zeros(len(eta))
@@ -346,10 +354,11 @@ class ANALYTICS(object):
                     a+=1
                     
                 j+=1
-                ax1.plot([c[1] for c in E2nd],[c[0] for c in E2nd],marker[m],color='y')
-                ax2.plot([c[1] for c in CV],[c[0] for c in CV],marker[m],color='y')
+                if mpl:
+                    ax1.plot([c[1] for c in E2nd],[c[0] for c in E2nd],marker[m],color='y')
+                    ax2.plot([c[1] for c in CV],[c[0] for c in CV],marker[m],color='y')
                 
-                ax5.plot(strain,energy,marker[m],color='y')
+                    ax5.plot(strain,energy,marker[m],color='y')
             
                 
                 
@@ -373,9 +382,10 @@ class ANALYTICS(object):
             stability = array_CV**(1.)*CVstd**(1.)
             #ax3.plot(range(len(CVmin)),array_CV,':')
             #ax3.plot(range(len(CVmin)),array_var,'--')
-            ax3.plot([c[1] for c in CV],stability,color=color[m])
-            
-            ax3.plot([c[1] for c in CV],array_CV*array_var,'--',color=color[m])
+            if mpl:
+                ax3.plot([c[1] for c in CV],stability,color=color[m])
+                
+                ax3.plot([c[1] for c in CV],array_CV*array_var,'--',color=color[m])
             
             
             pwCVS.extend(stability)
@@ -436,8 +446,8 @@ class ANALYTICS(object):
         """
         
         x= np.linspace(min(hist_E2nd),max(hist_E2nd),Ndiv+1)
-        
-        ax4.plot(x, hist_vect)
+        if mpl:
+            ax4.plot(x, hist_vect)
         
         
         #plt.plot(pvol,)
@@ -457,20 +467,21 @@ class ANALYTICS(object):
         
         dist_x = np.linspace(stat.norm.ppf(0.001, loc=hist_prediction, scale = 0.1),stat.norm.ppf(0.999, loc=hist_prediction, scale = 0.1),100) 
         dist_y = stat.norm.pdf(dist_x, loc=hist_prediction, scale = 0.1)
-        ax4.plot(dist_x,[y*100. for y in dist_y])
+        if mpl:
+            ax4.plot(dist_x,[y*100. for y in dist_y])
         
         
         
-        ax1.hlines(hist_prediction, 0., max(eta), lw=4., alpha=0.5, color='g')
-        ax1.hlines(pw_prediction[0][0], 0., max(eta), lw=4., alpha=0.6, color='r')
-        ax1.hlines(pw_prediction[1][0], 0., max(eta), lw=4., alpha=0.4, color='r')
-        ax1.hlines(pw_prediction[2][0], 0., max(eta), lw=4., alpha=0.2, color='r')
-        
-        ax4.vlines(hist_prediction, 0., max(hist_vect), lw=4., alpha=0.5, color='g')
-        ax4.vlines(pw_prediction[0][0], 0., max(hist_vect), lw=4., alpha=0.6, color='r')
-        ax4.vlines(pw_prediction[1][0], 0., max(hist_vect), lw=4., alpha=0.4, color='r')
-        ax4.vlines(pw_prediction[2][0], 0., max(hist_vect), lw=4., alpha=0.2, color='r')
-        
+            ax1.hlines(hist_prediction, 0., max(eta), lw=4., alpha=0.5, color='g')
+            ax1.hlines(pw_prediction[0][0], 0., max(eta), lw=4., alpha=0.6, color='r')
+            ax1.hlines(pw_prediction[1][0], 0., max(eta), lw=4., alpha=0.4, color='r')
+            ax1.hlines(pw_prediction[2][0], 0., max(eta), lw=4., alpha=0.2, color='r')
+            
+            ax4.vlines(hist_prediction, 0., max(hist_vect), lw=4., alpha=0.5, color='g')
+            ax4.vlines(pw_prediction[0][0], 0., max(hist_vect), lw=4., alpha=0.6, color='r')
+            ax4.vlines(pw_prediction[1][0], 0., max(hist_vect), lw=4., alpha=0.4, color='r')
+            ax4.vlines(pw_prediction[2][0], 0., max(hist_vect), lw=4., alpha=0.2, color='r')
+            
         best_prediction=0.
         for val in pw_prediction:
             if best_prediction==0. or abs(val[0]-hist_prediction)<(best_prediction-hist_prediction):
@@ -479,9 +490,9 @@ class ANALYTICS(object):
                 best_forder = val[2]
                 
         #print best_prediction,best_eta,best_forder
-        
-        ax1.legend(title='Fitorder')
-        plt.show()
+        if mpl:
+            ax1.legend(title='Fitorder')
+            plt.show()
         
         return (best_eta,best_forder),pw_prediction, hist_prediction, best_prediction
                 
