@@ -4,8 +4,12 @@
 import numpy as np
 import math
 from copy import copy
-import matplotlib.pyplot as plt
-
+try:
+    import matplotlib.pyplot as plt
+    mpl=True
+except:
+    mpl=False
+    
 class Energy(object):
     """ Implementation of the energy aproach for determination of elastic constants.
     
@@ -471,6 +475,7 @@ class Stress():
     
     def plot_stress(self, etamax=0.05, fitorder=4):
         """Return matplotlib axis instance for energy-strain curve.  """
+        if not mpl: raise "Problem with matplotib: Plotting not possible."
         self.search_for_failed()
         #f = plt.figure(figsize=(5,4), dpi=100)
         #ax = f.add_subplot(111)

@@ -316,7 +316,7 @@ class GET_THERMO(object):
         
         q_start  = np.array([0.0, 0.0, 0.0])
         #q_start  = np.array([0.5, 0.5, 0.0])
-        q_end    = np.array([0.5, -0.5, -0.5])
+        q_end    = np.array([-0.5, 0.5, 0.5])
         #q_end    = np.array([0., 0., 0.])
         band = []
         for i in range(101):
@@ -326,9 +326,9 @@ class GET_THERMO(object):
         band = []
         
         
-        q_start  = np.array([0.5, -0.5, -0.5])
+        q_start  = np.array([-0.5, 0.5, 0.5])
         #q_start  = np.array([0., 0., 0.])
-        q_end    = np.array([-0.25, -0.25, -0.25])
+        q_end    = np.array([0.25, 0.25, 0.25])
         #q_end    = np.array([1., 0., 0.])
         
         for i in range(101):
@@ -336,7 +336,7 @@ class GET_THERMO(object):
             band.append(q_start + (q_end - q_start) / 100 * i)
         bands.append(band)
         print band
-        q_start  = np.array([-0.25, -0.25, -0.25])
+        q_start  = np.array([0.25, 0.25, 0.25])
         q_end    = np.array([0., 0., 0.])
         band = []
         for i in range(101):
@@ -344,7 +344,7 @@ class GET_THERMO(object):
         bands.append(band)
         
         q_start  = np.array([0., 0., 0.])
-        q_end    = np.array([-0.0, 0., 0.5])
+        q_end    = np.array([0.0, 0., 0.5])
         band = []
         for i in range(101):
             band.append(q_start + (q_end - q_start) / 100 * i)
