@@ -213,7 +213,7 @@ class ANALYTICS(object):
         
         
         
-        plt.show()
+        #plt.show()
 
     def phist(self, Ndiv=100, Nsample=100, rand_dev=0.00001):
         if mpl:
@@ -492,7 +492,7 @@ class ANALYTICS(object):
         #print best_prediction,best_eta,best_forder
         if mpl:
             ax1.legend(title='Fitorder')
-            plt.show()
+            #plt.show()
         
         return (best_eta,best_forder),pw_prediction, hist_prediction, best_prediction
                 

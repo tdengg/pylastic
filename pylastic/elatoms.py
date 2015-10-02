@@ -4,7 +4,7 @@ import os
 import copy
 import time
 
-from subprocess import Popen, PIPE
+#from subprocess import Popen, PIPE
 import cPickle as pickle
 import numpy as np
 
@@ -208,7 +208,8 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
         D = np.linalg.det(self.__cell)
         self.__V0 = abs(self.__scale**3*D)
         
-        if self.__code=='vasp' and self.__enforce_sg==0: self.sgn = Sgroup(self.__poscar, self.__poscar['path']).sgn
+        if self.__code=='vasp' and self.__enforce_sg==0: self.sgn = Sgroup(self.__poscar, self.__poscar['path'],self.__code).sgn
+        elif self.__code=='emto' and self.__enforce_sg==0: self.sgn = Sgroup(self.__poscar, self.__poscar['path'],self.__code).sgn
         elif self.__enforce_sg!=0: self.sgn=self.__enforce_sg
         else: self.sgn = self.__poscar['sgn']
         self.__sgn = self.sgn
@@ -306,7 +307,7 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
 #        return self.__mthd
     
     def set_code(self, code):
-        if code in ['vasp','exciting','espresso','wien']:
+        if code in ['vasp','exciting','espresso','wien','emto']:
             self.__code = code
         else:
             print "Unknown code '%s'. Please choose either espresso, exciting, wien or vasp"%code
@@ -461,6 +462,15 @@ class Structures(ElAtoms, Sgroup):
                     else: print "%s/ already existing: overwrite = False"%(self.__path)
                 
                 ################
+                
+                ##### EMTO #####
+                if self.__code=='emto':
+                    from pylastic.io.emto import POS
+                    #if not os.path.isfile("%s/INCAR"%(self.__path))   or overwrite: os.system('cp INCAR %s/INCAR'%(self.__path))
+                    #else: print "%s/INCAR   already existing: overwrite = False"%(self.__path)
+                    if not os.path.isfile(self.__path+'/POSCAR')                     or overwrite: POS().write_pos(self.__structures[atoms].poscarnew, self.__path+'/structure.dat')
+                    else: print "%s/structure.dat  already existing: overwrite = False"%(self.__path)
+                ################
                 self.__structures[atoms].path = self.__workdir + self.__path
                 obj = self.__structures[atoms]
                 
@@ -534,6 +544,16 @@ class Structures(ElAtoms, Sgroup):
                     else: print "%s/ already existing: overwrite = False"%(self.__path)
                 
                 ################
+                
+                ##### EMTO #####
+                if self.__code=='emto':
+                    from pylastic.io.emto import POS
+                    #if not os.path.isfile("%s/INCAR"%(self.__path))   or overwrite: os.system('cp INCAR %s/INCAR'%(self.__path))
+                    #else: print "%s/INCAR   already existing: overwrite = False"%(self.__path)
+                    if not os.path.isfile(self.__path+'/POSCAR')                     or overwrite: POS().write_pos(self.__structures[atoms].poscarnew, self.__path+'/structure.dat')
+                    else: print "%s/structure.dat  already existing: overwrite = False"%(self.__path)
+                ################
+                
                 self.__structures[atoms].path = self.__workdir + self.__path
                 obj = self.__structures[atoms]
                 

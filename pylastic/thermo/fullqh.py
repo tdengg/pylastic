@@ -69,7 +69,7 @@ class Postprocess(ECs):
         ec = ECs('vasp',True)
         ec.set_structures()
         ec.set_gsenergy()
-        ec.set_fenergy()
+        #ec.set_fenergy()
         self.__allstructures = ec.get_structures()
         
         
@@ -113,7 +113,7 @@ class Postprocess(ECs):
             ec.T = T
             ec.set_structures()
             #print ec.get_structures()
-            
+            """
             eta=[]
             scale=[]
             gsenergy=[]
@@ -145,6 +145,9 @@ class Postprocess(ECs):
             
             ec.fitorder=[a1[1],a2[1],a3[1]]
             ec.etacalc=[str(a1[0]),str(a2[0]),str(a3[0])]
+            """
+            ec.fitorder = [6,6,6]
+            ec.etacalc = ['0.05','0.05','0.04']
             ec.set_analytics()
             ecs = ec.get_ec()
             cvs = ec.get_CVS()

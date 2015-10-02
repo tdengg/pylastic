@@ -14,7 +14,11 @@ from pylastic.status import Check
 
 import pickle
 import numpy as np
-import matplotlib.pyplot as plt
+try:
+    import matplotlib.pyplot as plt
+    mpl=True
+except:
+    mpl=False
 
 
 class ECs(Check, Energy, Stress):
@@ -223,7 +227,7 @@ class ECs(Check, Energy, Stress):
                         
                         stress = [self.physicalToLagrangian(i.stress,i.defMatrix) for i in atoms]
                         print stress
-                        plt.plot(strain,[i.stress[0][2] for i in atoms])
+                        if mpl: plt.plot(strain,[i.stress[0][2] for i in atoms])
                         ans = Stress(code=self.__cod)
                         ans.set_stress(stress)
                         
@@ -277,7 +281,7 @@ class ECs(Check, Energy, Stress):
                     
                     stress = [self.physicalToLagrangian(i.stress,i.defMatrix) for i in atoms]
                     
-                    plt.plot(strain,[i.stress[0][2] for i in atoms])
+                    if mpl: plt.plot(strain,[i.stress[0][2] for i in atoms])
                     ans = Stress(code=self.__cod)
                     ans.set_stress(stress)
                     
@@ -301,7 +305,7 @@ class ECs(Check, Energy, Stress):
             elif self.__mthd == 'Stress': 
                 self.__sigma = ans.get_sigma()
                 self.set_ec((self.__etacalc))
-            plt.show()
+            if mpl: plt.show()
     
     def get_rms(self):
         return self.__rms
@@ -311,6 +315,7 @@ class ECs(Check, Energy, Stress):
     
     def plot_cvs(self, mod='F'):
         """Returns matplotlib axis instance of cross validation score plot."""
+        if not mpl: raise "Problem with matplotib: Plotting not possible."
         f = plt.figure(figsize=(5,4), dpi=100)
         
         CVS = []
@@ -359,6 +364,7 @@ class ECs(Check, Energy, Stress):
         
     def plot_2nd(self, mod = 'F'):
         """Returns matplotlib axis instance of d2E/d(eta) plot."""
+        if not mpl: raise "Problem with matplotib: Plotting not possible."
         f = plt.figure(figsize=(5,4), dpi=100)
         
         A2 = []
@@ -411,6 +417,7 @@ class ECs(Check, Energy, Stress):
         
     def plot_energy(self, color=['r','g','b','c','m','y','k'], mod = 'F'):
         """Return matplotlib axis instance for energy-strain curve.  """
+        if not mpl: raise "Problem with matplotib: Plotting not possible."
         f = plt.figure(figsize=(5,4), dpi=100)
         a = f.add_subplot(111)
         strainList= self.__structures.items()[0][1].strainList

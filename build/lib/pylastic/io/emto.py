@@ -11,9 +11,214 @@ class POS(object):
         self.__natoms = 0
         self.__pos={}
         self.__NQ3=1
-        self.__N_species+=0
+        self.__N_species=0
         
-        self.__format = {"kgrn":{"SWS":{"read":(8,14) , "write":"{0:7.4f}"}}, "kstr":{"A.....":{"read":(10,19) , "write":"{0:10.7f}"},"B.....":{"read":(30,39) , "write":"{0:10.7f}"},"C.....":{"read":(50,59) , "write":"{0:10.7f}"},"BSX":{"read":(10,19) , "write":"{0:10.7f}"},"BSY":{"read":(30,39) , "write":"{0:10.7f}"},"BSZ":{"read":(50,59) , "write":"{0:10.7f}"}}}
+        self.__format = {"kgrn":{"SWS":{"read":(8,14) , "write":"{0:7.4f}"}}, "kstr":{"A.....":{"read":(10,19) , "write":"{0:10.7f}"},"B.....":{"read":(30,39) , "write":"{0:10.7f}"},"C.....":{"read":(50,59) , "write":"{0:10.7f}"},"Alp":{"read":(10,19) , "write":"{0:10.7f}"},"Bet":{"read":(30,39) , "write":"{0:10.7f}"},"Gam":{"read":(50,59) , "write":"{0:10.7f}"},"BSX":{"read":(10,19) , "write":"{0:10.7f}"},"BSY":{"read":(30,39) , "write":"{0:10.7f}"},"BSZ":{"read":(50,59) , "write":"{0:10.7f}"}, "SWS":{"read":(8,14) , "write":"{0:7.4f}"},"QX":{"read":(10,19) , "write":"{0:7.4f}"},"QY":{"read":(30,39) , "write":"{0:7.4f}"},"QZ":{"read":(50,59) , "write":"{0:7.4f}"},"LAT":{"read":(18,20) , "write":"{0:2.0i}"} }}
+    
+    def trans_csystem(self, in_mat, out_mat, in_vec):
+        c_vec = np.dot(np.dot(np.linalg.inv(np.transpose(in_mat)),np.transpose(out_mat)), in_vec)
+        return c_vec
+        
+        
+    
+    def calc_basis(self, latt, A,B,C, ALF,BET,GAM):
+        
+             
+##
+##             Simple cubic
+##        
+        AlF=ALF*np.pi/180.
+        BET=BET*np.pi/180.
+        GAM=GAM*np.pi/180.
+        
+        COA=C/A
+        BOA=B/A
+        BSX=np.zeros(3)
+        BSY=np.zeros(3)
+        BSZ=np.zeros(3)
+        if latt==1:
+            BSX[0]=1.
+            BSY[0]=0.
+            BSZ[0]=0.
+            BSX[1]=0.
+            BSY[1]=1.
+            BSZ[1]=0.
+            BSX[2]=0.
+            BSY[2]=0.
+            BSZ[2]=1.
+#
+#           Face centred cubic
+#
+        elif latt==2:
+            BSX[0]=0.5
+            BSY[0]=0.5
+            BSZ[0]=0.0
+            BSX[1]=0.0
+            BSY[1]=0.5
+            BSZ[1]=0.5
+            BSX[2]=0.5
+            BSY[2]=0.0
+            BSZ[2]=0.5
+#
+#
+#           Body centred cubic
+#
+        elif latt==3:
+            BSX[0]=0.5
+            BSY[0]=0.5
+            BSZ[0]=-0.5
+            BSX[1]=-0.5
+            BSY[1]=0.5
+            BSZ[1]=0.5
+            BSX[2]=0.5
+            BSY[2]=-0.5
+            BSZ[2]=0.5
+#
+#           Hexagonal
+#
+        elif latt==4:
+            BSX[0]=1.
+            BSY[0]=0.
+            BSZ[0]=0.
+            BSX[1]=-0.5
+            BSY[1]=np.sqrt(3.)/2.
+            BSZ[1]=0.
+            BSX[2]=0.
+            BSY[2]=0.
+            BSZ[2]=COA
+
+#
+#           Simple tetragonal
+#
+        elif latt==5:
+            BSX[0]=1.
+            BSY[0]=0.
+            BSZ[0]=0.
+            BSX[1]=0.
+            BSY[1]=1.
+            BSZ[1]=0.
+            BSX[2]=0.
+            BSY[2]=0.
+            BSZ[2]=COA
+#
+#           Body centred tetragonal
+#
+        elif latt==6:
+            BSX[0]=1.0
+            BSY[0]=0.0
+            BSZ[0]=0.0
+            BSX[1]=0.0
+            BSY[1]=1.0
+            BSZ[1]=0.0
+            BSX[2]=0.5
+            BSY[2]=0.5
+            BSZ[2]=COA/2.
+#
+#           Trigonal
+#
+        elif latt==7:
+            BSX[0]=0.
+            BSY[0]=1.
+            BSZ[0]=COA
+            BSX[1]=-np.sqrt(3.)/2.
+            BSY[1]=-0.5
+            BSZ[1]=COA
+            BSX[2]=np.sqrt(3.)/2.
+            BSY[2]=-0.5
+            BSZ[2]=COA
+#
+#           Simple orthorombic
+#
+        elif latt==8:
+            BSX[0]=1.
+            BSY[0]=0.
+            BSZ[0]=0.
+            BSX[1]=0.
+            BSY[1]=BOA
+            BSZ[1]=0.
+            BSX[2]=0.
+            BSY[2]=0.
+            BSZ[2]=COA
+#
+#           Base centered orthorombic
+#
+        elif latt==9:
+            BSX[0]=1./2.
+            BSY[0]=-BOA/2.
+            BSZ[0]=0.
+            BSX[1]=1./2.
+            BSY[1]=BOA/2.
+            BSZ[1]=0.
+            BSX[2]=0.
+            BSY[2]=0.
+            BSZ[2]=COA
+#
+#           Body centred orthorombic
+#
+        elif latt==10:
+            BSX[0]=1./2.
+            BSY[0]=-BOA/2.
+            BSZ[0]=COA/2.
+            BSX[1]=1./2.
+            BSY[1]=BOA/2.
+            BSZ[1]=-COA/2.
+            BSX[2]=-1./2.
+            BSY[2]=BOA/2.
+            BSZ[2]=COA/2.
+#
+#           Face centred orthorombic
+#
+        elif latt==11:
+            BSX[0]=1./2.
+            BSY[0]=0.
+            BSZ[0]=COA/2.
+            BSX[1]=1./2.
+            BSY[1]=BOA/2.
+            BSZ[1]=0.
+            BSX[2]=0.
+            BSY[2]=BOA/2.
+            BSZ[2]=COA/2.
+#
+#           Simple monoclinic
+#
+        elif latt==12:
+            BSX[0]=1.
+            BSY[0]=0.
+            BSZ[0]=0.
+            BSX[1]=BOA*np.cos(GAM)
+            BSY[1]=BOA*np.sin(GAM)
+            BSZ[1]=0.
+            BSX[2]=0.
+            BSY[2]=0.
+            BSZ[2]=COA
+#
+#           Base centred monoclinic
+#
+        elif latt==13:
+            BSX[0]=0.
+            BSY[0]=-BOA
+            BSZ[0]=0.
+            BSX[1]=0.5*np.sin(GAM)
+            BSY[1]=-0.5*np.cos(GAM)
+            BSZ[1]=-0.5*COA
+            BSX[2]=0.5*np.sin(GAM)
+            BSY[2]=-0.5*np.cos(GAM)
+            BSZ[2]=0.5*COA
+#
+#           Simple triclinic
+#
+        elif latt==14:
+            BSX[0]=1.
+            BSY[0]=0.
+            BSZ[0]=0.
+            BSX[1]=BOA*np.cos(GAM)
+            BSY[1]=BOA*np.sin(GAM)
+            BSZ[1]=0.
+            BSX[2]=COA*np.cos(BET)
+            BSY[2]=COA*(np.cos(ALF)-np.cos(BET)*np.cos(GAM))/np.sin(GAM)
+            BSZ[2]=COA*np.sqrt((1.-np.cos(GAM)*np.cos(GAM)-np.cos(ALF)*np.cos(ALF)-np.cos(BET)*np.cos(BET)+2.*np.cos(ALF)*np.cos(BET)*np.cos(GAM)))/np.sin(GAM)
+        
+        return BSX, BSY, BSZ
         
     def find(self, ifile, fname, parname):
         j=0
@@ -59,31 +264,109 @@ class POS(object):
         B = self.find(self.__kstr, "kstr", "B.....")
         C = self.find(self.__kstr, "kstr", "C.....")
         
+        alpha = self.find(self.__kstr, "kstr", "Alp")
+        beta = self.find(self.__kstr, "kstr", "Bet")
+        gamma = self.find(self.__kstr, "kstr", "Gam")
+        
         BSX = self.find(self.__kstr, "kstr", "BSX")
         BSY = self.find(self.__kstr, "kstr", "BSY")
         BSZ = self.find(self.__kstr, "kstr", "BSZ")
         
-        for i in range(len(BSX)):
-            self.__pos['vlatt_%s'%i][0] = BSX[i]
-            self.__pos['vlatt_%s'%i][1] = BSY[i]
-            self.__pos['vlatt_%s'%i][2] = BSZ[i]
+        
+        QX=self.find(self.__kstr, "kstr", "QX")
+        QY=self.find(self.__kstr, "kstr", "QY")
+        QZ=self.find(self.__kstr, "kstr", "QZ")
+        
+        latt = int(self.find(self.__kstr, "kstr", "LAT"))
+        
+        if BSX==[]:
+            BSX, BSY, BSZ = self.calc_basis(latt, A, B, C, alpha, beta, gamma)
+        
+        
+        BS1 = np.array([BSX[0], BSY[0], BSZ[0]])
+        BS2 = np.array([BSX[1], BSY[1], BSZ[1]])
+        BS3 = np.array([BSX[2], BSY[2], BSZ[2]])
+        
+        self.__pos['vlatt_1'] = BS1
+        self.__pos['vlatt_2'] = BS2
+        self.__pos['vlatt_3'] = BS3
+        
+        self.__pos['scale'] = 1.
+        
+        
+        B_matrix = np.array([BS1,BS2,BS3])
+        C_matrix = np.identity(3)
+        
+        B_vec = []
+        for i in range(len(QX)):
+            C_vec = np.array([QX[i], QY[i], QZ[i]])
+            B_vec.append(self.trans_csystem(C_matrix, B_matrix, C_vec)) #Convert cartesian to direct coordinates
+            #print C_vec, B_vec
+            #print B_matrix, C_matrix, B_vec
+        
+        self.__pos['vbasis'] = {}
+        for i in range(len(QX)):
             
-            
+            self.__pos['vbasis']['b_%s'%(i+1)] = []
+            self.__pos['vbasis']['b_%s'%(i+1)].append(B_vec[i][0])
+            self.__pos['vbasis']['b_%s'%(i+1)].append(B_vec[i][1])
+            self.__pos['vbasis']['b_%s'%(i+1)].append(B_vec[i][2])
+        
+        self.__pos['natoms'] = map(int,list(np.ones(len(QX))))
+        self.__pos['csystem'] = 'd'
+        print self.__pos
         return
     
+    def set_pos(self,pos):
+        self.__pos=pos
+    def get_pos(self):
+        return self.__pos
+    
     def write_kstr(self, fname):
-        BSX = np.zeros(3)
-        BSY = np.zeros(3)
-        BSZ = np.zeros(3)
         
-        for i in range(len(BSX)):
-            BSX[i] = self.__pos['vlatt_%s'%i][0]
-            BSY[i] = self.__pos['vlatt_%s'%i][1]
-            BSZ[i] = self.__pos['vlatt_%s'%i][2]
+        BS1 = self.__pos['vlatt_1']
+        BS2 = self.__pos['vlatt_2']
+        BS3 = self.__pos['vlatt_3']
         
-        self.__kstr = self.replace(self.__kstr,"kstr","BSX", BSX)
-        self.__kstr = self.replace(self.__kstr,"kstr","BSY", BSY)
-        self.__kstr = self.replace(self.__kstr,"kstr","BSZ", BSZ)
+        B_matrix = np.array([BS1,BS2,BS3])
+        C_matrix = np.identity(3)
+        
+        
+        QX=[]
+        QY=[]
+        QZ=[]
+        
+        C_vec = []
+        for i in range(len(self.__pos['natoms'])):
+            B_vec = np.array(self.__pos['vbasis']['b_%s'%(i+1)])
+            C_vec.append(self.trans_csystem(B_matrix, C_matrix, B_vec)) #Convert direct to cartesian coordinates
+        
+        for vec in C_vec:
+            QX.append(vec[0])
+            QY.append(vec[1])
+            QZ.append(vec[2])
+        self.__kstr = self.replace(self.__kstr, "kstr", "QX", )
+        self.__kstr = self.replace(self.__kstr, "kstr", "QY", )
+        self.__kstr = self.replace(self.__kstr, "kstr", "QZ", )
+
+        a=np.sqrt(BS1[0]**2.+BS1[1]**2.+BS1[2]**2.)
+        b=np.sqrt(BS2[0]**2.+BS2[1]**2.+BS2[2]**2.)
+        c=np.sqrt(BS3[0]**2.+BS3[1]**2.+BS3[2]**2.)
+
+        alpha = np.arccos(np.dot(BS2,BS3)/(b*c))*180./np.pi
+        beta =  np.arccos(np.dot(BS3,BS1)/(a*c))*180./np.pi
+        gamma = np.arccos(np.dot(BS1,BS2)/(a*b))*180./np.pi
+        
+        self.__kstr = self.replace(self.__kstr, "kstr", "A.....", a)
+        self.__kstr = self.replace(self.__kstr, "kstr", "B.....", b)
+        self.__kstr = self.replace(self.__kstr, "kstr", "C.....", c)
+        
+        self.__kstr = self.replace(self.__kstr, "kstr", "Alp", alpha)
+        self.__kstr = self.replace(self.__kstr, "kstr", "Bet", beta)
+        self.__kstr = self.replace(self.__kstr, "kstr", "Gam", gamma)
+        #self.__kstr = self.replace(self.__kstr,"kstr","BSX", BSX)
+        #self.__kstr = self.replace(self.__kstr,"kstr","BSY", BSY)
+        #self.__kstr = self.replace(self.__kstr,"kstr","BSZ", BSZ)
         return
     
     def read_shape(self, fname):
@@ -136,12 +419,15 @@ class POS(object):
         f.write(str(natom)+'\n')
         if pos["csystem"] in ['d','D']:
             for i in range(len(pos["natoms"])):
-                for j in range(pos["natoms"][i]):
+                
                     
-                    f.write(pos["vbasis"]["species_" + str(i+1)][j][0]  + pos["vbasis"]["species_" + str(i+1)][j][1]  + pos["vbasis"]["species_" + str(i+1)][j][2] + '\n')
-                    f.write('Species_' + str(i+1) + '\n')
+                f.write(str(pos["vbasis"]["b_" + str(i+1)][0])  + ' ' + str(pos["vbasis"]["b_" + str(i+1)][1])  + ' ' + str(pos["vbasis"]["b_" + str(i+1)][2]) + '\n')
+                f.write('Species_' + str(i+1) + '\n')
         else: print 'Basis vectors in Cartesian coordinates not supported yet!!! \n NOT WRITTEN TO sgroup.in!!!!!'
         f.close()
+        
+    pos = property( fget = get_pos       , fset = set_pos)
+
         
 class Energy(object):
     """Get energies from EMTO output file."""

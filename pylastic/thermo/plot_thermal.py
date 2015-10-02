@@ -19,8 +19,9 @@ class PLOT_THERMAL(object):
 		
 		for d in sorted(os.listdir(self.dir)):
 			
-			if 'scale' in d and os.path.isdir(d):
-				
+			if '1' in d and os.path.isdir(d):
+			#if 'scale_' in d:
+				print d
 				l = float(d.lstrip('scale_'))
 				
 				try:
@@ -81,6 +82,7 @@ class PLOT_THERMAL(object):
 				ydata.append(self.__dic[out]['F'][ind]/self.conv + self.__E0[i] + 13.5)
 				i+=1
 			#polyfit:
+			
 			coeff = np.polyfit(xdata,ydata,5)
 			p = np.poly1d(coeff)
 			polyx = np.linspace(min(xdata),max(xdata),1000)

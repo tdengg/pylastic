@@ -384,5 +384,5 @@ class Analyze(Birch):
         return self.__a0
     
     a0 = property( fget = get_a0       , fset = set_a0)
-    
+    structure = property( fget = get_structure       , fset = set_structure)
     

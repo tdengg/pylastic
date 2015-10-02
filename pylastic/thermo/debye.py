@@ -1,8 +1,9 @@
 import json
 import numpy as np
+from pylastic.tools.eos import Birch
 from scipy.optimize import fmin, brent
 from math import factorial as fc
-class Debye():
+class Debye(object):
     
     def __init__(self):
         self.__kb=8.617332478*10.**(-5.) #eV/K
@@ -17,6 +18,9 @@ class Debye():
         self.__C_fname = '/Cij_0.json'
         self.__artificial_deformation=np.zeros((6,6))
         self.__artdef=False
+        self.__elastic = True
+        self.__V0 = None
+        self.__lt = False
         #self.__fout_EC = open('out_EC','a')
     
     def set_artificial_deformation(self, eta=0.1 ,typeis='tetragonal'):
@@ -38,8 +42,22 @@ class Debye():
         return self.__mod
     
     def set_mod(self, mod):
-        print 'setting mod'
+        print 'setting mod: %s'%mod
         self.__mod =  mod
+        
+    def get_lt(self):
+        return self.__lt
+    
+    def set_lt(self, lt):
+        print 'setting low temperature correction: %s'%lt
+        self.__lt =  lt
+        
+    def get_elastic(self):
+        return self.__elastic
+    
+    def set_elastic(self, elastic):
+        print 'elastic = %s'%elastic
+        self.__elastic =  elastic 
     
     def get_fitorder_EC(self):
         return self.__fitorder_EC
@@ -90,6 +108,12 @@ class Debye():
         f.close()
         return self.__Cij_dic
     
+    def calc_B(self):
+        birch = Birch(self.__V,self.__E0).fit()
+        B = birch.out1
+        print B
+        return B
+    
     def get_E0(self):
         return self.__E0
     def set_E0(self,E0):
@@ -99,13 +123,21 @@ class Debye():
         return self.__V
     def set_V(self,V):
         self.__V = V   
-        
+    
+    def get_V0(self):
+        return self.__V0
+    def set_V0(self,V0):
+        self.__V0 = V0
+    
     def calculate_moduli(self, scale):
-        Cij_V = self.__Cij_dic[scale]['SM']
+        Cij_V = np.array(self.__Cij_dic[scale]['SM'])
         C = np.zeros((6,6))
-        for j in range(6):
-            for i in range(6):
-                C[i,j] = Cij_V[i+6*j]
+        if not Cij_V.shape==(6,6):
+            for j in range(6):
+                for i in range(6):
+                    C[i,j] = Cij_V[i+6*j]
+        else:
+            C=Cij_V
         if self.__artdef:   
             #print 'Modifying elastic tensor.'
             C = C+self.__artificial_deformation
@@ -164,52 +196,80 @@ class Debye():
         self.__E = []
         self.__B = []
         self.__V = []
-        
-        dic = self.get_Cij()
-        for scale in sorted(dic.keys()):
+        if self.__elastic:
+            dic = self.get_Cij()
+            for scale in sorted(dic.keys()):
             
-            (a, b, c, d, e) = self.calculate_moduli(scale)
-            self.__EoB.append(c)
-            self.__GoB.append(b)
-            self.__B.append(a)
-            self.__G.append(d)
-            self.__E.append(e)
-            self.__V.append(float(scale)**3./2.*10.**(-30.))
+                (a, b, c, d, e) = self.calculate_moduli(scale)
+                self.__EoB.append(c)
+                self.__GoB.append(b)
+                self.__B.append(a)
+                self.__G.append(d)
+                self.__E.append(e)
+                self.__V.append(float(scale)**3./2.*10.**(-30.))
+            
+            
+            c1= np.polyfit(self.__V, self.__EoB, self.__fitorder_EC)
+            p_EoB = np.poly1d(c1)
+               
+            c2= np.polyfit(self.__V, self.__GoB, self.__fitorder_EC)
+            p_GoB = np.poly1d(c2)
+            
+            c3= np.polyfit(self.__V, self.__B, self.__fitorder_EC)
+            p_B = np.poly1d(c3)
+            
+            rho = self.m/x
+            
+            c4= np.polyfit(self.__V, self.__E, self.__fitorder_EC)
+            p_E = np.poly1d(c4)
+            
+            c5= np.polyfit(self.__V, self.__G, self.__fitorder_EC)
+            p_G = np.poly1d(c5)
         
+        else:
+            self.__mod = 'prefactor'
+            for scale in sorted(dic.keys()):
+                self.calc_B()
+            
+            c3= np.polyfit(self.__V, self.__B, self.__fitorder_EC)
+            p_B = np.poly1d(c3)
         
-        c1= np.polyfit(self.__V, self.__EoB, self.__fitorder_EC)
-        p_EoB = np.poly1d(c1)
-           
-        c2= np.polyfit(self.__V, self.__GoB, self.__fitorder_EC)
-        p_GoB = np.poly1d(c2)
-        
-        c3= np.polyfit(self.__V, self.__B, self.__fitorder_EC)
-        p_B = np.poly1d(c3)
-        
-        rho = self.m/x
-        
-        c4= np.polyfit(self.__V, self.__E, self.__fitorder_EC)
-        p_E = np.poly1d(c4)
-        
-        c5= np.polyfit(self.__V, self.__G, self.__fitorder_EC)
-        p_G = np.poly1d(c5)
+        if self.__lt: 
+            lowT_correction = (x/self.__V0)**(1./3.)
+            
+        else: lowT_correction = 1.
         
         Const = self.__h/self.__kb* (3./(4.*np.pi))**(1./3.)
         if self.__mod=='X/B-fit':
-            theta = Const * ( 1./3.*(p_EoB(x))**(-3./2.) + 2./3.*(p_GoB(x))**(-3./2.) )**(-1./3.) * (p_B(x)*10**(9.)/rho)**(1./2.) * x**(-1./3.)
+            theta = Const * ( 1./3.*(p_EoB(x))**(-3./2.) + 2./3.*(p_GoB(x))**(-3./2.) )**(-1./3.) * (p_B(x)*10**(9.)/rho)**(1./2.) * x**(-1./3.)*lowT_correction
+        elif self.__mod=='prefactor':
+            theta = Const * 0.617 * (p_B(x)*10**(9.)/rho)**(1./2.) * x**(-1./3.)*lowT_correction
+
         else:
-            theta = Const * ( 1./3.*(p_E(x)/p_B(x))**(-3./2.) + 2./3.*(p_G(x)/p_B(x))**(-3./2.) )**(-1./3.) * (p_B(x)*10**(9.)/rho)**(1./2.) * x**(-1./3.)
+            theta = Const * ( 1./3.*(p_E(x)/p_B(x))**(-3./2.) + 2./3.*(p_G(x)/p_B(x))**(-3./2.) )**(-1./3.) * (p_B(x)*10**(9.)/rho)**(1./2.) * x**(-1./3.)*lowT_correction
 
         return theta
     
     def free_energy(self,x):
         self.__E0 = self.get_gsenergy()
         
-        self.T_Deb = self.debye_T(x)
-        
         V0=[float(l)**3./2.*10.**(-30.) for l in self.__l]
         c1= np.polyfit(V0, self.__E0, self.__fitorder_EOS)
         p_E0 = np.poly1d(c1)
+        dp_E0 = np.polyder(p_E0)
+        roots = np.roots(dp_E0)
+        isreal = np.isreal(roots)
+        i=0
+        for val in isreal:
+            if val: index = i
+            
+            i+=1
+        
+        self.__V0 = roots[index]
+        
+        self.T_Deb = self.debye_T(x)
+        
+        
         #print self.debye_function(self.debye_T(x)/self.T),self.debye_T(x),self.T
         #return (p_E0(x) + (( +self.debye_function(self.T_Deb/self.T) + 3.*np.log(1.-np.exp(-self.T_Deb/self.T)) ) * self.__kb * self.T + 9./8.*self.__kb*self.T_Deb))
         return (p_E0(x) + (( -self.debye_function(self.T_Deb/self.T) + 3.*np.log(1.-np.exp(-self.T_Deb/self.T)) ) * self.__kb * self.T - 9./8.*self.__kb*self.T_Deb))
@@ -235,9 +295,12 @@ class Debye():
     
     E0 = property(fget=get_E0, fset=set_E0)
     V = property(fget=get_V, fset=set_V)  
+    V0 = property(fget=get_V0, fset=set_V0)  
     path = property(fget=get_path, fset=set_path)
     fitorder_EC = property(fget=get_fitorder_EC, fset=set_fitorder_EC)
     fitorder_EOS = property(fget=get_fitorder_EOS, fset=set_fitorder_EOS)
     E_fname = property(fget=get_E_fname, fset=set_E_fname)
     C_fname = property(fget=get_C_fname, fset=set_C_fname)
     mod = property(fget=get_mod, fset=set_mod)
+    lt = property(fget=get_lt, fset=set_lt)
+    elastic = property(fget=get_elastic, fset=set_elastic)

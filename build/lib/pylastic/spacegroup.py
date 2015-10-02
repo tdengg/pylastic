@@ -1,15 +1,15 @@
 import sys
-from pylastic.io.vasp import POS
+#from pylastic.io.vasp import POS
 import os
 
 
 class Sgroup(POS):
     """Determine the space group of ``poscar`` using the **sgroup** tool.
     """
-    def __init__(self, poscar, fname):
+    def __init__(self, poscar, fname, code):
         
         super(Sgroup, self).__init__(fname)
-        
+        self.__code = code
         self.i = 0
         self.__sgn = None
         self.poscar = poscar
@@ -17,7 +17,8 @@ class Sgroup(POS):
         self.set_sgroup()
         
     def set_sgroup(self):
-        
+        if self.__code=='vasp': from pylastic.io.vasp import POS
+        elif self.__code=='emto': from pylastic.io.emto import POS
         o_poscar = POS(self.fname)
         o_poscar.write_sgroup(self.poscar)                # --"--
         os.system('sgroup sgroup.in 1> sgroup.out 2> sgroup.err')
