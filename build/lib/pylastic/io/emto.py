@@ -13,7 +13,7 @@ class POS(object):
         self.__NQ3=1
         self.__N_species=0
         
-        self.__format = {"kgrn":{"SWS":{"read":(8,14) , "write":"{0:7.4f}"}}, "kstr":{"A.....":{"read":(10,19) , "write":"{0:10.7f}"},"B.....":{"read":(30,39) , "write":"{0:10.7f}"},"C.....":{"read":(50,59) , "write":"{0:10.7f}"},"Alp":{"read":(10,19) , "write":"{0:10.7f}"},"Bet":{"read":(30,39) , "write":"{0:10.7f}"},"Gam":{"read":(50,59) , "write":"{0:10.7f}"},"BSX":{"read":(10,19) , "write":"{0:10.7f}"},"BSY":{"read":(30,39) , "write":"{0:10.7f}"},"BSZ":{"read":(50,59) , "write":"{0:10.7f}"}, "SWS":{"read":(8,14) , "write":"{0:7.4f}"},"QX":{"read":(10,19) , "write":"{0:7.4f}"},"QY":{"read":(30,39) , "write":"{0:7.4f}"},"QZ":{"read":(50,59) , "write":"{0:7.4f}"},"LAT":{"read":(18,20) , "write":"{0:2.0i}"} }}
+        self.__format = {"kgrn":{"SWS":{"read":(8,14) , "write":"{0:7.4f}"}}, "kstr":{"A.....":{"read":(10,19) , "write":"{0:10.7f}"},"B.....":{"read":(30,39) , "write":"{0:10.7f}"},"C.....":{"read":(50,59) , "write":"{0:10.7f}"},"Alp":{"read":(10,19) , "write":"{0:10.7f}"},"Bet":{"read":(30,39) , "write":"{0:10.7f}"},"Gam":{"read":(50,59) , "write":"{0:10.7f}"},"BSX":{"read":(10,19) , "write":"{0:10.7f}"},"BSY":{"read":(30,39) , "write":"{0:10.7f}"},"BSZ":{"read":(50,59) , "write":"{0:10.7f}"}, "SWS":{"read":(8,14) , "write":"{0:7.4f}"},"QX":{"read":(10,19) , "write":"{0:10.7f}"},"QY":{"read":(30,39) , "write":"{0:10.7f}"},"QZ":{"read":(50,59) , "write":"{0:10.7f}"},"LAT":{"read":(18,20) , "write":"{0:2.0i}"} }}
     
     def trans_csystem(self, in_mat, out_mat, in_vec):
         c_vec = np.dot(np.dot(np.linalg.inv(np.transpose(in_mat)),np.transpose(out_mat)), in_vec)
@@ -257,8 +257,10 @@ class POS(object):
         return
     
     def read_kstr(self, fname):
-        if fname: kstr = open(fname)
-        
+        if fname: 
+            kstr = open(fname)
+            self.__pos['path']=fname
+            
         self.__kstr = kstr.readlines()
         A = self.find(self.__kstr, "kstr", "A.....")
         B = self.find(self.__kstr, "kstr", "B.....")
@@ -314,16 +316,28 @@ class POS(object):
         
         self.__pos['natoms'] = map(int,list(np.ones(len(QX))))
         self.__pos['csystem'] = 'd'
-        print self.__pos
-        return
+        return self.__pos
+        
     
     def set_pos(self,pos):
         self.__pos=pos
     def get_pos(self):
         return self.__pos
     
-    def write_kstr(self, fname):
+    def write_kstr(self, pos, fname):
+        path = fname.rstrip(os.path.basename(fname))
+        fname = os.path.basename(fname)
         
+        os.system('mkdir %s/kstr'%(path))
+        path=path+'/kstr/'
+        os.system('cp kstr.dat %s'%(path+fname))
+        kstr=open((path+fname),'rw')
+        
+        self.__kstr=kstr.readlines()
+        
+        kstr.close()
+        
+        self.__pos=pos
         BS1 = self.__pos['vlatt_1']
         BS2 = self.__pos['vlatt_2']
         BS3 = self.__pos['vlatt_3']
@@ -331,6 +345,9 @@ class POS(object):
         B_matrix = np.array([BS1,BS2,BS3])
         C_matrix = np.identity(3)
         
+        a=np.sqrt(BS1[0]**2.+BS1[1]**2.+BS1[2]**2.)
+        b=np.sqrt(BS2[0]**2.+BS2[1]**2.+BS2[2]**2.)
+        c=np.sqrt(BS3[0]**2.+BS3[1]**2.+BS3[2]**2.)
         
         QX=[]
         QY=[]
@@ -342,24 +359,25 @@ class POS(object):
             C_vec.append(self.trans_csystem(B_matrix, C_matrix, B_vec)) #Convert direct to cartesian coordinates
         
         for vec in C_vec:
-            QX.append(vec[0])
-            QY.append(vec[1])
-            QZ.append(vec[2])
-        self.__kstr = self.replace(self.__kstr, "kstr", "QX", )
-        self.__kstr = self.replace(self.__kstr, "kstr", "QY", )
-        self.__kstr = self.replace(self.__kstr, "kstr", "QZ", )
+            QX.append(vec[0]*a)
+            QY.append(vec[1]*a)
+            QZ.append(vec[2]*a)
+        #for i in range(len(QX)):
+        self.__kstr = self.replace(self.__kstr, "kstr", "QX", QX)
+        self.__kstr = self.replace(self.__kstr, "kstr", "QY", QY)
+        self.__kstr = self.replace(self.__kstr, "kstr", "QZ", QZ)
 
-        a=np.sqrt(BS1[0]**2.+BS1[1]**2.+BS1[2]**2.)
-        b=np.sqrt(BS2[0]**2.+BS2[1]**2.+BS2[2]**2.)
-        c=np.sqrt(BS3[0]**2.+BS3[1]**2.+BS3[2]**2.)
-
+        
+        
+        
+        
         alpha = np.arccos(np.dot(BS2,BS3)/(b*c))*180./np.pi
         beta =  np.arccos(np.dot(BS3,BS1)/(a*c))*180./np.pi
         gamma = np.arccos(np.dot(BS1,BS2)/(a*b))*180./np.pi
         
-        self.__kstr = self.replace(self.__kstr, "kstr", "A.....", a)
-        self.__kstr = self.replace(self.__kstr, "kstr", "B.....", b)
-        self.__kstr = self.replace(self.__kstr, "kstr", "C.....", c)
+        self.__kstr = self.replace(self.__kstr, "kstr", "A.....", 1.)
+        self.__kstr = self.replace(self.__kstr, "kstr", "B.....", b/a)
+        self.__kstr = self.replace(self.__kstr, "kstr", "C.....", c/a)
         
         self.__kstr = self.replace(self.__kstr, "kstr", "Alp", alpha)
         self.__kstr = self.replace(self.__kstr, "kstr", "Bet", beta)
@@ -367,7 +385,11 @@ class POS(object):
         #self.__kstr = self.replace(self.__kstr,"kstr","BSX", BSX)
         #self.__kstr = self.replace(self.__kstr,"kstr","BSY", BSY)
         #self.__kstr = self.replace(self.__kstr,"kstr","BSZ", BSZ)
-        return
+        #print self.__kstr
+        f=open(path+fname,'w')
+        f.writelines(self.__kstr)
+        f.close()
+        return a
     
     def read_shape(self, fname):
         if fname: shape = open(fname)
@@ -376,8 +398,20 @@ class POS(object):
         
         return
     
-    def write_shape(self):
+    def write_shape(self, pos, fname):
+        path = fname.rstrip(os.path.basename(fname))
+        fname = os.path.basename(fname)
         
+        os.system('mkdir %s/shape'%(path))
+        path=path+'/shape/'
+        os.system('cp shape.dat %s'%(path+fname))
+        shape=open((path+fname),'rw')
+        
+        self.__shape=shape.readlines()
+        shape.close()
+        f=open(path+fname,'w')
+        f.writelines(self.__shape)
+        f.close()
         return
     
     def read_kgrn(self, fname):
@@ -386,11 +420,28 @@ class POS(object):
         
         SWS = self.find(self.__kgrn,"kgrn","SWS")
         self.__pos['scale'] = SWS
-        return
+        return self.__pos
     
-    def write_kgrn(self):
+    def write_kgrn(self, pos, fname):
+        
+        path = fname.rstrip(os.path.basename(fname))
+        fname = os.path.basename(fname)
+        
+        os.system('mkdir %s/kgrn'%(path))
+        path=path+'/kgrn/'
+        os.system('cp kgrn.dat %s'%(path+fname))
+        kgrn=open((path+fname),'rw')
+        
+        self.__kgrn = kgrn.readlines()
+        kgrn.close()
+        self.__pos=pos
         SWS = self.__pos['scale']
+        
         self.__kgrn = self.replace(self.__kgrn,"kgrn","SWS", SWS)
+        
+        f=open(path+fname,'w')
+        f.writelines(self.__kgrn)
+        f.close()
         return
     
     def read_kfcd(self, fname):
@@ -398,6 +449,24 @@ class POS(object):
         if fname: self.__kfcd = open(fname)
         lines = self.__kfcd.readlines()
         self.__split_kfcd =  [re.split(r'(\s+)', l) for l in lines]
+        return
+    
+    def write_kfcd(self, pos, fname):
+        path = fname.rstrip(os.path.basename(fname))
+        fname = os.path.basename(fname)
+        
+        os.system('mkdir %s/kfcd'%(path))
+        path=path+'/kfcd/'
+        os.system('cp kfcd.dat %s'%(path+fname))
+        kfcd=open((path+fname),'rw')
+        
+        self.__kfcd = kfcd.readlines()
+        kfcd.close()
+        
+        f=open(path+fname,'w')
+        f.writelines(self.__kfcd)
+        f.close()
+
         return
     
     def write_sgroup(self, pos):

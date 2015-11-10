@@ -4,7 +4,7 @@ import os
 import copy
 import time
 
-#from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE
 import cPickle as pickle
 import numpy as np
 
@@ -201,6 +201,7 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
         """
         if self.__verbose: print 'Converting dictionary to atoms object ....'
         self.__poscar = poscar
+        #print poscar
         self.__cell = np.array([self.__poscar['vlatt_1'],self.__poscar['vlatt_2'],self.__poscar['vlatt_3']])
         self.__natom = self.__poscar['natoms']
         self.__species = self.__poscar['vbasis']
@@ -484,13 +485,13 @@ class Structures(ElAtoms, Sgroup):
         else:
             dirnames = []
             os.chdir(self.__workdir)
-            print self.__structures
+            
             for atoms in self.__structures:
                 if self.__structures[atoms].poscarnew==None: 
                     self.__structures[atoms].poscarnew=self.__structures[atoms].atomsToPoscar()
-                    print self.__structures[atoms].poscarnew
-                    print self.__structures[atoms].scale
-                    print self.__structures[atoms].cell
+                    #print self.__structures[atoms].poscarnew
+                    #print self.__structures[atoms].scale
+                    #print self.__structures[atoms].cell
                 if atoms[0] != None:
                     self.__path = '%s/eta%s'%(atoms[0],atoms[1])
                     self.__structures[atoms].path = '%s/eta%s'%(atoms[0],atoms[1])
@@ -550,8 +551,13 @@ class Structures(ElAtoms, Sgroup):
                     from pylastic.io.emto import POS
                     #if not os.path.isfile("%s/INCAR"%(self.__path))   or overwrite: os.system('cp INCAR %s/INCAR'%(self.__path))
                     #else: print "%s/INCAR   already existing: overwrite = False"%(self.__path)
-                    if not os.path.isfile(self.__path+'/POSCAR')                     or overwrite: POS().write_pos(self.__structures[atoms].poscarnew, self.__path+'/structure.dat')
-                    else: print "%s/structure.dat  already existing: overwrite = False"%(self.__path)
+                    if not os.path.isfile(self.__path+'/kstr/kstr.dat')                     or overwrite: 
+                        sws = POS().write_kstr(self.__structures[atoms].poscarnew, self.__path+'/kstr.dat')
+                        self.__structures[atoms].poscarnew['scale'] = self.__structures[atoms].poscarnew['scale']*sws
+                    if not os.path.isfile(self.__path+'/shape/shape.dat')                   or overwrite: POS().write_shape(self.__structures[atoms].poscarnew, self.__path+'/shape.dat')
+                    if not os.path.isfile(self.__path+'/kgrn/kgrn.dat')                     or overwrite: POS().write_kgrn(self.__structures[atoms].poscarnew, self.__path+'/kgrn.dat')
+                    if not os.path.isfile(self.__path+'/kgrn/kgrn.dat')                     or overwrite: POS().write_kfcd(self.__structures[atoms].poscarnew, self.__path+'/kfcd.dat')
+                    #else: print "%s/structure.dat  already existing: overwrite = False"%(self.__path)
                 ################
                 
                 self.__structures[atoms].path = self.__workdir + self.__path
@@ -648,7 +654,7 @@ class Structures(ElAtoms, Sgroup):
         return self.__structures
     
     def set_code(self, code):
-        if code in ['vasp','exciting','espresso','wien']:
+        if code in ['vasp','exciting','espresso','wien','emto']:
             self.__code = code
         else:
             print "Unknown code '%s'. Please choose either espresso, exciting, wien or vasp"%code

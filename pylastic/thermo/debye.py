@@ -3,11 +3,14 @@ import numpy as np
 from pylastic.tools.eos import Birch
 from scipy.optimize import fmin, brent
 from math import factorial as fc
+
+import matplotlib.pyplot as plt
+
 class Debye(object):
     
     def __init__(self):
-        self.__kb=8.617332478*10.**(-5.) #eV/K
-        self.__h =4.135667516*10.**(-15.) #eV s
+        self.__kb=8.6173303*10.**(-5.) #eV/K
+        self.__h =4.135667662*10.**(-15.) #eV s
         self.__path = './'
         self.T = 1.
         self.__fitorder_EC = 3
@@ -21,6 +24,7 @@ class Debye(object):
         self.__elastic = True
         self.__V0 = None
         self.__lt = False
+        self.__natom=2.
         #self.__fout_EC = open('out_EC','a')
     
     def set_artificial_deformation(self, eta=0.1 ,typeis='tetragonal'):
@@ -37,7 +41,13 @@ class Debye(object):
             #self.__artificial_deformation[3,3] = eta
             #self.__artificial_deformation[4,4] = eta
             #self.__artificial_deformation[5,5] = eta
-            
+    
+    def get_numatom(self):
+        return self.__natom
+    
+    def set_numatom(self, natom):
+        self.__natom = natom
+    
     def get_mod(self):
         return self.__mod
     
@@ -141,7 +151,7 @@ class Debye(object):
         if self.__artdef:   
             #print 'Modifying elastic tensor.'
             C = C+self.__artificial_deformation
-        BV = (C[0,0]+C[1,1]+C[2,2]+2.*(C[0,1]+C[0,2]+C[1,2]))/9.
+        BV = (C[0,0]+C[1,1]+C[2,2]+2.*(C[0,1]+C[0,2]+C[1,2]))/9.*1.4
         GV = ((C[0,0]+C[1,1]+C[2,2])-(C[0,1]+C[0,2]+C[1,2])+3.*(C[3,3]+C[4,4]+C[5,5]))/15.
         #EV = (9.*BV*GV)/(3.*BV+GV)
         #### calculate p-wave modulus ####
@@ -206,7 +216,7 @@ class Debye(object):
                 self.__B.append(a)
                 self.__G.append(d)
                 self.__E.append(e)
-                self.__V.append(float(scale)**3./2.*10.**(-30.))
+                self.__V.append(float(scale)**3./self.__natom*10.**(-30.))
             
             
             c1= np.polyfit(self.__V, self.__EoB, self.__fitorder_EC)
@@ -233,7 +243,14 @@ class Debye(object):
             
             c3= np.polyfit(self.__V, self.__B, self.__fitorder_EC)
             p_B = np.poly1d(c3)
-        
+            ############# Lorenz ############
+            
+            a= 17.343  
+            b= -363.343
+            c= 881.843 
+            d= 1077.8 
+            #p_B = lambda x: (10.0/9*b*x**(-8.0/3)+28.0/9*c*x**(-10.0/3)+6*d*x**(-4))*x*160.22
+            #################################
         if self.__lt: 
             lowT_correction = (x/self.__V0)**(1./3.)
             
@@ -241,10 +258,18 @@ class Debye(object):
         
         Const = self.__h/self.__kb* (3./(4.*np.pi))**(1./3.)
         if self.__mod=='X/B-fit':
+            print ( 1./3.*(p_EoB(x))**(-3./2.) + 2./3.*(p_GoB(x))**(-3./2.) )**(-1./3.)
             theta = Const * ( 1./3.*(p_EoB(x))**(-3./2.) + 2./3.*(p_GoB(x))**(-3./2.) )**(-1./3.) * (p_B(x)*10**(9.)/rho)**(1./2.) * x**(-1./3.)*lowT_correction
-        elif self.__mod=='prefactor':
+        elif self.__mod=='prefactor': 
             theta = Const * 0.617 * (p_B(x)*10**(9.)/rho)**(1./2.) * x**(-1./3.)*lowT_correction
-
+        elif self.__mod=='debug':
+            B0=321.924303414506
+            V0=15.7103029969695*10.**(-30)
+            rho0=self.m/V0
+            gamma= 1.62296663327697
+            theta0 = Const * 0.617 * (B0*10**9./rho0)**(1./2.) * V0**(-1./3.)*lowT_correction
+            #print theta0,rho0,rho,V0,x,p_B(x)
+            theta = theta0*(V0/x)**gamma
         else:
             theta = Const * ( 1./3.*(p_E(x)/p_B(x))**(-3./2.) + 2./3.*(p_G(x)/p_B(x))**(-3./2.) )**(-1./3.) * (p_B(x)*10**(9.)/rho)**(1./2.) * x**(-1./3.)*lowT_correction
 
@@ -253,7 +278,7 @@ class Debye(object):
     def free_energy(self,x):
         self.__E0 = self.get_gsenergy()
         
-        V0=[float(l)**3./2.*10.**(-30.) for l in self.__l]
+        V0=[float(l)**3./self.__natom*10**(-30) for l in self.__l]
         c1= np.polyfit(V0, self.__E0, self.__fitorder_EOS)
         p_E0 = np.poly1d(c1)
         dp_E0 = np.polyder(p_E0)
@@ -268,8 +293,20 @@ class Debye(object):
         self.__V0 = roots[index]
         
         self.T_Deb = self.debye_T(x)
+        ##########Lorenz############
+        a= 17.343  
+        b= -363.343
+        c= 881.843 
+        d= 1077.8 
+        #p_E0 = lambda X: a+b*(X*10**(30))**(-2.0/3)+c*(X*10**(30))**(-4.0/3)+d*(X*10.**(30))**(-2.)
         
-        
+        #Vtest1=[15.*10**(-30),16.*10**(-30),17.*10**(-30)]
+        Vtest=[15.,16.,17.]
+        #plt.plot(Vtest,[p_E01(v) for v in Vtest])
+        #plt.plot(Vtest,[p_E0(v) for v in Vtest1])
+
+        #plt.show()
+        ############################
         #print self.debye_function(self.debye_T(x)/self.T),self.debye_T(x),self.T
         #return (p_E0(x) + (( +self.debye_function(self.T_Deb/self.T) + 3.*np.log(1.-np.exp(-self.T_Deb/self.T)) ) * self.__kb * self.T + 9./8.*self.__kb*self.T_Deb))
         return (p_E0(x) + (( -self.debye_function(self.T_Deb/self.T) + 3.*np.log(1.-np.exp(-self.T_Deb/self.T)) ) * self.__kb * self.T - 9./8.*self.__kb*self.T_Deb))
@@ -280,12 +317,12 @@ class Debye(object):
         
         #print self.__GoB
         #print -(  self.debye_function(self.debye_T(x)/self.T) + 3.*np.log(1.-np.exp(-self.debye_T(x)/self.T)) ) * self.__kb * self.T,9./8.*self.__kb*self.debye_T(x)
-        return +(  self.debye_function(self.debye_T(x)/self.T) + 3.*np.log(1.-np.exp(-self.debye_T(x)/self.T)) ) * self.__kb * self.T + 9./8.*self.__kb*self.debye_T(x)
+        return +(   self.debye_function(self.debye_T(x)/self.T) + 3.*np.log(1.-np.exp(-self.debye_T(x)/self.T)) ) * self.__kb * self.T + 9./8.*self.__kb*self.debye_T(x)
     
         
     def optimization(self):
         #return brent(self.free_energy, brack=(15.5*10.**(-30.),17.*10.**(-30.)))
-        return fmin(self.free_energy, 15.6*10.**(-30.))
+        return fmin(self.free_energy, 15.6)
     
     def find_min(self, listx, listy):
         minval = min(listy)
@@ -304,3 +341,4 @@ class Debye(object):
     mod = property(fget=get_mod, fset=set_mod)
     lt = property(fget=get_lt, fset=set_lt)
     elastic = property(fget=get_elastic, fset=set_elastic)
+    natom = property(fget=get_numatom, fset=set_numatom)
