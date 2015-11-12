@@ -299,22 +299,34 @@ class POS(object):
         B_matrix = np.array([BS1,BS2,BS3])
         C_matrix = np.identity(3)
         
-        B_vec = []
-        for i in range(len(QX)):
-            C_vec = np.array([QX[i], QY[i], QZ[i]])
-            B_vec.append(self.trans_csystem(C_matrix, B_matrix, C_vec)) #Convert cartesian to direct coordinates
-            #print C_vec, B_vec
-            #print B_matrix, C_matrix, B_vec
-        
         self.__pos['vbasis'] = {}
-        for i in range(len(QX)):
+        B_vec = []
+        if not type(QX)==float:
+            for i in range(len(QX)):
+                C_vec = np.array([QX[i], QY[i], QZ[i]])
+                B_vec.append(self.trans_csystem(C_matrix, B_matrix, C_vec)) #Convert cartesian to direct coordinates
+                #print C_vec, B_vec
+                #print B_matrix, C_matrix, B_vec
             
-            self.__pos['vbasis']['b_%s'%(i+1)] = []
-            self.__pos['vbasis']['b_%s'%(i+1)].append(B_vec[i][0])
-            self.__pos['vbasis']['b_%s'%(i+1)].append(B_vec[i][1])
-            self.__pos['vbasis']['b_%s'%(i+1)].append(B_vec[i][2])
-        
-        self.__pos['natoms'] = map(int,list(np.ones(len(QX))))
+            
+            for i in range(len(QX)):
+                
+                self.__pos['vbasis']['b_%s'%(i+1)] = []
+                self.__pos['vbasis']['b_%s'%(i+1)].append(B_vec[i][0])
+                self.__pos['vbasis']['b_%s'%(i+1)].append(B_vec[i][1])
+                self.__pos['vbasis']['b_%s'%(i+1)].append(B_vec[i][2])
+            
+            self.__pos['natoms'] = map(int,list(np.ones(len(QX))))
+        else:
+            C_vec = np.array([QX, QY, QZ])
+            B_vec.append(self.trans_csystem(C_matrix, B_matrix, C_vec))
+            self.__pos['vbasis']['b_%s'%(1)] = []
+            self.__pos['vbasis']['b_%s'%(1)].append(B_vec[0][0])
+            self.__pos['vbasis']['b_%s'%(1)].append(B_vec[0][1])
+            self.__pos['vbasis']['b_%s'%(1)].append(B_vec[0][2])
+            
+            self.__pos['natoms'] = [1]
+            
         self.__pos['csystem'] = 'd'
         return self.__pos
         

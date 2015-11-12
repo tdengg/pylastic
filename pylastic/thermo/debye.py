@@ -188,7 +188,7 @@ class Debye(object):
                 
             D = 3.*(6.493939402-D)/(x**3.)
         else: 
-            print 'ERROR: Debye ffnction out of bounds: D(%s)!'%(x)
+            print 'ERROR: Debye function out of bounds: D(%s)!'%(x)
         return D
     
     def debye_function_exp(self, x):
@@ -308,7 +308,7 @@ class Debye(object):
         #plt.show()
         ############################
         #print self.debye_function(self.debye_T(x)/self.T),self.debye_T(x),self.T
-        #return (p_E0(x) + (( +self.debye_function(self.T_Deb/self.T) + 3.*np.log(1.-np.exp(-self.T_Deb/self.T)) ) * self.__kb * self.T + 9./8.*self.__kb*self.T_Deb))
+        #return (p_E0(x) - ( self.debye_function(self.T_Deb/self.T) - 3.*np.log(1.-np.exp(-self.T_Deb/self.T)) ) * self.__kb * self.T + 9./8.*self.__kb*self.T_Deb)
         return (p_E0(x) + (( -self.debye_function(self.T_Deb/self.T) + 3.*np.log(1.-np.exp(-self.T_Deb/self.T)) ) * self.__kb * self.T - 9./8.*self.__kb*self.T_Deb))
 
     def free_energy_vib(self,x):

@@ -554,9 +554,20 @@ class Structures(ElAtoms, Sgroup):
                     if not os.path.isfile(self.__path+'/kstr/kstr.dat')                     or overwrite: 
                         sws = POS().write_kstr(self.__structures[atoms].poscarnew, self.__path+'/kstr.dat')
                         self.__structures[atoms].poscarnew['scale'] = self.__structures[atoms].poscarnew['scale']*sws
-                    if not os.path.isfile(self.__path+'/shape/shape.dat')                   or overwrite: POS().write_shape(self.__structures[atoms].poscarnew, self.__path+'/shape.dat')
-                    if not os.path.isfile(self.__path+'/kgrn/kgrn.dat')                     or overwrite: POS().write_kgrn(self.__structures[atoms].poscarnew, self.__path+'/kgrn.dat')
-                    if not os.path.isfile(self.__path+'/kgrn/kgrn.dat')                     or overwrite: POS().write_kfcd(self.__structures[atoms].poscarnew, self.__path+'/kfcd.dat')
+                        os.system('mkdir %s/kstr/smx'%self.__path)
+                        os.system('mkdir %s/kstr/prn'%self.__path)
+                    if not os.path.isfile(self.__path+'/shape/shape.dat')                   or overwrite: 
+                        POS().write_shape(self.__structures[atoms].poscarnew, self.__path+'/shape.dat')
+                        os.system('mkdir %s/shape/shp'%self.__path)
+                        os.system('mkdir %s/shape/prn'%self.__path)
+                    if not os.path.isfile(self.__path+'/kgrn/kgrn.dat')                     or overwrite: 
+                        POS().write_kgrn(self.__structures[atoms].poscarnew, self.__path+'/kgrn.dat')
+                        os.system('mkdir %s/kgrn/pot'%self.__path)
+                        os.system('mkdir %s/kgrn/prn'%self.__path)
+                        os.system('mkdir %s/kgrn/chd'%self.__path)
+                    if not os.path.isfile(self.__path+'/kfcd/kfcd.dat')                     or overwrite: 
+                        POS().write_kfcd(self.__structures[atoms].poscarnew, self.__path+'/kfcd.dat')
+                        os.system('mkdir %s/kfcd/prn'%self.__path)
                     #else: print "%s/structure.dat  already existing: overwrite = False"%(self.__path)
                 ################
                 
