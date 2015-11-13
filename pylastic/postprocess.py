@@ -1497,7 +1497,7 @@ class ECs(Check, Energy, Stress):
         if code in ['vasp','exciting','espresso','wien','emto']:
             self.__cod = code
         else:
-            print "Unknown code '%s'. Please choose either espresso, exciting, wien or vasp"%code
+            print "Unknown code '%s'. Please choose either espresso, exciting, wien, emto or vasp"%code
             
     def get_code(self):
         return self.__cod
