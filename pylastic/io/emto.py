@@ -512,10 +512,18 @@ class POS(object):
         
 class Energy(object):
     """Get energies from EMTO output file."""
-    def __init__(self, fname = 'etot.dat', funct='PBEsol'):
+    def __init__(self, fname = 'etot.dat', funct='LDA'):
         self.__funct = funct
         self.__fname = fname
-        
+        self.__gsenergy = 0.
+    
+    def set_functional(self,funct):
+        if funct in ['LDA','GGA','PBEsol']: self.__funct = funct
+        else: print "Sorry, wronc functional%s. Set to 'LDA','GGA' or 'PBEsol' instead"%funct
+    
+    def get_functional(self):
+        return self.__funct
+    
     def set_T(self, T):
         self.__T = T
         
@@ -524,10 +532,15 @@ class Energy(object):
 
     def set_gsenergy(self):
         """Get groundstate energy from vasprun.xml"""
-        if self.__funct == 'LDA': ind = 1
-        elif self.__funct == 'GGA': ind = 2
-        elif self.__funct == 'PBEsol': ind = 3
-        for line in open(self.__fname,'r'): self.__gsenergy = float(line.split()[ind])
+        if self.__funct == 'LDA': fc = 'LDA'
+        elif self.__funct == 'GGA': fc = 'GGA'
+        elif self.__funct == 'PBEsol': fc = 'sol'
+        #for line in open(self.__fname,'r'): self.__gsenergy = float(line.split()[ind])
+        f=open(self.__fname)
+        lines = f.readlines()
+        f.close()
+        for line in lines:
+            if 'TOT-%s'%fc in line.split(): self.__gsenergy = line.split()[1]
         
     def get_gsenergy(self):
         """Return groundstate energy."""
@@ -557,6 +570,8 @@ class Energy(object):
     def get_fname(self):
         return self.__fname
     
+    functional = property( fget = get_functional       , fset = set_functional)
+    gsenergy = property( fget = get_gsenergy        , fset = set_gsenergy)
     fname = property( fget = get_fname        , fset = set_fname)
     T = property( fget = get_T       , fset = set_T)
     

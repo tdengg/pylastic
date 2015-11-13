@@ -151,7 +151,7 @@ class Debye(object):
         if self.__artdef:   
             #print 'Modifying elastic tensor.'
             C = C+self.__artificial_deformation
-        BV = (C[0,0]+C[1,1]+C[2,2]+2.*(C[0,1]+C[0,2]+C[1,2]))/9.*1.4
+        BV = (C[0,0]+C[1,1]+C[2,2]+2.*(C[0,1]+C[0,2]+C[1,2]))/9.
         GV = ((C[0,0]+C[1,1]+C[2,2])-(C[0,1]+C[0,2]+C[1,2])+3.*(C[3,3]+C[4,4]+C[5,5]))/15.
         #EV = (9.*BV*GV)/(3.*BV+GV)
         #### calculate p-wave modulus ####
@@ -258,8 +258,11 @@ class Debye(object):
         
         Const = self.__h/self.__kb* (3./(4.*np.pi))**(1./3.)
         if self.__mod=='X/B-fit':
-            print ( 1./3.*(p_EoB(x))**(-3./2.) + 2./3.*(p_GoB(x))**(-3./2.) )**(-1./3.)
-            theta = Const * ( 1./3.*(p_EoB(x))**(-3./2.) + 2./3.*(p_GoB(x))**(-3./2.) )**(-1./3.) * (p_B(x)*10**(9.)/rho)**(1./2.) * x**(-1./3.)*lowT_correction
+            #print ( 1./3.*(p_EoB(x))**(-3./2.) + 2./3.*(p_GoB(x))**(-3./2.) )**(-1./3.)
+            theta = Const * ( 1./3.*(p_EoB(np.real(self.__V0)))**(-3./2.) + 2./3.*(p_GoB(np.real(self.__V0)))**(-3./2.) )**(-1./3.) * (p_B(x)*10**(9.)/rho)**(1./2.) * x**(-1./3.)*lowT_correction
+            print 'bulk',Const * (p_B(x)*10**(9.)/rho)**(1./2.) * x**(-1./3.)
+            print 'bulk wave',Const * (p_E(x)*10**(9.)/rho)**(1./2.) * x**(-1./3.)
+            print 'shear wave',Const * (p_G(x)*10**(9.)/rho)**(1./2.) * x**(-1./3.)
         elif self.__mod=='prefactor': 
             theta = Const * 0.617 * (p_B(x)*10**(9.)/rho)**(1./2.) * x**(-1./3.)*lowT_correction
         elif self.__mod=='debug':
@@ -290,18 +293,18 @@ class Debye(object):
             
             i+=1
         
-        self.__V0 = roots[index]
-        
+        if self.__V0 == None: self.__V0 = roots[index]
+        #print self.__V0
         self.T_Deb = self.debye_T(x)
         ##########Lorenz############
-        a= 17.343  
-        b= -363.343
-        c= 881.843 
-        d= 1077.8 
+        #a= 17.343  
+        #b= -363.343
+        #c= 881.843 
+        #d= 1077.8 
         #p_E0 = lambda X: a+b*(X*10**(30))**(-2.0/3)+c*(X*10**(30))**(-4.0/3)+d*(X*10.**(30))**(-2.)
         
         #Vtest1=[15.*10**(-30),16.*10**(-30),17.*10**(-30)]
-        Vtest=[15.,16.,17.]
+        #Vtest=[15.,16.,17.]
         #plt.plot(Vtest,[p_E01(v) for v in Vtest])
         #plt.plot(Vtest,[p_E0(v) for v in Vtest1])
 
@@ -322,7 +325,7 @@ class Debye(object):
         
     def optimization(self):
         #return brent(self.free_energy, brack=(15.5*10.**(-30.),17.*10.**(-30.)))
-        return fmin(self.free_energy, 15.6)
+        return fmin(self.free_energy, 15.6, xtol=10**(-35))
     
     def find_min(self, listx, listy):
         minval = min(listy)

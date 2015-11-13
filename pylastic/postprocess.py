@@ -8,6 +8,7 @@ import pylastic.io.vasp as vasp
 import pylastic.io.espresso as espresso
 import pylastic.io.wien as wien
 import pylastic.io.exciting as exciting
+import pylastic.io.emto as emto
 
 from pylastic.status import Check
 #from pylastic.prettyPrint import FileStructure
@@ -72,6 +73,10 @@ class ECs(Check, Energy, Stress):
             elif self.__cod == 'exciting':
                 getData = exciting.Energy()
                 outfile = 'INFO.OUT'
+            elif self.__cod == 'emto':
+                getData = emto.Energy()
+                outfile = ''
+                
             for atoms in self.__structures.items():
                 
                 if self.__cod == 'wien': 
