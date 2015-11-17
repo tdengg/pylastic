@@ -327,14 +327,14 @@ class Setup(object):
         poscar = POS('POSCAR').read_pos()
 
         ###################### Create Structures instance: ###################
-        structures = Structures('vasp')
+        structures = Structures(self.__cod)
 
         ## Generate distorted structures and add them to structures object: ##
-        atom = ElAtoms('vasp')
+        atom = ElAtoms(self.__cod)
         atom.poscarToAtoms(poscar)
         for scale in np.linspace(Vmin,Vmax,N):
 
-            atom = ElAtoms('vasp')
+            atom = ElAtoms(self.__cod)
             atom.poscarToAtoms(poscar)
             atom.scale = scale
             structures.append_structure(atom)
@@ -351,7 +351,7 @@ class Analyze(Birch):
     def __init__(self, verbous=False):
         
         from pylastic.postprocess import ECs
-        self.__structure='fcc'
+        self.__structure='bcc'
         
         
         ec = ECs('vasp')

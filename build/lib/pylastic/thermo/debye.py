@@ -260,9 +260,9 @@ class Debye(object):
         if self.__mod=='X/B-fit':
             #print ( 1./3.*(p_EoB(x))**(-3./2.) + 2./3.*(p_GoB(x))**(-3./2.) )**(-1./3.)
             theta = Const * ( 1./3.*(p_EoB(np.real(self.__V0)))**(-3./2.) + 2./3.*(p_GoB(np.real(self.__V0)))**(-3./2.) )**(-1./3.) * (p_B(x)*10**(9.)/rho)**(1./2.) * x**(-1./3.)*lowT_correction
-            print 'bulk',Const * (p_B(x)*10**(9.)/rho)**(1./2.) * x**(-1./3.)
-            print 'bulk wave',Const * (p_E(x)*10**(9.)/rho)**(1./2.) * x**(-1./3.)
-            print 'shear wave',Const * (p_G(x)*10**(9.)/rho)**(1./2.) * x**(-1./3.)
+            #print 'bulk',Const * (p_B(x)*10**(9.)/rho)**(1./2.) * x**(-1./3.)
+            #print 'bulk wave',Const * (p_E(x)*10**(9.)/rho)**(1./2.) * x**(-1./3.)
+            #print 'shear wave',Const * (p_G(x)*10**(9.)/rho)**(1./2.) * x**(-1./3.)
         elif self.__mod=='prefactor': 
             theta = Const * 0.617 * (p_B(x)*10**(9.)/rho)**(1./2.) * x**(-1./3.)*lowT_correction
         elif self.__mod=='debug':

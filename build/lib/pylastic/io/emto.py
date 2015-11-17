@@ -12,7 +12,7 @@ class POS(object):
         self.__pos={}
         self.__NQ3=1
         self.__N_species=0
-        
+        self.__Ry2eV = 13.605698066                 # Ryd to eV
         self.__format = {"kgrn":{"SWS":{"read":(8,14) , "write":"{0:7.4f}"}}, "kstr":{"A.....":{"read":(10,19) , "write":"{0:10.7f}"},"B.....":{"read":(30,39) , "write":"{0:10.7f}"},"C.....":{"read":(50,59) , "write":"{0:10.7f}"},"Alp":{"read":(10,19) , "write":"{0:10.7f}"},"Bet":{"read":(30,39) , "write":"{0:10.7f}"},"Gam":{"read":(50,59) , "write":"{0:10.7f}"},"BSX":{"read":(10,19) , "write":"{0:10.7f}"},"BSY":{"read":(30,39) , "write":"{0:10.7f}"},"BSZ":{"read":(50,59) , "write":"{0:10.7f}"}, "SWS":{"read":(8,14) , "write":"{0:7.4f}"},"QX":{"read":(10,19) , "write":"{0:10.7f}"},"QY":{"read":(30,39) , "write":"{0:10.7f}"},"QZ":{"read":(50,59) , "write":"{0:10.7f}"},"LAT":{"read":(18,20) , "write":"{0:2.0i}"} }}
     
     def trans_csystem(self, in_mat, out_mat, in_vec):
@@ -371,9 +371,9 @@ class POS(object):
             C_vec.append(self.trans_csystem(B_matrix, C_matrix, B_vec)) #Convert direct to cartesian coordinates
         
         for vec in C_vec:
-            QX.append(vec[0]*a)
-            QY.append(vec[1]*a)
-            QZ.append(vec[2]*a)
+            QX.append(vec[0]/a)
+            QY.append(vec[1]/a)
+            QZ.append(vec[2]/a)
         #for i in range(len(QX)):
         self.__kstr = self.replace(self.__kstr, "kstr", "QX", QX)
         self.__kstr = self.replace(self.__kstr, "kstr", "QY", QY)
@@ -512,10 +512,11 @@ class POS(object):
         
 class Energy(object):
     """Get energies from EMTO output file."""
-    def __init__(self, fname = 'etot.dat', funct='LDA'):
+    def __init__(self, fname = 'etot.dat', funct='GGA'):
         self.__funct = funct
         self.__fname = fname
         self.__gsenergy = 0.
+        self.__Ry2eV = 13.605698066                 # Ryd to eV
     
     def set_functional(self,funct):
         if funct in ['LDA','GGA','PBEsol']: self.__funct = funct
@@ -540,7 +541,7 @@ class Energy(object):
         lines = f.readlines()
         f.close()
         for line in lines:
-            if 'TOT-%s'%fc in line.split(): self.__gsenergy = line.split()[1]
+            if 'TOT-%s'%fc in line.split(): self.__gsenergy = float(line.split()[1])#*self.__Ry2eV/1000.
         
     def get_gsenergy(self):
         """Return groundstate energy."""

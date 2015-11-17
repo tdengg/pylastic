@@ -28,7 +28,7 @@ class Energy(object):
         Ryd2eV    = 13.605698066                  # Ryd to eV
         Angstroem =  1.e-10                       # Angstroem to meter
         self.__vToGPa = (_e)/(1e9*Angstroem**3.)
-        self.__ToGPa  = (_e*Ryd2eV)/(1e9*Bohr**3)
+        self.__ToGPa  = (_e*Ryd2eV)/(1e9*Bohr**3.)
         
         self.__V0 = V0
         self.__cod = code
@@ -72,6 +72,7 @@ class Energy(object):
         if self.__cod == 'wien': self.__CONV = self.__ToGPa * math.factorial(2)*1.
         if self.__cod == 'espresso': self.__CONV = self.__ToGPa * math.factorial(2)*1.
         if self.__cod == 'exciting': self.__CONV = self.__ToGPa * math.factorial(2)*2.
+        if self.__cod == 'emto': self.__CONV = self.__ToGPa * math.factorial(2)*1.
         strain = copy(self.__strain)
         energy = copy(self.__energy)
         
@@ -83,7 +84,7 @@ class Energy(object):
             coeffs= np.polyfit(strain, energy, fitorder)
             
             self.__Cij2nd[str(emax)]  = coeffs[fitorder-2]*self.__CONV/self.__V0         # in GPa units 
-            
+            print self.__V0
             """  Calculate RMS:  """
             deltasq = 0
             deltas = []
@@ -125,6 +126,7 @@ class Energy(object):
         if self.__cod == 'wien': self.__CONV = self.__ToGPa * math.factorial(3)*1.
         if self.__cod == 'espresso': self.__CONV = self.__ToGPa * math.factorial(3)*1.
         if self.__cod == 'exciting': self.__CONV = self.__ToGPa * math.factorial(3)*2.
+        if self.__cod == 'emto': self.__CONV = self.__ToGPa * math.factorial(3)*2.
         strain = copy(self.__strain)
         energy = copy(self.__energy)
         while (len(strain) > fitorder): 

@@ -553,6 +553,7 @@ class Structures(ElAtoms, Sgroup):
                     #else: print "%s/INCAR   already existing: overwrite = False"%(self.__path)
                     if not os.path.isfile(self.__path+'/kstr/kstr.dat')                     or overwrite: 
                         sws = POS().write_kstr(self.__structures[atoms].poscarnew, self.__path+'/kstr.dat')
+                        print self.__structures[atoms].poscarnew['scale'], sws, atoms
                         self.__structures[atoms].poscarnew['scale'] = self.__structures[atoms].poscarnew['scale']*sws
                         os.system('mkdir %s/kstr/smx'%self.__path)
                         os.system('mkdir %s/kstr/prn'%self.__path)

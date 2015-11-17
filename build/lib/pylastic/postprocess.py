@@ -45,7 +45,7 @@ class ECs(Check, Energy, Stress):
         #%%%%%%%%--- CONSTANTS ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         _e     = 1.602176565e-19              # elementary charge
         #Bohr   = 5.291772086e-11              # a.u. to meter
-        #Ryd2eV = 13.605698066                 # Ryd to eV
+        Ryd2eV = 13.605698066                 # Ryd to eV
         Angstroem = 1.e-10
         self.__cnvrtr = (_e)/(1e9*Angstroem**3.)    # Ryd/[a.u.^3] to GPa
         #--------------------------------------------------------------------------------------------------------------------------------
@@ -75,7 +75,7 @@ class ECs(Check, Energy, Stress):
                 outfile = 'INFO.OUT'
             elif self.__cod == 'emto':
                 getData = emto.Energy()
-                outfile = ''
+                outfile = 'kfcd/prn/B2.prn'
                 
             for atoms in self.__structures.items():
                 
@@ -87,8 +87,9 @@ class ECs(Check, Energy, Stress):
                     continue
                 #getData.set_outfile('%s/%s/'%atoms[0] + outfile)
                 #getData.set_gsEnergy()
-                
-                getData.set_fname(self.__workdir + '%s/'%atoms[1].path.lstrip('.') + outfile)
+                print atoms[1].path
+                #getData.set_fname(self.__workdir + '%s/'%atoms[1].path.lstrip('.') + outfile)
+                getData.set_fname(self.__workdir + '%s/%s'%(atoms[1].path.split('/')[-2],atoms[1].path.split('/')[-1])+'/' + outfile)
                 getData.set_gsenergy()
                 if self.__thermodyn:
                     outfile_ph = 'F_TV'
@@ -420,7 +421,7 @@ class ECs(Check, Energy, Stress):
         a.legend(title='Order of fit')
         return f
         
-    def plot_energy(self, color=['r','g','b','c','m','y','k'], mod = 'F'):
+    def plot_energy(self, color=['r','g','b','c','m','y','k'], mod = 'E0'):
         """Return matplotlib axis instance for energy-strain curve.  """
         if not mpl: raise "Problem with matplotib: Plotting not possible."
         f = plt.figure(figsize=(5,4), dpi=100)
@@ -970,7 +971,7 @@ class ECs(Check, Energy, Stress):
                     C[j,i] = C[i,j] 
             #%%%--- Calculating the elastic moduli ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             if self.__cod == 'espresso': C = -C/10.
-            elif self.__cod == 'vasp': C = C/4.
+            elif self.__cod  in ['vasp','emto','exciting','wien']: C = C/4.
             self.BV = (C[0,0]+C[1,1]+C[2,2]+2*(C[0,1]+C[0,2]+C[1,2]))/9
             self.GV = ((C[0,0]+C[1,1]+C[2,2])-(C[0,1]+C[0,2]+C[1,2])+3*(C[3,3]+C[4,4]+C[5,5]))/15
             self.EV = (9*self.BV*self.GV)/(3*self.BV+self.GV)
@@ -1497,7 +1498,7 @@ class ECs(Check, Energy, Stress):
         if code in ['vasp','exciting','espresso','wien','emto']:
             self.__cod = code
         else:
-            print "Unknown code '%s'. Please choose either espresso, exciting, wien or vasp"%code
+            print "Unknown code '%s'. Please choose either espresso, exciting, wien, emto or vasp"%code
             
     def get_code(self):
         return self.__cod
