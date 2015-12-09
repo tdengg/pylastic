@@ -7,12 +7,13 @@ import numpy as np
 import lxml.etree as etree
 from phonopy.interface import vasp
 print vasp.__file__
+import os
 
 class GET_THERMO(object):
     def __init__(self):
         
         #species = 'WRe_0.25_conv'
-        species = 'WRe_0.25_conv'
+        species = 'WRe_0.50'
         #species = 'Re'
         ###read force constants from vasprun.xml###
         vasprun = etree.iterparse('vasprun.xml', tag='varray')
@@ -28,7 +29,7 @@ class GET_THERMO(object):
         #print primitive.get_scaled_positions()
         #print superc.get_scaled_positions()
         
-        print numbatom
+        print numbatom, species, os.getcwd()
         if species=='W':
         #Tungsten
             fc = vasp.get_force_constants_vasprun_xml(vasprun,1,0)
@@ -199,20 +200,21 @@ class GET_THERMO(object):
                              [[s,0.,0.],[0.,s,0.],[0.,0.,s]],
                              primitive_matrix=[[-0.5, 0.5, 0.5],[0.5, -0.5, 0.5],[0.5, 0.5, -0.5]],
                              distance=0.01, factor=15.633302)
-            print fc
+            #print fc
             phonon.set_force_constants(fc[0])
             phonon.set_dynamical_matrix()
             #print phonon.get_dynamical_matrix_at_q([0,0,0])
             mesh = [100, 100, 100]
             phonon.set_mesh(mesh)
             qpoints, weights, frequencies, eigvecs = phonon.get_mesh()
-            print frequencies
+            #print frequencies
             phonon.set_total_DOS()
-            phonon.set_partial_DOS()
+            #phonon.set_partial_DOS()
             phonon.set_thermal_properties(t_step=10,
                                           t_max=3700,
                                           t_min=0)    
-        
+            
+            
         elif species == 'Au': 
             fc = vasp.get_force_constants_vasprun_xml(vasprun,1,0)
             #Gold
@@ -291,10 +293,12 @@ class GET_THERMO(object):
             phonon.set_thermal_properties(t_step=10,
                                           t_max=2500,
                                           t_min=0)
+        
+        #print 'HHHHHHHHHHHHHHHHAAAAAAAAAAAAAAAAAAAAAAAAAAALLLLLLLLLLLLLLLLLLOOOOOOOOOOOO'
         f = open('F_TV','w')
         for t, free_energy, entropy, cv in np.array(phonon.get_thermal_properties()).T:
-            print t, cv
-            print ("%12.3f " + "%15.7f" * 3) % ( t, free_energy, entropy, cv )
+            #print t, cv
+            #print ("%12.3f " + "%15.7f" * 3) % ( t, free_energy, entropy, cv )
             f.write(("%12.3f " + "%15.7f" + "\n") % ( t, free_energy))
         f.close()
         
@@ -335,7 +339,7 @@ class GET_THERMO(object):
             #band.append([-0.5+3*1/400*i, 0.5-1/400*i, 0.5-1/400*i])
             band.append(q_start + (q_end - q_start) / 100 * i)
         bands.append(band)
-        print band
+        #print band
         q_start  = np.array([0.25, 0.25, 0.25])
         q_end    = np.array([0., 0., 0.])
         band = []

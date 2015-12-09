@@ -3,17 +3,26 @@ import numpy as np
 from pylastic.tools.eos import Birch
 from scipy.optimize import fmin, brent
 from math import factorial as fc
-
+from scipy.integrate import quad
+from scipy.optimize import brentq
 import matplotlib.pyplot as plt
+try:
+    import mpmath as mpm
+except:
+    print 'python library mpmath not found: using numerical procedure to calculate Debye function.'
 
 class Debye(object):
     
     def __init__(self):
+        
+        
+        self.__A = 0.8
+        
         self.__kb=8.6173303*10.**(-5.) #eV/K
         self.__h =4.135667662*10.**(-15.) #eV s
         self.__path = './'
         self.T = 1.
-        self.__fitorder_EC = 3
+        self.__fitorder_EC = 1.2
         self.__fitorder_EOS = 6
         self.m = 183.84 * 1.66053892173 * 10.**(-27.)#Atomic weight in kg
         self.__mod='X/B-fit'
@@ -25,6 +34,7 @@ class Debye(object):
         self.__V0 = None
         self.__lt = False
         self.__natom=2.
+        self.__thetaE = None
         #self.__fout_EC = open('out_EC','a')
     
     def set_artificial_deformation(self, eta=0.1 ,typeis='tetragonal'):
@@ -41,6 +51,15 @@ class Debye(object):
             #self.__artificial_deformation[3,3] = eta
             #self.__artificial_deformation[4,4] = eta
             #self.__artificial_deformation[5,5] = eta
+    
+    def get_thetaE(self):
+        return self.__thetaE
+    def set_thetaE(self, thetaE):
+        self.__thetaE = thetaE
+    def get_thetaDD(self):
+        return self.__thetaDD
+    def set_thetaDD(self, thetaDD):
+        self.__thetaDD = thetaDD
     
     def get_numatom(self):
         return self.__natom
@@ -137,6 +156,7 @@ class Debye(object):
     def get_V0(self):
         return self.__V0
     def set_V0(self,V0):
+        print 'updating V0(%s) = %s'%(self.T,self.__V0)
         self.__V0 = V0
     
     def calculate_moduli(self, scale):
@@ -198,6 +218,10 @@ class Debye(object):
             D2 = D2+Brillouin[k]/( (2*(k+1)+3)*fc(2*(k+1)) )*x**(2*(k+1))
         return 1.- 3./8.*x + 3.*D2
     
+    def debye_function_alalytic(self, x):
+        
+        return -1./5.*np.pi**4./x**4.-3./4.+3./x*np.log(1-np.exp(x))+9./x**2.*mpm.polylog(np.exp(x),2)-18./x**3.*mpm.polylog(np.exp(x),3)+18./x**4.*mpm.polylog(np.exp(x),4)
+    
     def debye_T(self, x):
         
         self.__EoB = []
@@ -208,6 +232,7 @@ class Debye(object):
         self.__V = []
         if self.__elastic:
             dic = self.get_Cij()
+            i=0
             for scale in sorted(dic.keys()):
             
                 (a, b, c, d, e) = self.calculate_moduli(scale)
@@ -217,7 +242,7 @@ class Debye(object):
                 self.__G.append(d)
                 self.__E.append(e)
                 self.__V.append(float(scale)**3./self.__natom*10.**(-30.))
-            
+                i+=1
             
             c1= np.polyfit(self.__V, self.__EoB, self.__fitorder_EC)
             p_EoB = np.poly1d(c1)
@@ -235,7 +260,7 @@ class Debye(object):
             
             c5= np.polyfit(self.__V, self.__G, self.__fitorder_EC)
             p_G = np.poly1d(c5)
-        
+            
         else:
             self.__mod = 'prefactor'
             for scale in sorted(dic.keys()):
@@ -252,17 +277,25 @@ class Debye(object):
             #p_B = lambda x: (10.0/9*b*x**(-8.0/3)+28.0/9*c*x**(-10.0/3)+6*d*x**(-4))*x*160.22
             #################################
         if self.__lt: 
-            lowT_correction = (x/self.__V0)**(1./3.)
+            lowT_correction = np.real((x/self.__V0)**(1./3.))
             
         else: lowT_correction = 1.
         
         Const = self.__h/self.__kb* (3./(4.*np.pi))**(1./3.)
+        self.__omegaE = (4./(3.*self.m)*(p_E(x)+2.*p_G(x)))**(1./2.)
+        thetaE = self.__h/(2*np.pi*self.__kb)*self.__omegaE
+        self.__C=( 1./3.*(p_EoB(np.real(self.__V0)))**(-3./2.) + 2./3.*(p_GoB(np.real(self.__V0)))**(-3./2.) )**(-1./3.) * (p_B(x)*10**(9.)/rho)**(1./2.)
+        func = lambda k: (self.__A**3./(2.*np.pi**2.)*( 1./3.*np.exp(3.*k*(self.__V0)**(1./3.)/(self.__C*self.__A)) - np.exp(2.*k*(self.__V0)**(1./3.)/(self.__C*self.__A)) + np.exp(k*(self.__V0)**(1./3.)/(self.__C*self.__A)) - 1./3. ))-3.
+        self.__thetaDD = brentq(func, 10.**10., 10.**15.)*self.__h/self.__kb
+        #print self.__thetaDD
         if self.__mod=='X/B-fit':
+            
             #print ( 1./3.*(p_EoB(x))**(-3./2.) + 2./3.*(p_GoB(x))**(-3./2.) )**(-1./3.)
             theta = Const * ( 1./3.*(p_EoB(np.real(self.__V0)))**(-3./2.) + 2./3.*(p_GoB(np.real(self.__V0)))**(-3./2.) )**(-1./3.) * (p_B(x)*10**(9.)/rho)**(1./2.) * x**(-1./3.)*lowT_correction
             #print 'bulk',Const * (p_B(x)*10**(9.)/rho)**(1./2.) * x**(-1./3.)
             #print 'bulk wave',Const * (p_E(x)*10**(9.)/rho)**(1./2.) * x**(-1./3.)
-            #print 'shear wave',Const * (p_G(x)*10**(9.)/rho)**(1./2.) * x**(-1./3.)
+            #print 'theta: %s'%theta
+            #print theta/self.__thetaE
         elif self.__mod=='prefactor': 
             theta = Const * 0.617 * (p_B(x)*10**(9.)/rho)**(1./2.) * x**(-1./3.)*lowT_correction
         elif self.__mod=='debug':
@@ -273,15 +306,17 @@ class Debye(object):
             theta0 = Const * 0.617 * (B0*10**9./rho0)**(1./2.) * V0**(-1./3.)*lowT_correction
             #print theta0,rho0,rho,V0,x,p_B(x)
             theta = theta0*(V0/x)**gamma
+            
+            
         else:
-            theta = Const * ( 1./3.*(p_E(x)/p_B(x))**(-3./2.) + 2./3.*(p_G(x)/p_B(x))**(-3./2.) )**(-1./3.) * (p_B(x)*10**(9.)/rho)**(1./2.) * x**(-1./3.)*lowT_correction
+            theta = Const * ( 1./3.*(p_E(np.real(self.__V0))/p_B(x))**(-3./2.) + 2./3.*(p_G(np.real(self.__V0))/p_B(x))**(-3./2.) )**(-1./3.) * (p_B(x)*10**(9.)/rho)**(1./2.) * x**(-1./3.)*lowT_correction
 
         return theta
     
     def free_energy(self,x):
         self.__E0 = self.get_gsenergy()
         
-        V0=[float(l)**3./self.__natom*10**(-30) for l in self.__l]
+        V0=[float(l)**3./self.__natom*10.**(-30.) for l in self.__l]
         c1= np.polyfit(V0, self.__E0, self.__fitorder_EOS)
         p_E0 = np.poly1d(c1)
         dp_E0 = np.polyder(p_E0)
@@ -311,9 +346,55 @@ class Debye(object):
         #plt.show()
         ############################
         #print self.debye_function(self.debye_T(x)/self.T),self.debye_T(x),self.T
-        #return (p_E0(x) - ( self.debye_function(self.T_Deb/self.T) - 3.*np.log(1.-np.exp(-self.T_Deb/self.T)) ) * self.__kb * self.T + 9./8.*self.__kb*self.T_Deb)
-        return (p_E0(x) + (( -self.debye_function(self.T_Deb/self.T) + 3.*np.log(1.-np.exp(-self.T_Deb/self.T)) ) * self.__kb * self.T - 9./8.*self.__kb*self.T_Deb))
+        
+        return (p_E0(x) - ( self.debye_function(self.T_Deb/self.T) - 3.*np.log(1.-np.exp(-self.T_Deb/self.T)) ) * self.__kb * self.T + 9./8.*self.__kb*self.T_Deb)
+        #return (p_E0(x) + (( -self.debye_function(self.T_Deb/self.T) + 3.*np.log(1.-np.exp(-self.T_Deb/self.T)) ) * self.__kb * self.T - 9./8.*self.__kb*self.T_Deb))
 
+    def free_energyE(self,x):
+        self.__E0 = self.get_gsenergy()
+        
+        V0=[float(l)**3./self.__natom*10.**(-30.) for l in self.__l]
+        c1= np.polyfit(V0, self.__E0, self.__fitorder_EOS)
+        p_E0 = np.poly1d(c1)
+        dp_E0 = np.polyder(p_E0)
+        roots = np.roots(dp_E0)
+        isreal = np.isreal(roots)
+        i=0
+        for val in isreal:
+            if val: index = i
+            
+            i+=1
+        
+        if self.__V0 == None: self.__V0 = roots[index]
+        
+        self.T_Deb, self.thetaE = self.debye_T(x)
+        
+        return (p_E0(x) - 3*self.__kb*self.thetaE/2. - 3.*self.__kb*self.thetaE/(np.exp(self.thetaE/self.T)-1.))
+        #return (p_E0(x) + (( -self.debye_function(self.T_Deb/self.T) + 3.*np.log(1.-np.exp(-self.T_Deb/self.T)) ) * self.__kb * self.T - 9./8.*self.__kb*self.T_Deb))
+
+
+    def free_energyDD(self,x):
+        self.__E0 = self.get_gsenergy()
+        
+        V0=[float(l)**3./self.__natom*10.**(-30.) for l in self.__l]
+        c1= np.polyfit(V0, self.__E0, self.__fitorder_EOS)
+        p_E0 = np.poly1d(c1)
+        dp_E0 = np.polyder(p_E0)
+        roots = np.roots(dp_E0)
+        isreal = np.isreal(roots)
+        i=0
+        for val in isreal:
+            if val: index = i
+            
+            i+=1
+        
+        if self.__V0 == None: self.__V0 = roots[index]
+        
+        self.T_Deb, self.thetaE = self.debye_T(x)
+        func = lambda S: x**(1./3.)*self.__A**2./(2.*np.pi**2.*self.__C)*self.__h*S*(np.exp(S*(x)**(1./3.)/(self.__C*self.__A))-1.)**2.*np.exp(S*(x)**(1./3.)/(self.__C*self.__A))/(np.exp(self.__h*S/(self.__kb*self.T)))
+        return (p_E0(x) - ( quad(self.Integrand,0.,self.__thetaDD*self.__kb/self.__h, args=(self.__h,self.__kb,self.__C,self.T,self.__V0,self.__A)) )[0] + 9./8.*self.__kb*self.T_Deb)
+
+    
     def free_energy_vib(self,x):
         #E0 = self.get_gsenergy()
         
@@ -321,11 +402,35 @@ class Debye(object):
         #print self.__GoB
         #print -(  self.debye_function(self.debye_T(x)/self.T) + 3.*np.log(1.-np.exp(-self.debye_T(x)/self.T)) ) * self.__kb * self.T,9./8.*self.__kb*self.debye_T(x)
         return +(   self.debye_function(self.debye_T(x)/self.T) + 3.*np.log(1.-np.exp(-self.debye_T(x)/self.T)) ) * self.__kb * self.T + 9./8.*self.__kb*self.debye_T(x)
+
+    def free_energy_vibE(self,x):
+        #E0 = self.get_gsenergy()
+        
+        
+        #print self.__GoB
+        #print -(  self.debye_function(self.debye_T(x)/self.T) + 3.*np.log(1.-np.exp(-self.debye_T(x)/self.T)) ) * self.__kb * self.T,9./8.*self.__kb*self.debye_T(x)
+        #print self.__thetaE
+        return  3*( self.__kb*self.__thetaE/2. - self.__kb*self.__thetaE/(np.exp(self.__thetaE/self.T)-1.))
     
+    def free_energy_vibDD(self,x):
+        #E0 = self.get_gsenergy()
+        
+        
+        #print self.__GoB
+        #print -(  self.debye_function(self.debye_T(x)/self.T) + 3.*np.log(1.-np.exp(-self.debye_T(x)/self.T)) ) * self.__kb * self.T,9./8.*self.__kb*self.debye_T(x)
+        #print self.__C, x,self.__thetaDD*self.__kb/self.__h
+        func = lambda S: x**(1./3.)*self.__A**2./(2.*np.pi**2.*self.__C)*self.__h*S*(np.exp(S*(x)**(1./3.)/(self.__C*self.__A))-1.)**2.*np.exp(S*(x)**(1./3.)/(self.__C*self.__A))/(np.exp(self.__h*S/(self.__kb*self.T)))
+        U = ( quad(self.Integrand,0.,self.__thetaDD*self.__kb/self.__h, args=(self.__h,self.__kb,self.__C,self.T,self.__V0,self.__A)) )
+        #print U
+        return U
+
+    def Integrand(self, X,h,kb,c,T, V, A):
+        return V**(1./3.)*A**2./(2.*np.pi**2.*c)*h*X*(np.exp(X*(V)**(1./3.)/(c*A))-1.)**2.*np.exp(X*(V)**(1./3.)/(c*A))/(np.exp(h*X/(kb*T)))
+
         
     def optimization(self):
         #return brent(self.free_energy, brack=(15.5*10.**(-30.),17.*10.**(-30.)))
-        return fmin(self.free_energy, 15.6, xtol=10**(-35))
+        return fmin(self.free_energy, 15.6, xtol=10.**(-35.))
     
     def find_min(self, listx, listy):
         minval = min(listy)
@@ -345,3 +450,5 @@ class Debye(object):
     lt = property(fget=get_lt, fset=set_lt)
     elastic = property(fget=get_elastic, fset=set_elastic)
     natom = property(fget=get_numatom, fset=set_numatom)
+    thetaE = property(fget=get_thetaE, fset=set_thetaE)
+    thetaDD = property(fget=get_thetaDD, fset=set_thetaDD)

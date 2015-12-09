@@ -87,9 +87,10 @@ class ECs(Check, Energy, Stress):
                     continue
                 #getData.set_outfile('%s/%s/'%atoms[0] + outfile)
                 #getData.set_gsEnergy()
-                print atoms[1].path
+                print atoms[1].path, self.__workdir + '%s/%s'%(atoms[1].path.split('/')[-2],atoms[1].path.split('/')[-1])+'/' + outfile
                 #getData.set_fname(self.__workdir + '%s/'%atoms[1].path.lstrip('.') + outfile)
-                getData.set_fname(self.__workdir + '%s/%s'%(atoms[1].path.split('/')[-2],atoms[1].path.split('/')[-1])+'/' + outfile)
+                if 'eta' in atoms[1].path.split('/')[-1]:getData.set_fname(self.__workdir + '%s/%s'%(atoms[1].path.split('/')[-2],atoms[1].path.split('/')[-1])+'/' + outfile)
+                else: getData.set_fname(self.__workdir + '%s'%(atoms[1].path.split('/')[-1])+'/' + outfile)
                 getData.set_gsenergy()
                 if self.__thermodyn:
                     outfile_ph = 'F_TV'

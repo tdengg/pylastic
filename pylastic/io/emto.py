@@ -17,6 +17,7 @@ class POS(object):
     
     def trans_csystem(self, in_mat, out_mat, in_vec):
         c_vec = np.dot(np.dot(np.linalg.inv(np.transpose(in_mat)),np.transpose(out_mat)), in_vec)
+        #c_vec = np.dot(np.dot(np.linalg.inv(in_mat),out_mat), in_vec)
         return c_vec
         
         
@@ -301,6 +302,7 @@ class POS(object):
         
         self.__pos['vbasis'] = {}
         B_vec = []
+        
         if not type(QX)==float:
             for i in range(len(QX)):
                 C_vec = np.array([QX[i], QY[i], QZ[i]])
@@ -368,7 +370,7 @@ class POS(object):
         C_vec = []
         for i in range(len(self.__pos['natoms'])):
             B_vec = np.array(self.__pos['vbasis']['b_%s'%(i+1)])
-            C_vec.append(self.trans_csystem(B_matrix, C_matrix, B_vec)) #Convert direct to cartesian coordinates
+            C_vec.append(self.trans_csystem(C_matrix, B_matrix, B_vec)) #Convert direct to cartesian coordinates
         
         for vec in C_vec:
             QX.append(vec[0]/a)
@@ -387,7 +389,7 @@ class POS(object):
         beta =  np.arccos(np.dot(BS3,BS1)/(a*c))*180./np.pi
         gamma = np.arccos(np.dot(BS1,BS2)/(a*b))*180./np.pi
         
-        self.__kstr = self.replace(self.__kstr, "kstr", "A.....", 1.)
+        self.__kstr = self.replace(self.__kstr, "kstr", "A.....", a/a)
         self.__kstr = self.replace(self.__kstr, "kstr", "B.....", b/a)
         self.__kstr = self.replace(self.__kstr, "kstr", "C.....", c/a)
         
@@ -401,6 +403,7 @@ class POS(object):
         f=open(path+fname,'w')
         f.writelines(self.__kstr)
         f.close()
+        print a,b,c
         return a
     
     def read_shape(self, fname):

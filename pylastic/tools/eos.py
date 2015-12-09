@@ -25,7 +25,7 @@ class Birch(object):
         self.__V = V
         self.__covera=[1.]
         
-        self.__mpl = True
+        self.__mpl = False
         verbose = False
         self.verbose = verbose
         
@@ -34,9 +34,15 @@ class Birch(object):
         ## start parameters:
         self.__b0 = np.float32(60000) # Bulk-Modulus
         self.__db0 = np.float32(4.)   # derivative of Bulk-Modulus with respect to V 
-        self.__itmax = 800
-        self.__epsilon = 0.00007
+        self.__itmax = 1000
+        self.__epsilon = 0.00000001
         self.__grad = -1
+    
+    def set_eps(self,eps):
+        self.__epsilon = eps
+    
+    def get_eps(self):
+        return self.__epsilon
     
     def fit(self):
         
@@ -315,6 +321,9 @@ class Birch(object):
             i+=1
         print deltamin  
         return amin, deltamin
+    
+    epsilon = property( fget = get_eps       , fset = set_eps)
+    
     
 class Setup(object):
     def __init__(self, Vmin, Vmax, N, cod='vasp', executable='/home/t.dengg/bin/vasp/vasp.5.3/vasp'):
