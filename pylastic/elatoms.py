@@ -14,6 +14,8 @@ from pylastic.spacegroup import Sgroup
 from pylastic.prettyPrint import PrettyMatrix
 from pylastic.status import Check
 
+from pylastic.io.xcrysden import XCD
+
 class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
     '''
     Object similar to the ``atoms`` class in *ASE*, containing information related to the structure.
@@ -225,6 +227,7 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
         poscar['natoms'] = self.__natom
         poscar['vbasis'] = self.__species
         poscar['scale'] = self.__scale
+        
         ### Not defined
         poscar['selective'] = False
         poscar['csystem'] = 'direct'
@@ -467,6 +470,7 @@ class Structures(ElAtoms, Sgroup):
                 ##### EMTO #####
                 if self.__code=='emto':
                     from pylastic.io.emto import POS
+                    
                     #if not os.path.isfile("%s/INCAR"%(self.__path))   or overwrite: os.system('cp INCAR %s/INCAR'%(self.__path))
                     #else: print "%s/INCAR   already existing: overwrite = False"%(self.__path)
                     if not os.path.isfile(self.__path+'/POSCAR')                     or overwrite: POS().write_pos(self.__structures[atoms].poscarnew, self.__path+'/structure.dat')
@@ -519,6 +523,8 @@ class Structures(ElAtoms, Sgroup):
                     else: print "%s/POTCAR  already existing: overwrite = False"%(self.__path)
                     if not os.path.isfile(self.__path+'/POSCAR')                     or overwrite: POS().write_pos(self.__structures[atoms].poscarnew, self.__path+'/POSCAR')
                     else: print "%s/POSCAR  already existing: overwrite = False"%(self.__path)
+                    if not os.path.isfile(self.__path+'/xcrysden/structure.xsf')                     or overwrite: 
+                        XCD().write_xcrysden(self.__structures[atoms].poscarnew, self.__path+'/structure.xsf')
                 ################
                 
                 
@@ -553,8 +559,8 @@ class Structures(ElAtoms, Sgroup):
                     #else: print "%s/INCAR   already existing: overwrite = False"%(self.__path)
                     if not os.path.isfile(self.__path+'/kstr/kstr.dat')                     or overwrite: 
                         sws = POS().write_kstr(self.__structures[atoms].poscarnew, self.__path+'/kstr.dat')
-                        print self.__structures[atoms].poscarnew['scale'], sws, atoms
-                        self.__structures[atoms].poscarnew['scale'] = self.__structures[atoms].poscarnew['scale']*sws
+                        print self.__structures[atoms].poscar['scale'], self.__structures[atoms].poscarnew['scale'], sws, atoms
+                        self.__structures[atoms].poscarnew['scale'] = self.__structures[atoms].poscar['scale']*sws
                         os.system('mkdir %s/kstr/smx'%self.__path)
                         os.system('mkdir %s/kstr/prn'%self.__path)
                     if not os.path.isfile(self.__path+'/shape/shape.dat')                   or overwrite: 
@@ -569,6 +575,9 @@ class Structures(ElAtoms, Sgroup):
                     if not os.path.isfile(self.__path+'/kfcd/kfcd.dat')                     or overwrite: 
                         POS().write_kfcd(self.__structures[atoms].poscarnew, self.__path+'/kfcd.dat')
                         os.system('mkdir %s/kfcd/prn'%self.__path)
+                    if not os.path.isfile(self.__path+'/xcrysden/structure.xsf')                     or overwrite: 
+                        XCD().write_xcrysden(self.__structures[atoms].poscarnew, self.__path+'/structure.xsf')
+                           
                     #else: print "%s/structure.dat  already existing: overwrite = False"%(self.__path)
                 ################
                 

@@ -283,7 +283,10 @@ class POS(object):
         latt = int(self.find(self.__kstr, "kstr", "LAT"))
         
         if BSX==[]:
+            self.__pos['latt_mod'] = 'angles'
             BSX, BSY, BSZ = self.calc_basis(latt, A, B, C, alpha, beta, gamma)
+        else:
+            self.__pos['latt_mod'] = 'vectors'
         
         
         BS1 = np.array([BSX[0], BSY[0], BSZ[0]])
@@ -302,11 +305,11 @@ class POS(object):
         
         self.__pos['vbasis'] = {}
         B_vec = []
-        
+        print B_matrix
         if not type(QX)==float:
             for i in range(len(QX)):
                 C_vec = np.array([QX[i], QY[i], QZ[i]])
-                B_vec.append(self.trans_csystem(C_matrix, B_matrix, C_vec)) #Convert cartesian to direct coordinates
+                B_vec.append(self.trans_csystem(B_matrix, C_matrix, C_vec)) #Convert cartesian to direct coordinates
                 #print C_vec, B_vec
                 #print B_matrix, C_matrix, B_vec
             
@@ -321,7 +324,7 @@ class POS(object):
             self.__pos['natoms'] = map(int,list(np.ones(len(QX))))
         else:
             C_vec = np.array([QX, QY, QZ])
-            B_vec.append(self.trans_csystem(C_matrix, B_matrix, C_vec))
+            B_vec.append(self.trans_csystem(B_matrix, C_matrix, C_vec))
             self.__pos['vbasis']['b_%s'%(1)] = []
             self.__pos['vbasis']['b_%s'%(1)].append(B_vec[0][0])
             self.__pos['vbasis']['b_%s'%(1)].append(B_vec[0][1])
@@ -392,10 +395,18 @@ class POS(object):
         self.__kstr = self.replace(self.__kstr, "kstr", "A.....", a/a)
         self.__kstr = self.replace(self.__kstr, "kstr", "B.....", b/a)
         self.__kstr = self.replace(self.__kstr, "kstr", "C.....", c/a)
-        
-        self.__kstr = self.replace(self.__kstr, "kstr", "Alp", alpha)
-        self.__kstr = self.replace(self.__kstr, "kstr", "Bet", beta)
-        self.__kstr = self.replace(self.__kstr, "kstr", "Gam", gamma)
+        if self.__pos['latt_mod'] == 'angles':
+            self.__kstr = self.replace(self.__kstr, "kstr", "Alp", alpha)
+            self.__kstr = self.replace(self.__kstr, "kstr", "Bet", beta)
+            self.__kstr = self.replace(self.__kstr, "kstr", "Gam", gamma)
+        else:
+            BSX=[BS1[0]/a,BS2[0]/a,BS3[0]/a]
+            BSY=[BS1[1]/a,BS2[1]/a,BS3[1]/a]
+            BSZ=[BS1[2]/a,BS2[2]/a,BS3[2]/a]
+            
+            self.__kstr = self.replace(self.__kstr, "kstr", "BSX", BSX)
+            self.__kstr = self.replace(self.__kstr, "kstr", "BSY", BSY)
+            self.__kstr = self.replace(self.__kstr, "kstr", "BSZ", BSZ)
         #self.__kstr = self.replace(self.__kstr,"kstr","BSX", BSX)
         #self.__kstr = self.replace(self.__kstr,"kstr","BSY", BSY)
         #self.__kstr = self.replace(self.__kstr,"kstr","BSZ", BSZ)
@@ -544,7 +555,7 @@ class Energy(object):
         lines = f.readlines()
         f.close()
         for line in lines:
-            if 'TOT-%s'%fc in line.split(): self.__gsenergy = float(line.split()[1])#*self.__Ry2eV/1000.
+            if 'TOT-%s'%fc in line.split(): self.__gsenergy = float(line.split()[1])#*self.__Ry2eV
         
     def get_gsenergy(self):
         """Return groundstate energy."""

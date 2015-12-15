@@ -38,9 +38,9 @@ class POS(object):
             p_dict["csystem"] = selective.split()[0][0]
         p_dict["vbasis"] = {}
         for i in range(len(p_dict["natoms"])):
-            p_dict["vbasis"]["species_"+str(i+1)] = []
-            for j in range(p_dict["natoms"][i]):
-                p_dict["vbasis"]["species_"+str(i+1)].append(self.lta())
+            #p_dict["vbasis"]["b_"+str(i+1)] = []
+            #for j in range(p_dict["natoms"][i]):
+            p_dict["vbasis"]["b_"+str(i+1)]=np.array(map(np.float,self.lta()))
         if self.__verbose: print "'%s' read in as dictionary."%(self.__fname) 
         return p_dict
         #self.write_sgroup(p_dict)
@@ -87,11 +87,11 @@ class POS(object):
         
         for n in range(len(pos["vbasis"])): 
             
-            for s in pos['vbasis']["species_%s"%(str(n+1))]:
+            for s in pos['vbasis']["b_%s"%(str(n+1))]:
                 
-                for l in s: 
-                    posout.write(l+' ')#!!!!!!!
-                posout.write('\n')
+                #for l in s: 
+                posout.write(str(s)+' ')#!!!!!!!
+            posout.write('\n')
                 
         posout.close()
         
@@ -123,7 +123,7 @@ class POS(object):
             for i in range(len(pos["natoms"])):
                 for j in range(pos["natoms"][i]):
                     
-                    f.write(pos["vbasis"]["species_" + str(i+1)][j][0]  + pos["vbasis"]["species_" + str(i+1)][j][1]  + pos["vbasis"]["species_" + str(i+1)][j][2] + '\n')
+                    f.write(str(pos["vbasis"]["b_" + str(i+1)][0])  + ' '  + str(pos["vbasis"]["b_" + str(i+1)][1])  + ' ' + str(pos["vbasis"]["b_" + str(i+1)][2]) + '\n')
                     f.write('Species_' + str(i+1) + '\n')
         else: print 'Basis vectors in Cartesian coordinates not supported yet!!! \n NOT WRITTEN TO sgroup.in!!!!!'
         f.close()

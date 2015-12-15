@@ -971,8 +971,8 @@ class ECs(Check, Energy, Stress):
                 for j in range(i+1,6):
                     C[j,i] = C[i,j] 
             #%%%--- Calculating the elastic moduli ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            if self.__cod == 'espresso': C = -C/10.
-            elif self.__cod  in ['vasp','emto','exciting','wien']: C = C/4.
+            if self.__cod in ['espresso']: C = -C/10.
+            elif self.__cod  in ['vasp','exciting','wien','emto']: C = C/4.
             self.BV = (C[0,0]+C[1,1]+C[2,2]+2*(C[0,1]+C[0,2]+C[1,2]))/9
             self.GV = ((C[0,0]+C[1,1]+C[2,2])-(C[0,1]+C[0,2]+C[1,2])+3*(C[3,3]+C[4,4]+C[5,5]))/15
             self.EV = (9*self.BV*self.GV)/(3*self.BV+self.GV)
