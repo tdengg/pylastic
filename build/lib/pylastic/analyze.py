@@ -68,7 +68,7 @@ class Energy(object):
         
         self.search_for_failed()
         #self.__CONV = self.__vToGPa #* math.factorial(2)*2.
-        if self.__cod == 'vasp': self.__CONV = self.__vToGPa * math.factorial(2)*2.
+        if self.__cod == 'vasp': self.__CONV =1. #self.__CONV = self.__vToGPa * math.factorial(2)*2.
         if self.__cod == 'wien': self.__CONV = self.__ToGPa * math.factorial(2)*1.
         if self.__cod == 'espresso': self.__CONV = self.__ToGPa * math.factorial(2)*1.
         if self.__cod == 'exciting': self.__CONV = self.__ToGPa * math.factorial(2)*2.
@@ -83,8 +83,8 @@ class Energy(object):
             emax  = max(abs(emin),abs(emax))
             coeffs= np.polyfit(strain, energy, fitorder)
             
-            self.__Cij2nd[str(emax)]  = coeffs[fitorder-2]*self.__CONV/self.__V0         # in GPa units 
-            print self.__V0
+            self.__Cij2nd[str(emax)]  = coeffs[fitorder-2]#*self.__CONV/self.__V0         # in GPa units 
+            
             """  Calculate RMS:  """
             deltasq = 0
             deltas = []

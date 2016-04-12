@@ -392,10 +392,11 @@ class POS(object):
         beta =  np.arccos(np.dot(BS3,BS1)/(a*c))*180./np.pi
         gamma = np.arccos(np.dot(BS1,BS2)/(a*b))*180./np.pi
         
-        self.__kstr = self.replace(self.__kstr, "kstr", "A.....", a/a)
-        self.__kstr = self.replace(self.__kstr, "kstr", "B.....", b/a)
-        self.__kstr = self.replace(self.__kstr, "kstr", "C.....", c/a)
+        
         if self.__pos['latt_mod'] == 'angles':
+            self.__kstr = self.replace(self.__kstr, "kstr", "A.....", a/a)
+            self.__kstr = self.replace(self.__kstr, "kstr", "B.....", b/a)
+            self.__kstr = self.replace(self.__kstr, "kstr", "C.....", c/a)
             self.__kstr = self.replace(self.__kstr, "kstr", "Alp", alpha)
             self.__kstr = self.replace(self.__kstr, "kstr", "Bet", beta)
             self.__kstr = self.replace(self.__kstr, "kstr", "Gam", gamma)
@@ -555,7 +556,7 @@ class Energy(object):
         lines = f.readlines()
         f.close()
         for line in lines:
-            if 'TOT-%s'%fc in line.split(): self.__gsenergy = float(line.split()[1])#*self.__Ry2eV
+            if 'TOT-%s'%fc in line.split(): self.__gsenergy = float(line.split()[3])#*self.__Ry2eV
         
     def get_gsenergy(self):
         """Return groundstate energy."""

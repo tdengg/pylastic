@@ -293,9 +293,10 @@ class Distort(object):
     def get_strainType(self):
         return self.__strainType
     
-    def set_defMatrix(self, code):
+    def set_defMatrix(self, code, volconserving=False):
         """Calculate deformation matrix."""
         
+        self.volumeconserving=volconserving
         self.__code = code
         if not self.__strainType: self.set_strainType()
         

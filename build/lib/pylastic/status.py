@@ -54,7 +54,7 @@ class Check(FileStructure):
                         self.__status[(stype,eta)]['status'] = 'finished'
                         atoms[(stype,eta)].status = True
                     except:
-                        self.__status[(stype,eta)]['status'] = '--------'
+                        self.__status[(stype,eta)]['status'] = sys.exc_info()[0]
                         atoms[(stype,eta)].status = False
                 
                 else: 

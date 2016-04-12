@@ -13,6 +13,7 @@ import pylastic.io.emto as emto
 from pylastic.status import Check
 #from pylastic.prettyPrint import FileStructure
 
+import math
 import pickle
 import numpy as np
 try:
@@ -44,12 +45,16 @@ class ECs(Check, Energy, Stress):
         self.__T = 0
         #%%%%%%%%--- CONSTANTS ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         _e     = 1.602176565e-19              # elementary charge
-        #Bohr   = 5.291772086e-11              # a.u. to meter
+        Bohr   = 5.291772086e-11              # a.u. to meter
         Ryd2eV = 13.605698066                 # Ryd to eV
         Angstroem = 1.e-10
         self.__cnvrtr = (_e)/(1e9*Angstroem**3.)    # Ryd/[a.u.^3] to GPa
+        self.__ToGPa = (_e*Ryd2eV)/(1e9*Bohr**3)
+        self.__vToGPa = (_e)/(1e9*Angstroem**3.)
+        #self.__ToGPa  = (_e*Ryd2eV)/(1e9*Bohr**3.)
         #--------------------------------------------------------------------------------------------------------------------------------
-        
+        if self.__cod=='vasp': self.__CONV=2.*self.__ToGPa
+        elif self.__cod in ['espresso','exciting','wien']: self.__CONV=1.*self.__ToGPa
     def set_gsenergy(self, gsenergy=None):
         """Read groundstate energy for all atoms in structures.
         
@@ -83,6 +88,7 @@ class ECs(Check, Energy, Stress):
                     outfile = atoms[1].path.split('/')[-1] + '.scf'
                     
                 if not atoms[1].status:
+                    print atoms[1].status
                     atoms[1].gsenergy = 0
                     continue
                 #getData.set_outfile('%s/%s/'%atoms[0] + outfile)
@@ -269,6 +275,8 @@ class ECs(Check, Energy, Stress):
             # Check status of every atoms object
             strainList= self.__structures.items()[0][1].strainList
             n=1
+            if not len(self.__fitorder)==len(strainList):
+                self.__fitorder = [self.__fitorder[0] for i in range(len(strainList))]
             for stype in strainList:
                 atoms = self.get_atomsByStraintype(stype)
                 self.__V0 = atoms[0].V0
@@ -428,8 +436,14 @@ class ECs(Check, Energy, Stress):
         f = plt.figure(figsize=(5,4), dpi=100)
         a = f.add_subplot(111)
         strainList= self.__structures.items()[0][1].strainList
+        
+        
+        
         j=0
         for stype in strainList:
+            
+            fi=open(stype+'.energy','w')
+            
             #self.search_for_failed()
             atoms = self.get_atomsByStraintype(stype)
             if self.__thermodyn and mod=='F':
@@ -444,6 +458,11 @@ class ECs(Check, Energy, Stress):
             print stype, energy, [i.scale for i in atoms]
             plt.plot(strain, energy, '%s*'%color[j])
             
+            k=0
+            for st in strain:
+                fi.write('%s %s \n'%(st,energy[k]))
+                k+=1
+            fi.close()
             
             poly = np.poly1d(np.polyfit(strain,energy,self.__fitorder[j]))
             xp = np.linspace(min(strain), max(strain), 100)
@@ -972,7 +991,7 @@ class ECs(Check, Energy, Stress):
                     C[j,i] = C[i,j] 
             #%%%--- Calculating the elastic moduli ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             if self.__cod in ['espresso']: C = -C/10.
-            elif self.__cod  in ['vasp','exciting','wien','emto']: C = C/4.
+            elif self.__cod  in ['vasp','exciting','wien','emto']: C = C*self.__vToGPa/self.__V0#C = C/4.#C=C*self.__CONV/self.__V0
             self.BV = (C[0,0]+C[1,1]+C[2,2]+2*(C[0,1]+C[0,2]+C[1,2]))/9
             self.GV = ((C[0,0]+C[1,1]+C[2,2])-(C[0,1]+C[0,2]+C[1,2])+3*(C[3,3]+C[4,4]+C[5,5]))/15
             self.EV = (9*self.BV*self.GV)/(3*self.BV+self.GV)
@@ -1473,7 +1492,7 @@ class ECs(Check, Energy, Stress):
                         C[j,i] = C[i,j] 
                 #%%%--- Calculating the elastic moduli ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 if self.__cod == 'espresso': C = -C/10.
-                elif self.__cod in ['vasp','emto','exciting','wien']: C = C/4.
+                elif self.__cod in ['vasp','emto','exciting','wien']: C = C/4.#C=C*self.__CONV/self.__V0#C = C/4.
                 self.BV = (C[0,0]+C[1,1]+C[2,2]+2*(C[0,1]+C[0,2]+C[1,2]))/9
                 self.GV = ((C[0,0]+C[1,1]+C[2,2])-(C[0,1]+C[0,2]+C[1,2])+3*(C[3,3]+C[4,4]+C[5,5]))/15
                 self.EV = (9*self.BV*self.GV)/(3*self.BV+self.GV)

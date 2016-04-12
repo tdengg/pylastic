@@ -243,7 +243,7 @@ class ANALYTICS(object):
         N=0
         E2nd_all = []
         color=['b','g','r','c','m','k']
-        for fitorder in range(2,9,2):
+        for fitorder in range(4,9,2):
             j=0
             marker=['+','o','d','s','<']
             ###########################################
@@ -372,7 +372,7 @@ class ANALYTICS(object):
             
             
             print "Standard deviation of fitorder %s: %s"%(fitorder,stat.tstd(CVN))
-            
+            self.standardev = stat.tstd(CVN)
             CVmin = np.trim_zeros(CVmin)   
             CVstd =  np.trim_zeros(CVstd) 
             array_var = np.array(CVmin)#list(reversed(CVmin)))
@@ -489,7 +489,8 @@ class ANALYTICS(object):
                 best_eta = val[1]
                 best_forder = val[2]
                 
-        #print best_prediction,best_eta,best_forder
+        print best_prediction,best_eta,best_forder
+        print pw_prediction
         if mpl:
             ax1.legend(title='Fitorder')
             #plt.show()

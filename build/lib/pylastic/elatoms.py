@@ -65,7 +65,7 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
         self.__verbose = True
         self.__code = cod
         self.__path = os.getcwd()
-        
+        self.__mthd = 'Energy'
         self.__enforce_sg = 0
         
     def enforce_sg(self, sgn):
@@ -148,7 +148,7 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
         return self.__path
     
     
-    def distort(self, eta=0.0, strainType_index=0):
+    def distort(self, eta=0.0, strainType_index=0, volconserving=False):
         """Distort the structure.
         
         Parameters
@@ -159,14 +159,14 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
         strainType_index : integer
             List-index of strainType in strainList. 
         """
-        #self.mthd = self.__mthd
+        self.mthd = self.__mthd
         self.sgn = self.__sgn
         if not strainType_index==-1:
             self.strainType = self.get_strainList()[strainType_index]
         else:
             self.strainType = 'vol'
         self.eta = eta
-        self.set_defMatrix(self.__code)
+        self.set_defMatrix(self.__code, volconserving=volconserving)
         def_matrix = self.defMatrix
         M_new = np.dot(self.__cell, def_matrix)
         self.__cell = M_new
@@ -303,12 +303,12 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
     def get_phenergy(self):
         return self.__phenergy
     
-#    def set_method(self, mthd):
-#        if mthd in ['Energy','Stress']: self.__mthd = mthd
-#        else: print "Wrong value for method: Please choose either 'Energy' or 'Stress'!"
-#    
-#    def get_method(self):
-#        return self.__mthd
+    def set_method(self, mthd):
+        if mthd in ['Energy','Stress']: self.__mthd = mthd
+        else: print "Wrong value for method: Please choose either 'Energy' or 'Stress'!"
+    
+    def get_method(self):
+        return self.__mthd
     
     def set_code(self, code):
         if code in ['vasp','exciting','espresso','wien','emto']:
@@ -339,7 +339,7 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
     phenergy= property( fget = get_phenergy     , fset = set_phenergy)
     T = property( fget = get_T       , fset = set_T   )
     
-#    mthd = property( fget = get_method       , fset = set_method)
+    mthd = property( fget = get_method       , fset = set_method)
     code = property( fget = get_code       , fset = set_code)
     
     

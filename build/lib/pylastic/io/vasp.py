@@ -37,10 +37,12 @@ class POS(object):
             p_dict["selective"] = False
             p_dict["csystem"] = selective.split()[0][0]
         p_dict["vbasis"] = {}
+        n=1
         for i in range(len(p_dict["natoms"])):
             #p_dict["vbasis"]["b_"+str(i+1)] = []
-            #for j in range(p_dict["natoms"][i]):
-            p_dict["vbasis"]["b_"+str(i+1)]=np.array(map(np.float,self.lta()))
+            for j in range(p_dict["natoms"][i]):
+                p_dict["vbasis"]["b_"+str(n)]=np.array(map(np.float,self.lta()))
+                n+=1
         if self.__verbose: print "'%s' read in as dictionary."%(self.__fname) 
         return p_dict
         #self.write_sgroup(p_dict)
@@ -118,13 +120,32 @@ class POS(object):
         f.write(str(a) +' '+ str(b) +' '+ str(c) +' '+ str(alpha) +' '+ str(beta) +' '+ str(gamma) + '\n')
         natom = 0
         for s in pos['natoms']: natom += s
+        
+        for i in range(len(pos["natoms"])):
+            for j in range(pos["natoms"][i]):
+                if i>0:
+                    b0_i=pos["vbasis"]["b_" + str(i)]
+                    b1_i=pos["vbasis"]["b_" + str(i+1)]
+                    if b0_i[0]==b1_i[0]and b0_i[1]==b1_i[1]and b0_i[2]==b1_i[2]:
+                        natom = natom-1
+                        continue
+        
         f.write(str(natom)+'\n')
+        
         if pos["csystem"] in ['d','D']:
+            n=1
             for i in range(len(pos["natoms"])):
                 for j in range(pos["natoms"][i]):
+                    if i>0:
+                        b0_i=pos["vbasis"]["b_" + str(n-1)]
+                        b1_i=pos["vbasis"]["b_" + str(n)]
+                        if b0_i[0]==b1_i[0]and b0_i[1]==b1_i[1]and b0_i[2]==b1_i[2]:
+                            natom = natom-1
+                            continue
                     
-                    f.write(str(pos["vbasis"]["b_" + str(i+1)][0])  + ' '  + str(pos["vbasis"]["b_" + str(i+1)][1])  + ' ' + str(pos["vbasis"]["b_" + str(i+1)][2]) + '\n')
+                    f.write(str(pos["vbasis"]["b_" + str(n)][0])  + ' '  + str(pos["vbasis"]["b_" + str(n)][1])  + ' ' + str(pos["vbasis"]["b_" + str(n)][2]) + '\n')
                     f.write('Species_' + str(i+1) + '\n')
+                    n+=1
         else: print 'Basis vectors in Cartesian coordinates not supported yet!!! \n NOT WRITTEN TO sgroup.in!!!!!'
         f.close()
     

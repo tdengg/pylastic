@@ -74,6 +74,7 @@ class Birch(object):
                 self.__grad = norm_diff1 - norm_diff0
                 #print norm_diff1
             else:
+                print 'Maximum number of iterations reached! Stopping...'
                 break
             i=i+1
                 
@@ -118,6 +119,8 @@ class Birch(object):
             print('---------------------------------------')
             print('minimal energy:             ' + str(parnew1[0,3]) + ' Hartree')
             print('---------------------------------------')"""
+        
+            
         #else:
         #polyfit of volue steps to determine (c/a)min:
         if self.__structure == 'hcp' and len(self.__V) == len(self.__covera):
@@ -132,8 +135,10 @@ class Birch(object):
         convert = convert_latt_vol.Convert(self.__structure)
         
         a0, V0 = convert.volumeToLatt([parnew1[0,0]],self.__covera)
-        
-        out = (('V0: ' + str(round(parnew1[0,0], 4)))  + ('a0: ' + str(round(a0[0], 4)).rjust(16)+ ('B0: ' + str(round(parnew1[0,1]*self.__cnvrtr, 4))).rjust(16) + ("B0': " + str(round(parnew1[0,2],4))).rjust(16) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(16)))
+        if self.__structure == 'monoclinic':
+            out = (('V0: ' + str(round(parnew1[0,0], 4)))  + ( ('B0: ' + str(round(parnew1[0,1]*self.__cnvrtr, 4))).rjust(16) + ("B0': " + str(round(parnew1[0,2],4))).rjust(16) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(16)))
+        else:
+            out = (('V0: ' + str(round(parnew1[0,0], 4)))  + ('a0: ' + str(round(a0[0], 4)).rjust(16)+ ('B0: ' + str(round(parnew1[0,1]*self.__cnvrtr, 4))).rjust(16) + ("B0': " + str(round(parnew1[0,2],4))).rjust(16) + ('E0: ' + str(round(parnew1[0,3], 4))).rjust(16)))
         print out
         #if structure == 'fcc':
         #    a0 = (4.*parnew1[0,0])**(1./3.)
@@ -221,6 +226,8 @@ class Birch(object):
         else:
             self.recalculate = False
         self.a0 = a0
+        self.V0 = parnew1[0,0]
+        self.par = parnew1
         
             
     def minIn(self):
@@ -230,6 +237,15 @@ class Birch(object):
         indexv = self.__E.index(emin)
         v0 = np.float32(self.__V[indexv])
         return v0, emin
+    
+    def funcval_birch(self, V, par):
+        
+        v0 = par[0,0]
+        b0 = par[0,1]
+        db0 = par[0,2]
+        emin = par[0,3]
+        vov = (v0/V)**(2./3.)
+        return float(emin + 9. * v0 * b0/16. * ((vov - 1.)**3. * db0 + (vov - 1.)**2. * (6. - 4. * vov)))
         
     def fitev(self, par, v, ein):
 
@@ -242,7 +258,7 @@ class Birch(object):
         emin = par[0,3]
         i=0
         while i < len(v):
-                
+            
             vov = (v0/v[i])**(2./3.)
             fite.append(float(emin + 9. * v0 * b0/16. * ((vov - 1.)**3. * db0 + (vov - 1.)**2. * (6. - 4. * vov))))
             if len(v) == len(ein):
@@ -360,7 +376,9 @@ class Analyze(Birch):
     def __init__(self, verbous=False):
         
         from pylastic.postprocess import ECs
-        self.__structure='bcc'
+        
+        from pylastic.tools.analyze_structure import CALC
+        self.__structure='fcc'
         
         
         ec = ECs('vasp')
@@ -370,11 +388,25 @@ class Analyze(Birch):
         scale=[]
         gsenergy=[]
         
+        a=[]
+        b=[]
+        c=[]
         for atom in ec.get_atomsByStraintype(None):
-            V.append(atom.V)
+            #V.append(atom.V)
+            cinst = CALC()
+            cinst.poscar = atom.poscarnew
+            
+            V.append(cinst.volume())
+            a.append(cinst.a)
+            b.append(cinst.b)
+            c.append(cinst.c)
+            
             scale.append(atom.scale)
             gsenergy.append(atom.gsenergy)
+            
         birch = Birch(V,gsenergy, self.__structure)
+        
+        print a,b,c
         birch.fit()
         plt.plot(V,gsenergy)
         if verbous: plt.show()
