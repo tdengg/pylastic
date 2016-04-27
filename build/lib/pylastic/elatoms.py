@@ -209,7 +209,11 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
         self.__species = self.__poscar['vbasis']
         self.__scale = self.__poscar['scale']
         D = np.linalg.det(self.__cell)
-        self.__V0 = abs(self.__scale**3*D)
+        if self.__code=='emto':
+            self.__V0 = 4./3.*np.pi*self.__poscar['scale']**3.
+            print self.__V0, self.__poscar['scale']
+        else:
+            self.__V0 = abs(self.__scale**3*D)
         
         if self.__code=='vasp' and self.__enforce_sg==0: self.sgn = Sgroup(self.__poscar, self.__poscar['path'],self.__code).sgn
         elif self.__code=='emto' and self.__enforce_sg==0: self.sgn = Sgroup(self.__poscar, self.__poscar['path'],self.__code).sgn
@@ -558,9 +562,9 @@ class Structures(ElAtoms, Sgroup):
                     #if not os.path.isfile("%s/INCAR"%(self.__path))   or overwrite: os.system('cp INCAR %s/INCAR'%(self.__path))
                     #else: print "%s/INCAR   already existing: overwrite = False"%(self.__path)
                     if not os.path.isfile(self.__path+'/kstr/kstr.dat')                     or overwrite: 
-                        sws = POS().write_kstr(self.__structures[atoms].poscarnew, self.__path+'/kstr.dat')
-                        print self.__structures[atoms].poscar['scale'], self.__structures[atoms].poscarnew['scale'], sws, atoms
-                        self.__structures[atoms].poscarnew['scale'] = self.__structures[atoms].poscar['scale']*sws
+                        sws = POS().write_kstr(self.__structures[atoms].poscarnew, self.__path+'/kstr.dat', self.__structures[atoms].poscar)
+                        #print self.__structures[atoms].poscar['scale'], self.__structures[atoms].poscarnew['scale'], sws, atoms
+                        self.__structures[atoms].poscarnew['scale'] = sws#self.__structures[atoms].poscar['scale']*sws
                         os.system('mkdir %s/kstr/smx'%self.__path)
                         os.system('mkdir %s/kstr/prn'%self.__path)
                     if not os.path.isfile(self.__path+'/shape/shape.dat')                   or overwrite: 

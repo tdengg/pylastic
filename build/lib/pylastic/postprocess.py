@@ -43,6 +43,9 @@ class ECs(Check, Energy, Stress):
         self.__workdir = ''
         self.__thermodyn = thermo
         self.__T = 0
+        
+        self.delPoints=False
+        
         #%%%%%%%%--- CONSTANTS ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         _e     = 1.602176565e-19              # elementary charge
         Bohr   = 5.291772086e-11              # a.u. to meter
@@ -80,9 +83,9 @@ class ECs(Check, Energy, Stress):
                 outfile = 'INFO.OUT'
             elif self.__cod == 'emto':
                 getData = emto.Energy()
-                outfile = 'kfcd/prn/B2.prn'
-                
-            for atoms in self.__structures.items():
+                outfile = 'kfcd/prn/NiTi.prn'
+            gsenergy=[]    
+            for atoms in sorted(self.__structures.items()):
                 
                 if self.__cod == 'wien': 
                     outfile = atoms[1].path.split('/')[-1] + '.scf'
@@ -110,7 +113,21 @@ class ECs(Check, Energy, Stress):
                     atoms[1].gsenergy = getData.get_gsenergy()/1.
                 else:
                     atoms[1].gsenergy = getData.get_gsenergy()
-                    
+                    gsenergy.append(atoms[1].gsenergy)
+            
+            if self.delPoints:
+                for atoms in sorted(self.__structures.items()):
+                
+                    print [atoms[1].eta for atoms in sorted(self.__structures.items())], gsenergy
+                    coeff = np.polyfit([atoms[1].eta for atoms in self.__structures.items()], gsenergy, 2)
+                    p = np.poly1d(coeff)
+                    k=0
+                    for (etas,energy) in zip(self.__structures.items(),gsenergy):
+                        print (energy-p(etas[1].eta))**2.
+                        if (energy-p(etas[1].eta))**2. > 0.0004: 
+                            gsenergy[k]=0.
+                            atoms[1].gsenergy = 0. 
+                        k+=1
         self.__gsenergy = gsenergy
 
     def get_gsenergy(self):
@@ -991,7 +1008,8 @@ class ECs(Check, Energy, Stress):
                     C[j,i] = C[i,j] 
             #%%%--- Calculating the elastic moduli ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             if self.__cod in ['espresso']: C = -C/10.
-            elif self.__cod  in ['vasp','exciting','wien','emto']: C = C*self.__vToGPa/self.__V0#C = C/4.#C=C*self.__CONV/self.__V0
+            elif self.__cod  in ['vasp','exciting','wien']: C = C*self.__vToGPa/self.__V0#C = C/4.#C=C*self.__CONV/self.__V0
+            elif self.__cod  in ['emto']: C = C*self.__ToGPa/self.__V0
             self.BV = (C[0,0]+C[1,1]+C[2,2]+2*(C[0,1]+C[0,2]+C[1,2]))/9
             self.GV = ((C[0,0]+C[1,1]+C[2,2])-(C[0,1]+C[0,2]+C[1,2])+3*(C[3,3]+C[4,4]+C[5,5]))/15
             self.EV = (9*self.BV*self.GV)/(3*self.BV+self.GV)

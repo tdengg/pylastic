@@ -13,7 +13,7 @@ class POS(object):
         self.__NQ3=1
         self.__N_species=0
         self.__Ry2eV = 13.605698066                 # Ryd to eV
-        self.__format = {"kgrn":{"SWS":{"read":(8,14) , "write":"{0:7.4f}"}}, "kstr":{"A.....":{"read":(10,19) , "write":"{0:10.7f}"},"B.....":{"read":(30,39) , "write":"{0:10.7f}"},"C.....":{"read":(50,59) , "write":"{0:10.7f}"},"Alp":{"read":(10,19) , "write":"{0:10.7f}"},"Bet":{"read":(30,39) , "write":"{0:10.7f}"},"Gam":{"read":(50,59) , "write":"{0:10.7f}"},"BSX":{"read":(10,19) , "write":"{0:10.7f}"},"BSY":{"read":(30,39) , "write":"{0:10.7f}"},"BSZ":{"read":(50,59) , "write":"{0:10.7f}"}, "SWS":{"read":(8,14) , "write":"{0:7.4f}"},"QX":{"read":(10,19) , "write":"{0:10.7f}"},"QY":{"read":(30,39) , "write":"{0:10.7f}"},"QZ":{"read":(50,59) , "write":"{0:10.7f}"},"LAT":{"read":(18,20) , "write":"{0:2.0i}"} }}
+        self.__format = {"kgrn":{"SWS":{"read":(8,14) , "write":"{0:7.4f}"}}, "kstr":{"A.....":{"read":(10,19) , "write":"{0:10.7f}", "write_nlz":"{0:10.9f}"},"B.....":{"read":(30,39) , "write":"{0:10.7f}", "write_nlz":"{0:10.9f}"},"C.....":{"read":(50,59) , "write":"{0:10.7f}", "write_nlz":"{0:10.9f}"},"Alp":{"read":(10,19) , "write":"{0:10.7f}"},"Bet":{"read":(30,39) , "write":"{0:10.7f}"},"Gam":{"read":(50,59) , "write":"{0:10.7f}"},"BSX":{"read":(10,19) , "write":"{0:10.7f}", "write_nlz":"{0:10.9f}", "write_nnlz":"{0:10.8f}"},"BSY":{"read":(30,39) , "write":"{0:10.7f}", "write_nlz":"{0:10.9f}", "write_nnlz":"{0:10.8f}"},"BSZ":{"read":(50,59) , "write":"{0:10.7f}", "write_nlz":"{0:10.9f}", "write_nnlz":"{0:10.8f}"}, "SWS":{"read":(8,14) , "write":"{0:7.4f}"},"QX":{"read":(10,19) , "write":"{0:10.7f}", "write_nlz":"{0:10.9f}"},"QY":{"read":(30,39) , "write":"{0:10.7f}", "write_nlz":"{0:10.9f}"},"QZ":{"read":(50,59) , "write":"{0:10.7f}", "write_nlz":"{0:10.9f}"},"LAT":{"read":(18,20) , "write":"{0:2.0i}"} }}
     
     def trans_csystem(self, in_mat, out_mat, in_vec):
         c_vec = np.dot(np.dot(np.linalg.inv(np.transpose(in_mat)),np.transpose(out_mat)), in_vec)
@@ -243,8 +243,21 @@ class POS(object):
                 f_read=self.__format[fname][parname]["read"]
                 li = list(line)
                 del li[f_read[0]:f_read[1]]
-                if type(val) is list: li[f_read[0]] = self.__format[fname][parname]["write"].format(float(val[j]))
-                else: li[f_read[0]] = self.__format[fname][parname]["write"].format(float(val))
+                if type(val) is list:
+                    if fname=='kstr' and float(val[j]) < 1. and float(val[j]) >= 0.:
+                        li[f_read[0]] = self.__format[fname][parname]["write_nlz"].format(float(val[j])).lstrip('0')
+                    elif fname=='kstr' and float(val[j]) < 0. and float(val[j]) >= -1.:
+                        
+                        li[f_read[0]] = '-'+self.__format[fname][parname]["write_nnlz"].format(float(val[j])).lstrip('-0')
+                    else:
+                        li[f_read[0]] = self.__format[fname][parname]["write"].format(float(val[j]))
+                else: 
+                    if fname=='kstr' and float(val) < 1.:
+                        li[f_read[0]] = self.__format[fname][parname]["write_nlz"].format(float(val)).lstrip('0')
+                    elif fname=='kstr' and float(val) >= 100.: 
+                        li[f_read[0]] = self.__format[fname][parname]["write"].format(float(val))[0:-1]
+                    else:
+                        li[f_read[0]] = self.__format[fname][parname]["write"].format(float(val))
         
                 line = ''.join(li)
                 ifile[i] = line
@@ -305,7 +318,7 @@ class POS(object):
         
         self.__pos['vbasis'] = {}
         B_vec = []
-        print B_matrix
+        #print B_matrix
         if not type(QX)==float:
             for i in range(len(QX)):
                 C_vec = np.array([QX[i], QY[i], QZ[i]])
@@ -333,6 +346,9 @@ class POS(object):
             self.__pos['natoms'] = [1]
             
         self.__pos['csystem'] = 'd'
+        
+        
+        
         return self.__pos
         
     
@@ -341,7 +357,7 @@ class POS(object):
     def get_pos(self):
         return self.__pos
     
-    def write_kstr(self, pos, fname):
+    def write_kstr(self, pos, fname, posold):
         path = fname.rstrip(os.path.basename(fname))
         fname = os.path.basename(fname)
         
@@ -358,13 +374,17 @@ class POS(object):
         BS1 = self.__pos['vlatt_1']
         BS2 = self.__pos['vlatt_2']
         BS3 = self.__pos['vlatt_3']
-        
+        #print self.__pos['vlatt_1'],self.__pos['vlatt_2'],self.__pos['vlatt_3']
         B_matrix = np.array([BS1,BS2,BS3])
         C_matrix = np.identity(3)
         
         a=np.sqrt(BS1[0]**2.+BS1[1]**2.+BS1[2]**2.)
         b=np.sqrt(BS2[0]**2.+BS2[1]**2.+BS2[2]**2.)
         c=np.sqrt(BS3[0]**2.+BS3[1]**2.+BS3[2]**2.)
+        
+        aold=np.sqrt(posold['vlatt_1'][0]**2.+posold['vlatt_1'][1]**2.+posold['vlatt_1'][2]**2.)
+        
+        A=a/aold
         
         QX=[]
         QY=[]
@@ -376,9 +396,9 @@ class POS(object):
             C_vec.append(self.trans_csystem(C_matrix, B_matrix, B_vec)) #Convert direct to cartesian coordinates
         
         for vec in C_vec:
-            QX.append(vec[0]/a)
-            QY.append(vec[1]/a)
-            QZ.append(vec[2]/a)
+            QX.append(vec[0]/A)   #everything devided by a in previous version
+            QY.append(vec[1]/A)   #
+            QZ.append(vec[2]/A)   #
         #for i in range(len(QX)):
         self.__kstr = self.replace(self.__kstr, "kstr", "QX", QX)
         self.__kstr = self.replace(self.__kstr, "kstr", "QY", QY)
@@ -401,9 +421,9 @@ class POS(object):
             self.__kstr = self.replace(self.__kstr, "kstr", "Bet", beta)
             self.__kstr = self.replace(self.__kstr, "kstr", "Gam", gamma)
         else:
-            BSX=[BS1[0]/a,BS2[0]/a,BS3[0]/a]
-            BSY=[BS1[1]/a,BS2[1]/a,BS3[1]/a]
-            BSZ=[BS1[2]/a,BS2[2]/a,BS3[2]/a]
+            BSX=[BS1[0]/A,BS2[0]/A,BS3[0]/A]  #everything devided by a in previous version
+            BSY=[BS1[1]/A,BS2[1]/A,BS3[1]/A]  #
+            BSZ=[BS1[2]/A,BS2[2]/A,BS3[2]/A]  #
             
             self.__kstr = self.replace(self.__kstr, "kstr", "BSX", BSX)
             self.__kstr = self.replace(self.__kstr, "kstr", "BSY", BSY)
@@ -415,8 +435,22 @@ class POS(object):
         f=open(path+fname,'w')
         f.writelines(self.__kstr)
         f.close()
-        print a,b,c
-        return a
+        #print a,b,c
+        cell = np.array([BS1,BS2,BS3])
+        self.__V1cell = abs(np.linalg.det(cell))
+        self.__natoms = len(QX)
+        self.__a = a
+        
+        
+        V0latt = abs(np.linalg.det(np.array([posold['vlatt_1'],posold['vlatt_2'],posold['vlatt_3']])))
+        
+        V0_Vlatt = (4./3.*self.__natoms*np.pi*posold['scale']**3.)/V0latt
+        #print 'V0_latt, V0_sws, V1_cell ',V0latt,(4./3.*self.__natoms*np.pi*posold['scale']**3.), self.__V1cell
+        #SWS = self.calc_sws(V0_Vlatt, self.__natoms, self.__V1cell)
+        SWS = posold['scale']*(self.__V1cell/V0latt)**(1./3.)
+        print 'SWS ', SWS, posold['scale']
+        # print a, b, c
+        return SWS#a
     
     def read_shape(self, fname):
         if fname: shape = open(fname)
@@ -446,8 +480,17 @@ class POS(object):
         self.__kgrn = kgrn.readlines()
         
         SWS = self.find(self.__kgrn,"kgrn","SWS")
+        
+        
+        self.__sws = SWS
         self.__pos['scale'] = SWS
         return self.__pos
+    
+    def calc_volume(self, nat, SWS):
+        return 4./3.*nat*np.pi*SWS**3.
+    
+    def calc_sws(self,V0_Vlatt,nat,V1):
+        return (3./(4.*np.pi*nat)*V0_Vlatt*V1)**(1./3.)
     
     def write_kgrn(self, pos, fname):
         
@@ -527,7 +570,7 @@ class POS(object):
         
 class Energy(object):
     """Get energies from EMTO output file."""
-    def __init__(self, fname = 'etot.dat', funct='GGA'):
+    def __init__(self, fname = 'etot.dat', funct='PBEsol'):
         self.__funct = funct
         self.__fname = fname
         self.__gsenergy = 0.
