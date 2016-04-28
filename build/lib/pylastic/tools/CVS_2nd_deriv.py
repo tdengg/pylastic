@@ -243,7 +243,7 @@ class ANALYTICS(object):
         N=0
         E2nd_all = []
         color=['b','g','r','c','m','k']
-        for fitorder in range(4,9,2):
+        for fitorder in range(2,9,2):
             j=0
             marker=['+','o','d','s','<']
             ###########################################

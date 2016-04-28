@@ -26,7 +26,7 @@ except:
 class ECs(Check, Energy, Stress):
     """Calculation of elastic constants and post-processing."""
     
-    def __init__(self, cod='vasp', thermo=False):
+    def __init__(self, cod='vasp', emtoout='NiTi.prn', thermo=False):
         
         #super(Check, self).__init__()
         #super(FileStructure, self).__init__()
@@ -43,6 +43,7 @@ class ECs(Check, Energy, Stress):
         self.__workdir = ''
         self.__thermodyn = thermo
         self.__T = 0
+        self.__emtoout = emtoout
         
         self.delPoints=False
         
@@ -83,7 +84,7 @@ class ECs(Check, Energy, Stress):
                 outfile = 'INFO.OUT'
             elif self.__cod == 'emto':
                 getData = emto.Energy()
-                outfile = 'kfcd/prn/NiTi.prn'
+                outfile = 'kfcd/prn/%s'%self.__emtoout
             gsenergy=[]    
             for atoms in sorted(self.__structures.items()):
                 
@@ -234,7 +235,7 @@ class ECs(Check, Energy, Stress):
                 #self.status()
                 # Check status of every atoms object
                 strainList= self.__structures.items()[0][1].strainList
-                
+                if not len(strainList)==len(self.__fitorder): self.__fitorder=[self.__fitorder[0] for i in range(len(strainList))]
                 n=1
                 for stype in strainList:
                     
@@ -352,6 +353,23 @@ class ECs(Check, Energy, Stress):
         
         CVS = []
         strainList= self.__structures.items()[0][1].strainList
+        
+        if len(strainList)<=5:
+            kk=1
+            ll=len(strainList)
+            grid=[ll]
+        elif len(strainList)%5 == 0:
+            kk=len(strainList)/5
+            ll=5
+            grid=[5 for i in range(kk)]
+        else:
+            kk=len(strainList)/5+1
+            ll=5
+            grid=[5 for i in range(kk)]
+            grid[-1]=len(strainList)%5
+        
+
+        
         n=1
         for stype in strainList:
             atoms = self.get_atomsByStraintype(stype)
@@ -369,7 +387,11 @@ class ECs(Check, Energy, Stress):
             
             spl = '1'+str(len(strainList))+str(n)
             #plt.subplot(int(spl))
-            a = f.add_subplot(int(spl))
+            #a = f.add_subplot(int(spl))
+            if grid[(n-1)/5] == 5:
+                a = plt.subplot2grid((kk,ll), ((n-1)/5,n-1), colspan=1)
+            else:
+                a = plt.subplot2grid((kk,ll), ((n-1)/5,n-1), colspan=1)
             j = 1
             for i in [2,4,6]:
                 ans = Energy()
