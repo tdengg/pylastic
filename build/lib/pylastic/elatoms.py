@@ -358,7 +358,22 @@ class Structures(ElAtoms, Sgroup):
         self.__workdir = os.getcwd()+'/'
         self.__code = cod
         self.__thermo = thermo
+        if self.__code=="emto":
+            
+            self.__kstrname = "kstr"
+            self.__kgrnname = "kgrn"
+            self.__kfcdname = "kfcd"
+            self.__shapename = "shape"
+    
+    def set_emtonames(self, kstr, shape, kgrn, kfcd, structname, systemname):
+        self.__kstrname = kstr
+        self.__kgrnname = kgrn
+        self.__kfcdname = kfcd
+        self.__shapename = shape
         
+        self.__structname = structname
+        self.__systemname = systemname
+    
     def set_fname(self, fnames):
         """Set absolute path to calculations sub-directory.
         
@@ -561,24 +576,24 @@ class Structures(ElAtoms, Sgroup):
                     from pylastic.io.emto import POS
                     #if not os.path.isfile("%s/INCAR"%(self.__path))   or overwrite: os.system('cp INCAR %s/INCAR'%(self.__path))
                     #else: print "%s/INCAR   already existing: overwrite = False"%(self.__path)
-                    if not os.path.isfile(self.__path+'/kstr/kstr.dat')                     or overwrite: 
-                        sws = POS().write_kstr(self.__structures[atoms].poscarnew, self.__path+'/kstr.dat', self.__structures[atoms].poscar)
+                    if not os.path.isfile(self.__path+'/%s/kstr.dat'%self.__kstrname)                     or overwrite: 
+                        sws = POS().write_kstr(self.__structures[atoms].poscarnew, self.__path+'/kstr.dat', self.__structures[atoms].poscar, self.__kstrname, self.__structname)
                         #print self.__structures[atoms].poscar['scale'], self.__structures[atoms].poscarnew['scale'], sws, atoms
                         self.__structures[atoms].poscarnew['scale'] = sws#self.__structures[atoms].poscar['scale']*sws
-                        os.system('mkdir %s/kstr/smx'%self.__path)
-                        os.system('mkdir %s/kstr/prn'%self.__path)
-                    if not os.path.isfile(self.__path+'/shape/shape.dat')                   or overwrite: 
-                        POS().write_shape(self.__structures[atoms].poscarnew, self.__path+'/shape.dat')
-                        os.system('mkdir %s/shape/shp'%self.__path)
-                        os.system('mkdir %s/shape/prn'%self.__path)
-                    if not os.path.isfile(self.__path+'/kgrn/kgrn.dat')                     or overwrite: 
-                        POS().write_kgrn(self.__structures[atoms].poscarnew, self.__path+'/kgrn.dat')
-                        os.system('mkdir %s/kgrn/pot'%self.__path)
-                        os.system('mkdir %s/kgrn/prn'%self.__path)
-                        os.system('mkdir %s/kgrn/chd'%self.__path)
-                    if not os.path.isfile(self.__path+'/kfcd/kfcd.dat')                     or overwrite: 
-                        POS().write_kfcd(self.__structures[atoms].poscarnew, self.__path+'/kfcd.dat')
-                        os.system('mkdir %s/kfcd/prn'%self.__path)
+                        os.system('mkdir %s/%s/smx'%(self.__path, self.__kstrname))
+                        os.system('mkdir %s/%s/prn'%(self.__path, self.__kstrname))
+                    if not os.path.isfile(self.__path+'/%s/shape.dat'%self.__shapename)                   or overwrite: 
+                        POS().write_shape(self.__structures[atoms].poscarnew, self.__path+'/shape.dat', self.__shapename, self.__structname)
+                        os.system('mkdir %s/%s/shp'%(self.__path, self.__shapename))
+                        os.system('mkdir %s/%s/prn'%(self.__path, self.__shapename))
+                    if not os.path.isfile(self.__path+'/%s/kgrn.dat'%self.__kgrnname)                     or overwrite: 
+                        POS().write_kgrn(self.__structures[atoms].poscarnew, self.__path+'/kgrn.dat', self.__kgrnname, self.__systemname)
+                        os.system('mkdir %s/%s/pot'%(self.__path, self.__kgrnname))
+                        os.system('mkdir %s/%s/prn'%(self.__path, self.__kgrnname))
+                        os.system('mkdir %s/%s/chd'%(self.__path, self.__kgrnname))
+                    if not os.path.isfile(self.__path+'/%s/kfcd.dat'%self.__kfcdname)                     or overwrite: 
+                        POS().write_kfcd(self.__structures[atoms].poscarnew, self.__path+'/kfcd.dat', self.__kfcdname, self.__systemname)
+                        os.system('mkdir %s/%s/prn'%(self.__path, self.__kfcdname))
                     if not os.path.isfile(self.__path+'/xcrysden/structure.xsf')                     or overwrite: 
                         XCD().write_xcrysden(self.__structures[atoms].poscarnew, self.__path+'/structure.xsf')
                            

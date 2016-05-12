@@ -15,6 +15,7 @@ from pylastic.status import Check
 
 import math
 import pickle
+import json
 import numpy as np
 try:
     import matplotlib.pyplot as plt
@@ -26,8 +27,11 @@ except:
 class ECs(Check, Energy, Stress):
     """Calculation of elastic constants and post-processing."""
     
-    def __init__(self, cod='vasp', emtoout='NiTi.prn', thermo=False):
+    def __init__(self, cod='vasp', thermo=False):
         
+        pars = json.load(open('setup.json'))
+        self.__pname = pars['emto']['pnames']['kfcd']
+        self.__pname = pars['emto']['pnames']['kfcd']
         #super(Check, self).__init__()
         #super(FileStructure, self).__init__()
         super(ECs, self).__init__()
@@ -43,7 +47,7 @@ class ECs(Check, Energy, Stress):
         self.__workdir = ''
         self.__thermodyn = thermo
         self.__T = 0
-        self.__emtoout = emtoout
+        self.__emtoout = pars['emto']['jobnames']['system']+'.prn'
         
         self.delPoints=False
         
@@ -84,7 +88,7 @@ class ECs(Check, Energy, Stress):
                 outfile = 'INFO.OUT'
             elif self.__cod == 'emto':
                 getData = emto.Energy()
-                outfile = 'kfcd/prn/%s'%self.__emtoout
+                outfile = '%s/prn/%s'%(self.__pname,self.__emtoout)
             gsenergy=[]    
             for atoms in sorted(self.__structures.items()):
                 

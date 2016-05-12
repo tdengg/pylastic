@@ -13,7 +13,7 @@ class POS(object):
         self.__NQ3=1
         self.__N_species=0
         self.__Ry2eV = 13.605698066                 # Ryd to eV
-        self.__format = {"kgrn":{"SWS":{"read":(8,14) , "write":"{0:7.4f}"}}, "kstr":{"A.....":{"read":(10,19) , "write":"{0:10.7f}", "write_nlz":"{0:10.9f}"},"B.....":{"read":(30,39) , "write":"{0:10.7f}", "write_nlz":"{0:10.9f}"},"C.....":{"read":(50,59) , "write":"{0:10.7f}", "write_nlz":"{0:10.9f}"},"Alp":{"read":(10,19) , "write":"{0:10.7f}"},"Bet":{"read":(30,39) , "write":"{0:10.7f}"},"Gam":{"read":(50,59) , "write":"{0:10.7f}"},"BSX":{"read":(10,19) , "write":"{0:10.7f}", "write_nlz":"{0:10.9f}", "write_nnlz":"{0:10.8f}"},"BSY":{"read":(30,39) , "write":"{0:10.7f}", "write_nlz":"{0:10.9f}", "write_nnlz":"{0:10.8f}"},"BSZ":{"read":(50,59) , "write":"{0:10.7f}", "write_nlz":"{0:10.9f}", "write_nnlz":"{0:10.8f}"}, "SWS":{"read":(8,14) , "write":"{0:7.4f}"},"QX":{"read":(10,19) , "write":"{0:10.7f}", "write_nlz":"{0:10.9f}"},"QY":{"read":(30,39) , "write":"{0:10.7f}", "write_nlz":"{0:10.9f}"},"QZ":{"read":(50,59) , "write":"{0:10.7f}", "write_nlz":"{0:10.9f}"},"LAT":{"read":(18,20) , "write":"{0:2.0i}"} }}
+        self.__format = {"kfcd":{"STRNAM":{"read":(10,19) , "write":"{0:9}"},"JOBNAM...":{"read":(10,19) , "write":"{0:9}"}},"shape":{"JOBNAM...":{"read":(10,19) , "write":"{0:9}"}},"kgrn":{"SWS":{"read":(8,14) , "write":"{0:7.4f}"}, "JOBNAM...":{"read":(10,19) , "write":"{0:11}"}}, "kstr":{"A.....":{"read":(10,19) , "write":"{0:10.7f}", "write_nlz":"{0:10.9f}"},"B.....":{"read":(30,39) , "write":"{0:10.7f}", "write_nlz":"{0:10.9f}"},"C.....":{"read":(50,59) , "write":"{0:10.7f}", "write_nlz":"{0:10.9f}"},"Alp":{"read":(10,19) , "write":"{0:10.7f}"},"Bet":{"read":(30,39) , "write":"{0:10.7f}"},"Gam":{"read":(50,59) , "write":"{0:10.7f}"},"BSX":{"read":(10,19) , "write":"{0:10.7f}", "write_nlz":"{0:10.9f}", "write_nnlz":"{0:10.8f}"},"BSY":{"read":(30,39) , "write":"{0:10.7f}", "write_nlz":"{0:10.9f}", "write_nnlz":"{0:10.8f}"},"BSZ":{"read":(50,59) , "write":"{0:10.7f}", "write_nlz":"{0:10.9f}", "write_nnlz":"{0:10.8f}"}, "SWS":{"read":(8,14) , "write":"{0:7.4f}"},"QX":{"read":(10,19) , "write":"{0:10.7f}", "write_nlz":"{0:10.9f}"},"QY":{"read":(30,39) , "write":"{0:10.7f}", "write_nlz":"{0:10.9f}"},"QZ":{"read":(50,59) , "write":"{0:10.7f}", "write_nlz":"{0:10.9f}"},"LAT":{"read":(18,20) , "write":"{0:2.0i}"} , "JOBNAM...":{"read":(10,19) , "write":"{0:9}"}}}
     
     def trans_csystem(self, in_mat, out_mat, in_vec):
         c_vec = np.dot(np.dot(np.linalg.inv(np.transpose(in_mat)),np.transpose(out_mat)), in_vec)
@@ -266,6 +266,25 @@ class POS(object):
             i+=1
         return ifile
     
+    def replace_string(self, ifile, fname, parname, val):
+        i=0
+        j=0
+        for line in ifile:
+            if parname in line:
+        
+                f_read=self.__format[fname][parname]["read"]
+                li = list(line)
+                #del li[f_read[0]:f_read[1]]
+            
+                
+                li[f_read[0]] = self.__format[fname][parname]["write"].format(val)
+        
+                line = ''.join(li)
+                ifile[i] = line
+            
+                j+=1
+            i+=1
+        return ifile
     def read_in(self):
         
         return
@@ -276,6 +295,9 @@ class POS(object):
             self.__pos['path']=fname
             
         self.__kstr = kstr.readlines()
+        
+        #jobnam=self.find(self.__kstr, "kstr", "JOBNAM")
+        
         A = self.find(self.__kstr, "kstr", "A.....")
         B = self.find(self.__kstr, "kstr", "B.....")
         C = self.find(self.__kstr, "kstr", "C.....")
@@ -357,18 +379,21 @@ class POS(object):
     def get_pos(self):
         return self.__pos
     
-    def write_kstr(self, pos, fname, posold):
+    def write_kstr(self, pos, fname, posold, pname, STRUCT_name):
         path = fname.rstrip(os.path.basename(fname))
         fname = os.path.basename(fname)
         
-        os.system('mkdir %s/kstr'%(path))
-        path=path+'/kstr/'
+        os.system('mkdir %s/%s'%(path,pname))
+        path=path+'/%s/'%pname
         os.system('cp kstr.dat %s'%(path+fname))
         kstr=open((path+fname),'rw')
         
         self.__kstr=kstr.readlines()
         
         kstr.close()
+        
+        #self.__kstr = self.replace_string(self.__kstr, "kstr", "JOBNAM...", STRUCT_name)
+        
         
         self.__pos=pos
         BS1 = self.__pos['vlatt_1']
@@ -459,12 +484,12 @@ class POS(object):
         
         return
     
-    def write_shape(self, pos, fname):
+    def write_shape(self, pos, fname, pname, STRUCT_name):
         path = fname.rstrip(os.path.basename(fname))
         fname = os.path.basename(fname)
         
-        os.system('mkdir %s/shape'%(path))
-        path=path+'/shape/'
+        os.system('mkdir %s/%s'%(path,pname))
+        path=path+'/%s/'%pname
         os.system('cp shape.dat %s'%(path+fname))
         shape=open((path+fname),'rw')
         
@@ -492,13 +517,13 @@ class POS(object):
     def calc_sws(self,V0_Vlatt,nat,V1):
         return (3./(4.*np.pi*nat)*V0_Vlatt*V1)**(1./3.)
     
-    def write_kgrn(self, pos, fname):
+    def write_kgrn(self, pos, fname, pname, SYSTEM_name):
         
         path = fname.rstrip(os.path.basename(fname))
         fname = os.path.basename(fname)
         
-        os.system('mkdir %s/kgrn'%(path))
-        path=path+'/kgrn/'
+        os.system('mkdir %s/%s'%(path, pname))
+        path=path+'/%s/'%pname
         os.system('cp kgrn.dat %s'%(path+fname))
         kgrn=open((path+fname),'rw')
         
@@ -521,12 +546,12 @@ class POS(object):
         self.__split_kfcd =  [re.split(r'(\s+)', l) for l in lines]
         return
     
-    def write_kfcd(self, pos, fname):
+    def write_kfcd(self, pos, fname, pname, SYSTEM_name):
         path = fname.rstrip(os.path.basename(fname))
         fname = os.path.basename(fname)
         
-        os.system('mkdir %s/kfcd'%(path))
-        path=path+'/kfcd/'
+        os.system('mkdir %s/%s'%(path, pname))
+        path=path+'/%s/'%pname
         os.system('cp kfcd.dat %s'%(path+fname))
         kfcd=open((path+fname),'rw')
         
