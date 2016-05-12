@@ -570,7 +570,7 @@ class POS(object):
         
 class Energy(object):
     """Get energies from EMTO output file."""
-    def __init__(self, fname = 'etot.dat', funct='PBEsol'):
+    def __init__(self, fname = 'etot.dat', funct='GGA'):
         self.__funct = funct
         self.__fname = fname
         self.__gsenergy = 0.

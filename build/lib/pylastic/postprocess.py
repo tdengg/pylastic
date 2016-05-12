@@ -495,7 +495,7 @@ class ECs(Check, Energy, Stress):
                 energy = [i.gsenergy for i in atoms]
             strain = [i.eta for i in atoms]
             print stype, energy, [i.scale for i in atoms]
-            plt.plot(strain, energy, '%s*'%color[j])
+            plt.plot(strain, energy, '%s*'%color[j%7])
             
             k=0
             for st in strain:
@@ -505,7 +505,7 @@ class ECs(Check, Energy, Stress):
             
             poly = np.poly1d(np.polyfit(strain,energy,self.__fitorder[j]))
             xp = np.linspace(min(strain), max(strain), 100)
-            a.plot(xp, poly(xp),color[j],label=stype)
+            a.plot(xp, poly(xp),color[j%7],label=stype)
             j+=1
         
         a.set_xlabel('strain')
@@ -561,6 +561,7 @@ class ECs(Check, Energy, Stress):
                 else:
                     if not etacalc in self.__A2[0].keys(): raise ValueError('Please coose one of %s'%(self.__A2[0].keys()))
                     A2 = [a2[etacalc] for a2 in self.__A2]
+                
                 
                 #%%%--- Cubic structures ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 if (LC == 'CI' or \
