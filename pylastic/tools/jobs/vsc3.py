@@ -23,32 +23,35 @@ class threads(object):
         print 'sbatch {0}/run_kstr'.format(self.__currpath)
         print 'cp run_kstr {0}'.format(self.__currpath)
         ## Copy queuing script to calc directory:
-        subprocess.Popen(['cp', 'run_kstr {0}'.format(self.__currpath)])
-        
-        subprocess.Popen(['sbatch', '{0}/run_kstr'.format(self.__currpath)])
-        
+        proc = subprocess.Popen(['cp run_kstr {0}'.format(self.__currpath)], shell=True)
+        proc.communicate()
+        proc = subprocess.Popen(['sbatch {0}/run_kstr'.format(self.__currpath)], shell=True)
+        proc.communicate()
         
         return
     
     def submit_shape(self):
         ## Copy queuing script to calc directory:
-        subprocess.Popen(['cp', 'run_shape {0}'.format(self.__currpath)])
-        
-        subprocess.Popen(['sbatch', '{0}/run_shape'.format(self.__currpath)])
+        proc = subprocess.Popen(['cp run_shape {0}'.format(self.__currpath)], shell=True)
+        proc.communicate()
+        proc = subprocess.Popen(['sbatch {0}/run_shape'.format(self.__currpath)], shell=True)
+        proc.communicate()
         return
     
     def submit_kgrn(self):
         ## Copy queuing script to calc directory:
-        subprocess.Popen(['cp', 'run_kgrn {0}'.format(self.__currpath)])
-        
-        subprocess.Popen(['sbatch', '{0}/run_kgrn'.format(self.__currpath)])
+        proc = subprocess.Popen(['cp run_kgrn {0}'.format(self.__currpath)], shell=True)
+        proc.communicate()
+        proc = subprocess.Popen(['sbatch {0}/run_kgrn'.format(self.__currpath)], shell=True)
+        proc.communicate()
         return
     
     def submit_kfcd(self):
         ## Copy queuing script to calc directory:
-        subprocess.Popen(['cp', 'run_kfcd {0}'.format(self.__currpath)])
-        
-        subprocess.Popen(['sbatch', '{0}/run_kfcd'.format(self.__currpath)])
+        proc = subprocess.Popen(['cp run_kfcd {0}'.format(self.__currpath)], shell=True)
+        proc.communicate()
+        proc = subprocess.Popen(['sbatch {0}/run_kfcd'.format(self.__currpath)], shell=True)
+        proc.communicate()
         return
     
     def checkstatus(self,path,fname):
