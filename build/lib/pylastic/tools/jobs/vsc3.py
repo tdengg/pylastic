@@ -11,40 +11,58 @@ class threads(object):
         self.__kstrpath = 'kstr'
         self.__kstrname = 'NiTi.prn'
         self.__shapepath = 'shape'
+        self.__shapename = 'NiTi.prn'
         self.__kgrnpath = 'kgrn'
+        self.__kgrnname = 'NiTi.prn'
         self.__kfcdpath = 'kfcd'
+        self.__kfcdname = 'NiTi.prn'
         self.__currpath = None
         return
     
     def submit_kstr(self):
         print 'sbatch {0}/run_kstr'.format(self.__currpath)
+        print 'cp run_kstr {0}'.format(self.__currpath)
         ## Copy queuing script to calc directory:
-        subprocess.Popen(['cp run_kstr {0}'.format(self.__currpath)])
-        
-        subprocess.Popen(['sbatch {0}/run_kstr'.format(self.__currpath)])
-        
-        
+        proc = subprocess.Popen(['cp run_kstr {0}'.format(self.__currpath)], shell=True)
+        proc.communicate()
+        workdir = os.getcwd()
+        os.chdir(self.__currpath)
+        proc = subprocess.Popen(['sbatch {0}/run_kstr'.format(self.__currpath)], shell=True)
+        proc.communicate()
+        os.chdir(workdir)
         return
     
     def submit_shape(self):
         ## Copy queuing script to calc directory:
-        subprocess.Popen(['cp run_shape {0}'.format(self.__currpath)])
-        
-        subprocess.Popen(['sbatch {0}/run_shape'.format(self.__currpath)])
+        proc = subprocess.Popen(['cp run_shape {0}'.format(self.__currpath)], shell=True)
+        proc.communicate()
+        workdir = os.getcwd()
+        os.chdir(self.__currpath)
+        proc = subprocess.Popen(['sbatch {0}/run_shape'.format(self.__currpath)], shell=True)
+        proc.communicate()
+        os.chdir(workdir)
         return
     
     def submit_kgrn(self):
         ## Copy queuing script to calc directory:
-        subprocess.Popen(['cp run_kgrn {0}'.format(self.__currpath)])
-        
-        subprocess.Popen(['sbatch {0}/run_kgrn'.format(self.__currpath)])
+        proc = subprocess.Popen(['cp run_kgrn {0}'.format(self.__currpath)], shell=True)
+        proc.communicate()
+        workdir = os.getcwd()
+        os.chdir(self.__currpath)
+        proc = subprocess.Popen(['sbatch {0}/run_kgrn'.format(self.__currpath)], shell=True)
+        proc.communicate()
+        os.chdir(workdir)
         return
     
     def submit_kfcd(self):
         ## Copy queuing script to calc directory:
-        subprocess.Popen(['cp run_kfcd {0}'.format(self.__currpath)])
-        
-        subprocess.Popen(['sbatch {0}/run_kfcd'.format(self.__currpath)])
+        proc = subprocess.Popen(['cp run_kfcd {0}'.format(self.__currpath)], shell=True)
+        proc.communicate()
+        workdir = os.getcwd()
+        os.chdir(self.__currpath)
+        proc = subprocess.Popen(['sbatch {0}/run_kfcd'.format(self.__currpath)], shell=True)
+        proc.communicate()
+        os.chdir(workdir)
         return
     
     def checkstatus(self,path,fname):

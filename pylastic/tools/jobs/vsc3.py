@@ -25,33 +25,44 @@ class threads(object):
         ## Copy queuing script to calc directory:
         proc = subprocess.Popen(['cp run_kstr {0}'.format(self.__currpath)], shell=True)
         proc.communicate()
+        workdir = os.getcwd()
+        os.chdir(self.__currpath)
         proc = subprocess.Popen(['sbatch {0}/run_kstr'.format(self.__currpath)], shell=True)
         proc.communicate()
-        
+        os.chdir(workdir)
         return
     
     def submit_shape(self):
         ## Copy queuing script to calc directory:
         proc = subprocess.Popen(['cp run_shape {0}'.format(self.__currpath)], shell=True)
         proc.communicate()
+        workdir = os.getcwd()
+        os.chdir(self.__currpath)
         proc = subprocess.Popen(['sbatch {0}/run_shape'.format(self.__currpath)], shell=True)
         proc.communicate()
+        os.chdir(workdir)
         return
     
     def submit_kgrn(self):
         ## Copy queuing script to calc directory:
         proc = subprocess.Popen(['cp run_kgrn {0}'.format(self.__currpath)], shell=True)
         proc.communicate()
+        workdir = os.getcwd()
+        os.chdir(self.__currpath)
         proc = subprocess.Popen(['sbatch {0}/run_kgrn'.format(self.__currpath)], shell=True)
         proc.communicate()
+        os.chdir(workdir)
         return
     
     def submit_kfcd(self):
         ## Copy queuing script to calc directory:
         proc = subprocess.Popen(['cp run_kfcd {0}'.format(self.__currpath)], shell=True)
         proc.communicate()
+        workdir = os.getcwd()
+        os.chdir(self.__currpath)
         proc = subprocess.Popen(['sbatch {0}/run_kfcd'.format(self.__currpath)], shell=True)
         proc.communicate()
+        os.chdir(workdir)
         return
     
     def checkstatus(self,path,fname):
