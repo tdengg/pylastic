@@ -11,13 +11,17 @@ class threads(object):
         self.__kstrpath = 'kstr'
         self.__kstrname = 'NiTi.prn'
         self.__shapepath = 'shape'
+        self.__shapename = 'NiTi.prn'
         self.__kgrnpath = 'kgrn'
+        self.__kgrnname = 'NiTi.prn'
         self.__kfcdpath = 'kfcd'
+        self.__kfcdname = 'NiTi.prn'
         self.__currpath = None
         return
     
     def submit_kstr(self):
         print 'sbatch {0}/run_kstr'.format(self.__currpath)
+        print 'cp run_kstr {0}'.format(self.__currpath)
         ## Copy queuing script to calc directory:
         subprocess.Popen(['cp run_kstr {0}'.format(self.__currpath)])
         
