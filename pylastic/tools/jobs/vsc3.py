@@ -27,7 +27,7 @@ class threads(object):
         proc.communicate()
         workdir = os.getcwd()
         os.chdir(self.__currpath)
-        proc = subprocess.Popen(['sbatch {0}/run_kstr'.format(self.__currpath)], shell=True)
+        proc = subprocess.Popen(['sbatch run_kstr'], shell=True)
         proc.communicate()
         os.chdir(workdir)
         return
@@ -38,7 +38,7 @@ class threads(object):
         proc.communicate()
         workdir = os.getcwd()
         os.chdir(self.__currpath)
-        proc = subprocess.Popen(['sbatch {0}/run_shape'.format(self.__currpath)], shell=True)
+        proc = subprocess.Popen(['sbatch run_shape'], shell=True)
         proc.communicate()
         os.chdir(workdir)
         return
@@ -49,7 +49,7 @@ class threads(object):
         proc.communicate()
         workdir = os.getcwd()
         os.chdir(self.__currpath)
-        proc = subprocess.Popen(['sbatch {0}/run_kgrn'.format(self.__currpath)], shell=True)
+        proc = subprocess.Popen(['sbatch run_kgrn'], shell=True)
         proc.communicate()
         os.chdir(workdir)
         return
@@ -60,7 +60,7 @@ class threads(object):
         proc.communicate()
         workdir = os.getcwd()
         os.chdir(self.__currpath)
-        proc = subprocess.Popen(['sbatch {0}/run_kfcd'.format(self.__currpath)], shell=True)
+        proc = subprocess.Popen(['sbatch run_kfcd'], shell=True)
         proc.communicate()
         os.chdir(workdir)
         return
