@@ -151,9 +151,14 @@ class threads(object):
         for task in t: 
             task.deamon=True
             task.start()
-        self.__q.join()
+        try:
+            self.__q.join()
+            print "CALCULATIONS FINISHED"
+        except (KeyboardInterrupt, SystemExit):
+            self.__q.put('exit')
+            self.__q.join()
+            print "Manually terminated!"
         
-        print "CALCULATIONS FINISHED"
         
 #t = threading.Thread(target=subproc, args=(a,))
 #t.start()
