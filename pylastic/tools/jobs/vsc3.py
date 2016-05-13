@@ -2,20 +2,27 @@ import os
 import time
 import threading
 import pickle
+import json
 import Queue as queue
 import subprocess
 
 class threads(object):
     def __init__(self, structfile):
         self.__structfile = structfile
-        self.__kstrpath = 'kstr'
-        self.__kstrname = 'NiTi.prn'
-        self.__shapepath = 'shape'
-        self.__shapename = 'NiTi.prn'
-        self.__kgrnpath = 'kgrn'
-        self.__kgrnname = 'NiTi.prn'
-        self.__kfcdpath = 'kfcd'
-        self.__kfcdname = 'NiTi.prn'
+        
+        
+        f=open('setup.json')
+        dic = json.load(f)
+        f.close()
+        
+        self.__kstrpath = dic['emto']['pnames']['kstr']
+        self.__kstrname = '%s.prn'%dic['emto']['jobnames']['structure']
+        self.__shapepath = dic['emto']['pnames']['shape']
+        self.__shapename = '%s.prn'%dic['emto']['jobnames']['structure']
+        self.__kgrnpath = dic['emto']['pnames']['kgrn']
+        self.__kgrnname = '%s.prn'%dic['emto']['jobnames']['system']
+        self.__kfcdpath = dic['emto']['pnames']['kfcd']
+        self.__kfcdname = '%s.prn'%dic['emto']['jobnames']['system']
         self.__currpath = None
         return
     

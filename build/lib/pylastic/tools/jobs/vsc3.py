@@ -2,20 +2,27 @@ import os
 import time
 import threading
 import pickle
+import json
 import Queue as queue
 import subprocess
 
 class threads(object):
     def __init__(self, structfile):
         self.__structfile = structfile
-        self.__kstrpath = 'kstr'
-        self.__kstrname = 'NiTi.prn'
-        self.__shapepath = 'shape'
-        self.__shapename = 'NiTi.prn'
-        self.__kgrnpath = 'kgrn'
-        self.__kgrnname = 'NiTi.prn'
-        self.__kfcdpath = 'kfcd'
-        self.__kfcdname = 'NiTi.prn'
+        
+        
+        f=open('setup.json')
+        dic = json.load(f)
+        f.close()
+        
+        self.__kstrpath = dic['emto']['pnames']['kstr']
+        self.__kstrname = '%s.prn'%dic['emto']['jobnames']['structure']
+        self.__shapepath = dic['emto']['pnames']['shape']
+        self.__shapename = '%s.prn'%dic['emto']['jobnames']['structure']
+        self.__kgrnpath = dic['emto']['pnames']['kgrn']
+        self.__kgrnname = '%s.prn'%dic['emto']['jobnames']['system']
+        self.__kfcdpath = dic['emto']['pnames']['kfcd']
+        self.__kfcdname = '%s.prn'%dic['emto']['jobnames']['system']
         self.__currpath = None
         return
     
@@ -27,7 +34,7 @@ class threads(object):
         proc.communicate()
         workdir = os.getcwd()
         os.chdir(self.__currpath)
-        proc = subprocess.Popen(['sbatch {0}/run_kstr'.format(self.__currpath)], shell=True)
+        proc = subprocess.Popen(['sbatch run_kstr'], shell=True)
         proc.communicate()
         os.chdir(workdir)
         return
@@ -38,7 +45,7 @@ class threads(object):
         proc.communicate()
         workdir = os.getcwd()
         os.chdir(self.__currpath)
-        proc = subprocess.Popen(['sbatch {0}/run_shape'.format(self.__currpath)], shell=True)
+        proc = subprocess.Popen(['sbatch run_shape'], shell=True)
         proc.communicate()
         os.chdir(workdir)
         return
@@ -49,7 +56,7 @@ class threads(object):
         proc.communicate()
         workdir = os.getcwd()
         os.chdir(self.__currpath)
-        proc = subprocess.Popen(['sbatch {0}/run_kgrn'.format(self.__currpath)], shell=True)
+        proc = subprocess.Popen(['sbatch run_kgrn'], shell=True)
         proc.communicate()
         os.chdir(workdir)
         return
@@ -60,7 +67,7 @@ class threads(object):
         proc.communicate()
         workdir = os.getcwd()
         os.chdir(self.__currpath)
-        proc = subprocess.Popen(['sbatch {0}/run_kfcd'.format(self.__currpath)], shell=True)
+        proc = subprocess.Popen(['sbatch run_kfcd'], shell=True)
         proc.communicate()
         os.chdir(workdir)
         return
@@ -151,9 +158,14 @@ class threads(object):
         for task in t: 
             task.deamon=True
             task.start()
-        self.__q.join()
+        try:
+            self.__q.join()
+            print "CALCULATIONS FINISHED"
+        except (KeyboardInterrupt, SystemExit):
+            self.__q.put('exit')
+            self.__q.join()
+            print "Manually terminated!"
         
-        print "CALCULATIONS FINISHED"
         
 #t = threading.Thread(target=subproc, args=(a,))
 #t.start()
