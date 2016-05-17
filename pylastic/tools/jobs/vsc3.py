@@ -24,6 +24,9 @@ class threads(object):
         self.__kfcdpath = dic['emto']['pnames']['kfcd']
         self.__kfcdname = '%s.prn'%dic['emto']['jobnames']['system']
         self.__currpath = None
+        
+        self.__f_log=open('jobs.log','w')
+        
         return
     
     def submit_kstr(self):
@@ -86,6 +89,7 @@ class threads(object):
                 if 'Finished' or 'Volumes:' in f.readlines()[-1].split(): 
                     Finished=True
                     print '{0} FINISHED'.format(path)
+                    self.__f_log.write('Finished kstr %s.\n'%path)
                     
                 f.close()
         self.__q.task_done()
@@ -99,16 +103,19 @@ class threads(object):
         structobj = pickle.load(f)
         f.close()
         
+        
+        
         paths=[]
         for struct in structobj.get_structures().values():
             paths.append(struct.path.split('/')[-2]+'/'+struct.path.split('/')[-1]+'/')
-        
+            
         self.__q=queue.Queue() 
         t=[]   
-        print paths
+        
         for path in paths:
             self.__currpath = '{0}/{1}'.format(path,self.__kstrpath)
             self.submit_kstr()
+            self.__f_log.write('Submitted kstr %s.\n'%path)
             
             t.append(threading.Thread(target=self.checkstatus, args=(self.__currpath, self.__kstrname)))
         for task in t: 
@@ -158,13 +165,18 @@ class threads(object):
         for task in t: 
             task.deamon=True
             task.start()
+        
+        
         try:
             self.__q.join()
             print "CALCULATIONS FINISHED"
+            self.__f_log.write("CALCULATIONS FINISHED")
+            self.__f_log.close()
         except (KeyboardInterrupt, SystemExit):
             self.__q.put('exit')
             self.__q.join()
             print "Manually terminated!"
+            self.__f_log.close()
         
         
 #t = threading.Thread(target=subproc, args=(a,))
