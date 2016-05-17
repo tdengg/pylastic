@@ -86,11 +86,12 @@ class threads(object):
             time.sleep(5)
             if os.path.exists('{0}/prn/{1}'.format(path,fname)) and os.stat('{0}/prn/{1}'.format(path,fname)).st_size != 0:
                 f=open('{0}/prn/{1}'.format(path,fname))
-                if 'Finished' or 'Volumes:' in f.readlines()[-1].split(): 
-                    Finished=True
+                if 'Finished' in f.readlines()[-1].split(): # or 'Volumes:'
+                    
                     print '{0} FINISHED'.format(path)
                     self.__f_log.write('Finished kstr %s.\n'%path)
                     self.__q.task_done()
+                    Finished=True
                 f.close()
         
         return True
@@ -171,12 +172,12 @@ class threads(object):
             self.__q.join()
             print "CALCULATIONS FINISHED"
             self.__f_log.write("CALCULATIONS FINISHED")
-            self.__f_log.close()
+            
         except (KeyboardInterrupt, SystemExit):
             self.__q.put('exit')
             self.__q.join()
             print "Manually terminated!"
-            self.__f_log.close()
+        self.__f_log.close()
         
         
 #t = threading.Thread(target=subproc, args=(a,))
