@@ -80,7 +80,7 @@ class threads(object):
     
         Finished = False
         
-        self.__q.put((path,'done'))
+        self.__q.put(path)
         
         while not Finished:
             time.sleep(5)
@@ -90,9 +90,9 @@ class threads(object):
                     Finished=True
                     print '{0} FINISHED'.format(path)
                     self.__f_log.write('Finished kstr %s.\n'%path)
-                    
+                    self.__q.task_done()
                 f.close()
-        self.__q.task_done()
+        
         return True
     
     def kstr(self):
