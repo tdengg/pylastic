@@ -54,12 +54,19 @@ class threads(object):
     
     def submit_kgrn(self):
         ## Copy queuing script to calc directory:
+        
         proc = subprocess.Popen(['cp run_kgrn {0}'.format(self.__currpath)], shell=True)
-        proc.communicate()
+        proc.wait()
+        
+        #time.sleep(0.5)
+        
         workdir = os.getcwd()
+        
         os.chdir(self.__currpath)
+        
         proc = subprocess.Popen(['sbatch run_kgrn'], shell=True)
-        proc.communicate()
+        proc.wait()
+        
         os.chdir(workdir)
         return
     
@@ -109,12 +116,18 @@ class threads(object):
         paths=[]
         for struct in structobj.get_structures().values():
             paths.append(struct.path.split('/')[-2]+'/'+struct.path.split('/')[-1]+'/')
+        ######################################################
+        
+        
             
         self.__q=queue.Queue() 
         t=[]   
         
         for path in paths:
             self.__currpath = '{0}/{1}'.format(path,self.__kstrpath)
+            
+            if os.path.exists('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)) and os.stat('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)).st_size != 0: raise SystemExit('Existing calculations in {0}/prn/{1}. Please clean up first!'.format(self.__currpath, self.__kstrname))
+            
             self.submit_kstr()
             t.append(threading.Thread(target=self.checkstatus, args=(self.__currpath, self.__kstrname)))
             
@@ -131,6 +144,9 @@ class threads(object):
         print paths
         for path in paths:
             self.__currpath = '{0}/{1}'.format(path,self.__shapepath)
+            
+            if os.path.exists('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)) and os.stat('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)).st_size != 0: raise SystemExit('Existing calculations in {0}/prn/{1}. Please clean up first!'.format(self.__currpath, self.__kstrname))
+            
             self.submit_shape()
             
             t.append(threading.Thread(target=self.checkstatus, args=(self.__currpath, self.__shapename)))
@@ -147,6 +163,9 @@ class threads(object):
         print paths
         for path in paths:
             self.__currpath = '{0}/{1}'.format(path,self.__kgrnpath)
+            
+            if os.path.exists('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)) and os.stat('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)).st_size != 0: raise SystemExit('Existing calculations in {0}/prn/{1}. Please clean up first!'.format(self.__currpath, self.__kstrname))
+            
             self.submit_kgrn()
             
             t.append(threading.Thread(target=self.checkstatus, args=(self.__currpath, self.__kgrnname)))
@@ -163,6 +182,9 @@ class threads(object):
         print paths
         for path in paths:
             self.__currpath = '{0}/{1}'.format(path,self.__kfcdpath)
+            
+            if os.path.exists('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)) and os.stat('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)).st_size != 0: raise SystemExit('Existing calculations in {0}/prn/{1}. Please clean up first!'.format(self.__currpath, self.__kstrname))
+            
             self.submit_kfcd()
             
             t.append(threading.Thread(target=self.checkstatus, args=(self.__currpath, self.__kfcdname)))
@@ -180,6 +202,8 @@ class threads(object):
             self.__q.put('exit')
             self.__q.join()
             print "Manually terminated!"
+        finally:
+            print "PYlastic ended all processes."
         
         
         

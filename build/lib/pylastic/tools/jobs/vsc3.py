@@ -25,13 +25,12 @@ class threads(object):
         self.__kfcdname = '%s.prn'%dic['emto']['jobnames']['system']
         self.__currpath = None
         
-        self.__f_log=open('jobs.log','w')
         
         return
     
     def submit_kstr(self):
-        print 'sbatch {0}/run_kstr'.format(self.__currpath)
-        print 'cp run_kstr {0}'.format(self.__currpath)
+        print 'Submitting batch job: {0}/run_kstr \n'.format(self.__currpath)
+        print 'copying run_kstr to calculation directory: {0} \n'.format(self.__currpath)
         ## Copy queuing script to calc directory:
         proc = subprocess.Popen(['cp run_kstr {0}'.format(self.__currpath)], shell=True)
         proc.communicate()
@@ -86,11 +85,13 @@ class threads(object):
             time.sleep(5)
             if os.path.exists('{0}/prn/{1}'.format(path,fname)) and os.stat('{0}/prn/{1}'.format(path,fname)).st_size != 0:
                 f=open('{0}/prn/{1}'.format(path,fname))
-                if 'Finished' or 'Volumes:' in f.readlines()[-1].split(): 
-                    Finished=True
-                    print '{0} FINISHED'.format(path)
-                    self.__f_log.write('Finished kstr %s.\n'%path)
+                lastline = f.readlines()[-1].split()
+                if 'Finished' in lastline or 'Volumes:' in lastline: # or 'Volumes:'
+                    
+                    print '{0} FINISHED \n'.format(path)
+                    
                     self.__q.task_done()
+                    Finished=True
                 f.close()
         
         return True
@@ -115,13 +116,14 @@ class threads(object):
         for path in paths:
             self.__currpath = '{0}/{1}'.format(path,self.__kstrpath)
             self.submit_kstr()
-            self.__f_log.write('Submitted kstr %s.\n'%path)
-            
             t.append(threading.Thread(target=self.checkstatus, args=(self.__currpath, self.__kstrname)))
+            
         for task in t: 
             task.deamon=True
             task.start()
         self.__q.join()
+        print 'KSTR FINISHED --> Starting SHAPE calculations. \n\n'
+        
         #### Wait until KSTR has finished.... start SHAPE....
         
         self.__q=queue.Queue() 
@@ -136,6 +138,8 @@ class threads(object):
             task.deamon=True
             task.start()
         self.__q.join()
+        print 'SHAPE FINISHED --> Starting KGRN calculations. \n\n'
+        
         #### Wait until SHAPE has finished.... start KGRN....
         
         self.__q=queue.Queue() 
@@ -150,7 +154,7 @@ class threads(object):
             task.deamon=True
             task.start()
         self.__q.join()
-        print 'FINISHED --> PROCEED'
+        print 'KGRN FINISHED --> Starting KFCD calculations. \n\n'
         
         #### Wait until KGRN has finished.... start KFCD....
         
@@ -169,14 +173,14 @@ class threads(object):
         
         try:
             self.__q.join()
-            print "CALCULATIONS FINISHED"
-            self.__f_log.write("CALCULATIONS FINISHED")
-            self.__f_log.close()
+            print "ALL CALCULATIONS FINISHED."
+            
+            
         except (KeyboardInterrupt, SystemExit):
             self.__q.put('exit')
             self.__q.join()
             print "Manually terminated!"
-            self.__f_log.close()
+        
         
         
 #t = threading.Thread(target=subproc, args=(a,))
