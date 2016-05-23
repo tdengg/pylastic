@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 import threading
 import pickle
@@ -9,7 +10,7 @@ import subprocess
 class threads(object):
     def __init__(self, structfile):
         self.__structfile = structfile
-        
+        self.__starttime = time.clock()
         
         f=open('setup.json')
         dic = json.load(f)
@@ -35,13 +36,13 @@ class threads(object):
     
     def submit_kstr(self):
         
-        self.__logstr += 'copying run_kstr to calculation directory: {0} \n'.format(self.__currpath)
+        #self.__flog.write('copying run_kstr to calculation directory: {0} \n'.format(self.__currpath))
         ## Copy queuing script to calc directory:
         proc = subprocess.Popen(['cp run_kstr {0}'.format(self.__currpath)], shell=True)
         proc.wait()
         workdir = os.getcwd()
         os.chdir(self.__currpath)
-        self.__logstr += 'Submitting batch job: {0}/run_kstr \n'.format(self.__currpath)
+        self.__flog.write('\t Submitting batch job: {0}/run_kstr \n'.format(self.__currpath))
         proc = subprocess.Popen(['sbatch run_kstr'], shell=True)
         proc.wait()
         os.chdir(workdir)
@@ -49,12 +50,12 @@ class threads(object):
     
     def submit_shape(self):
         ## Copy queuing script to calc directory:
-        self.__logstr += 'copying run_shape to calculation directory: {0} \n'.format(self.__currpath)
+        #self.__flog.write('copying run_shape to calculation directory: {0} \n'.format(self.__currpath))
         proc = subprocess.Popen(['cp run_shape {0}'.format(self.__currpath)], shell=True)
         proc.wait()
         workdir = os.getcwd()
         os.chdir(self.__currpath)
-        self.__logstr += 'Submitting batch job: {0}/run_kstr \n'.format(self.__currpath)
+        self.__flog.write('\t Submitting batch job: {0}/run_kstr \n'.format(self.__currpath))
         proc = subprocess.Popen(['sbatch run_shape'], shell=True)
         proc.wait()
         os.chdir(workdir)
@@ -71,7 +72,7 @@ class threads(object):
         workdir = os.getcwd()
         
         os.chdir(self.__currpath)
-        self.__logstr += 'Submitting batch job: {0}/run_kgrn \n'.format(self.__currpath)
+        self.__flog.write('\t Submitting batch job: {0}/run_kgrn \n'.format(self.__currpath))
         proc = subprocess.Popen(['sbatch run_kgrn'], shell=True)
         proc.wait()
         
@@ -84,7 +85,7 @@ class threads(object):
         proc.wait()
         workdir = os.getcwd()
         os.chdir(self.__currpath)
-        self.__logstr += 'Submitting batch job: {0}/run_kfcd \n'.format(self.__currpath)
+        self.__flog.write('\t Submitting batch job: {0}/run_kfcd \n'.format(self.__currpath))
         proc = subprocess.Popen(['sbatch run_kfcd'], shell=True)
         proc.wait()
         os.chdir(workdir)
@@ -103,10 +104,16 @@ class threads(object):
                 lastline = f.readlines()[-1].split()
                 if 'Finished' in lastline or 'Volumes:' in lastline: # or 'Volumes:'
                     
-                    self.__logstr += '#####################\n{0} FINISHED \n#####################\n'.format(path)
-                    
+                    self.__flog.write('#####################\n{0} FINISHED \n Time:{1} \n--------------------\n'.format(path, str(time.clock()-self.__starttime)))
+                    self.__flog.flush()
                     self.__q.task_done()
                     Finished=True
+                for n in range(len(f.readlines())): 
+                    if 'Not converged' in f.readlines()[n].split():
+                        self.__flog.write('KGRN calculation for {0} NOT CONVERGED..... STOPPING!'.format(path))
+                        self.__flog.close()
+                        sys.exit('KGRN calculation for {0} NOT CONVERGED..... STOPPING!!'.format(path))
+                
                 f.close()
         
         return True
@@ -118,6 +125,8 @@ class threads(object):
         f = open(self.__structfile)
         structobj = pickle.load(f)
         f.close()
+        
+        self.__flog = open('log.out','w')
         
         
         
@@ -131,6 +140,7 @@ class threads(object):
         self.__q=queue.Queue() 
         t=[]   
         
+        self.__flog.write('Starting KSTR calculations..... \n')
         for path in paths:
             self.__currpath = '{0}/{1}'.format(path,self.__kstrpath)
             
@@ -143,7 +153,7 @@ class threads(object):
             task.deamon=True
             task.start()
         self.__q.join()
-        print 'KSTR FINISHED --> Starting SHAPE calculations. \n\n'
+        self.__flog.write('KSTR FINISHED --> Starting SHAPE calculations. \n\n')
         
         #### Wait until KSTR has finished.... start SHAPE....
         
@@ -162,7 +172,7 @@ class threads(object):
             task.deamon=True
             task.start()
         self.__q.join()
-        print 'SHAPE FINISHED --> Starting KGRN calculations. \n\n'
+        self.__flog.write('SHAPE FINISHED --> Starting KGRN calculations. \n\n')
         
         #### Wait until SHAPE has finished.... start KGRN....
         
@@ -181,7 +191,7 @@ class threads(object):
             task.deamon=True
             task.start()
         self.__q.join()
-        print 'KGRN FINISHED --> Starting KFCD calculations. \n\n'
+        self.__flog.write('KGRN FINISHED --> Starting KFCD calculations. \n\n')
         
         #### Wait until KGRN has finished.... start KFCD....
         
@@ -211,8 +221,9 @@ class threads(object):
             self.__q.join()
             print "Manually terminated!"
         finally:
-            with open("log.out",'w') as f:
-                f.write(self.__logstr)
+            self.__flog.close()
+            #with open("log.out",'w') as f:
+            #    f.write(self.__logstr)
         
         
         
