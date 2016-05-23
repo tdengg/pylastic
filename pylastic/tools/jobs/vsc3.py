@@ -106,7 +106,7 @@ class threads(object):
                     stime=(time.time()-self.__starttime)
                     M,S=divmod(stime,60)
                     H,M=divmod(M,60)
-                    self.__flog.write('#####################\n{0} FINISHED \n Time: {1}:{2}:{3} \n--------------------\n'.format(path, H, M, S))
+                    self.__flog.write('#####################\n{0} FINISHED \n Time: {1:02d}:{2:02d}:{3:02d} \n--------------------\n'.format(path, int(H), int(M), int(S)))
                     self.__flog.flush()
                     self.__q.task_done()
                     Finished=True
@@ -219,7 +219,7 @@ class threads(object):
             stime=(time.time()-self.__starttime)
             M,S=divmod(stime,60)
             H,M=divmod(M,60)
-            self.__flog.write('\n ALL CALCULATIONS FINISHED! \n Total time: {0}:{1}:{2}'.format(H, M, S))
+            self.__flog.write('\n ALL CALCULATIONS FINISHED! \n Total time: {0:02d}:{1:02d}:{2:02d}'.format(int(H), int(M), int(S)))
             
             
         except (KeyboardInterrupt, SystemExit):
