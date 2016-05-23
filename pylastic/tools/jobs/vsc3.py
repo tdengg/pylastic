@@ -1,5 +1,6 @@
 import os
 import sys
+import glob
 import time
 import threading
 import pickle
@@ -29,8 +30,6 @@ class threads(object):
         
         self.__currpath = None
         
-        
-        self.__logstr = ""
         
         return
     
@@ -117,7 +116,15 @@ class threads(object):
                         sys.exit('KGRN calculation for {0} NOT CONVERGED..... STOPPING!!'.format(path))
                 
                 f.close()
-        
+            slurmout = glob.glob('{0}/slurm*'.format(path))
+            if len(slurmout)!=0:
+                with open(slurmout[-1]) as f1:
+                    slurmlines = f1.readlines()
+                for line in slurmlines:
+                    if 'error' in line.split(): 
+                        self.__flog.write('ERROR in {0}/prn/{1}!!!! Check slurm output!'.format(path,fname))
+                        self.__flog.close()
+                        raise SystemExit('ERROR in {0}/prn/{1}!!!! Check slurm output!'.format(path,fname))
         return True
     
     def kstr(self):
@@ -146,7 +153,10 @@ class threads(object):
         for path in paths:
             self.__currpath = '{0}/{1}'.format(path,self.__kstrpath)
             
-            if os.path.exists('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)) and os.stat('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)).st_size != 0: raise SystemExit('Existing calculations in {0}/prn/{1}. Please clean up first!'.format(self.__currpath, self.__kstrname))
+            if os.path.exists('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)) and os.stat('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)).st_size != 0: 
+                self.__flog.write('Existing calculations in {0}/prn/{1}. Please clean up first!'.format(self.__currpath, self.__kstrname))
+                self.__flog.close()
+                raise SystemExit('Existing calculations in {0}/prn/{1}. Please clean up first!'.format(self.__currpath, self.__kstrname))
             
             self.submit_kstr()
             t.append(threading.Thread(target=self.checkstatus, args=(self.__currpath, self.__kstrname)))
@@ -165,7 +175,10 @@ class threads(object):
         for path in paths:
             self.__currpath = '{0}/{1}'.format(path,self.__shapepath)
             
-            if os.path.exists('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)) and os.stat('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)).st_size != 0: raise SystemExit('Existing calculations in {0}/prn/{1}. Please clean up first!'.format(self.__currpath, self.__kstrname))
+            if os.path.exists('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)) and os.stat('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)).st_size != 0: 
+                self.__flog.write('Existing calculations in {0}/prn/{1}. Please clean up first!'.format(self.__currpath, self.__kstrname))
+                self.__flog.close()
+                raise SystemExit('Existing calculations in {0}/prn/{1}. Please clean up first!'.format(self.__currpath, self.__kstrname))
             
             self.submit_shape()
             
@@ -184,7 +197,10 @@ class threads(object):
         for path in paths:
             self.__currpath = '{0}/{1}'.format(path,self.__kgrnpath)
             
-            if os.path.exists('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)) and os.stat('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)).st_size != 0: raise SystemExit('Existing calculations in {0}/prn/{1}. Please clean up first!'.format(self.__currpath, self.__kstrname))
+            if os.path.exists('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)) and os.stat('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)).st_size != 0: 
+                self.__flog.write('Existing calculations in {0}/prn/{1}. Please clean up first!'.format(self.__currpath, self.__kstrname))
+                self.__flog.close()
+                raise SystemExit('Existing calculations in {0}/prn/{1}. Please clean up first!'.format(self.__currpath, self.__kstrname))
             
             self.submit_kgrn()
             
@@ -203,7 +219,10 @@ class threads(object):
         for path in paths:
             self.__currpath = '{0}/{1}'.format(path,self.__kfcdpath)
             
-            if os.path.exists('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)) and os.stat('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)).st_size != 0: raise SystemExit('Existing calculations in {0}/prn/{1}. Please clean up first!'.format(self.__currpath, self.__kstrname))
+            if os.path.exists('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)) and os.stat('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)).st_size != 0: 
+                self.__flog.write('Existing calculations in {0}/prn/{1}. Please clean up first!'.format(self.__currpath, self.__kstrname))
+                self.__flog.close()
+                raise SystemExit('Existing calculations in {0}/prn/{1}. Please clean up first!'.format(self.__currpath, self.__kstrname))
             
             self.submit_kfcd()
             
@@ -228,8 +247,7 @@ class threads(object):
             print "Manually terminated!"
         finally:
             self.__flog.close()
-            #with open("log.out",'w') as f:
-            #    f.write(self.__logstr)
+            
         
         
         
