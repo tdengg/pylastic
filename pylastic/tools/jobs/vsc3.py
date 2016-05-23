@@ -10,7 +10,7 @@ import subprocess
 class threads(object):
     def __init__(self, structfile):
         self.__structfile = structfile
-        self.__starttime = time.clock()
+        self.__starttime = time.time()
         
         f=open('setup.json')
         dic = json.load(f)
@@ -103,8 +103,10 @@ class threads(object):
                 f=open('{0}/prn/{1}'.format(path,fname))
                 lastline = f.readlines()[-1].split()
                 if 'Finished' in lastline or 'Volumes:' in lastline: # or 'Volumes:'
-                    
-                    self.__flog.write('#####################\n{0} FINISHED \n Time:{1} \n--------------------\n'.format(path, str(time.clock()-self.__starttime)))
+                    stime=(time.time()-self.__starttime)
+                    M,S=divmod(stime,60)
+                    H,M=divmod(M,60)
+                    self.__flog.write('#####################\n{0} FINISHED \n Time: {1}:{2}:{3} \n--------------------\n'.format(path, H, M, S))
                     self.__flog.flush()
                     self.__q.task_done()
                     Finished=True
@@ -214,6 +216,10 @@ class threads(object):
         try:
             self.__q.join()
             print "ALL CALCULATIONS FINISHED."
+            stime=(time.time()-self.__starttime)
+            M,S=divmod(stime,60)
+            H,M=divmod(M,60)
+            self.__flog.write('\n ALL CALCULATIONS FINISHED! \n Total time: {0}:{1}:{2}'.format(H, M, S))
             
             
         except (KeyboardInterrupt, SystemExit):
