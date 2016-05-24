@@ -135,7 +135,7 @@ class threads(object):
         structobj = pickle.load(f)
         f.close()
         
-        self.__flog = open('log.out','w')
+        self.__flog = open('log.pyl','w')
         
         
         
