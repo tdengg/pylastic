@@ -495,7 +495,7 @@ class ANALYTICS(object):
             ax1.legend(title='Fitorder')
             #plt.show()
         
-        return (best_eta,best_forder),pw_prediction, hist_prediction, best_prediction
+        return (best_eta,best_forder),pw_prediction, hist_prediction, best_prediction, fig, fig2
                 
     def make_hist(self, Ndiv, hist_E2nd):
         hist_vect=np.zeros(Ndiv+1)

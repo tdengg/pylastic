@@ -26,11 +26,7 @@ class threads(object):
         self.__kfcdpath = dic['emto']['pnames']['kfcd']
         self.__kfcdname = '%s.prn'%dic['emto']['jobnames']['system']
         
-        self.__vscjobs_dic = dic['cluster']
-        
         self.__currpath = None
-        
-        
         return
     
     def submit_kstr(self):
@@ -39,11 +35,14 @@ class threads(object):
         ## Copy queuing script to calc directory:
         proc = subprocess.Popen(['cp run_kstr {0}'.format(self.__currpath)], shell=True)
         proc.wait()
+        
         workdir = os.getcwd()
+        
         os.chdir(self.__currpath)
         self.__flog.write('\t Submitting batch job: {0}/run_kstr \n'.format(self.__currpath))
         proc = subprocess.Popen(['sbatch run_kstr'], shell=True)
         proc.wait()
+        
         os.chdir(workdir)
         return
     
@@ -52,11 +51,14 @@ class threads(object):
         #self.__flog.write('copying run_shape to calculation directory: {0} \n'.format(self.__currpath))
         proc = subprocess.Popen(['cp run_shape {0}'.format(self.__currpath)], shell=True)
         proc.wait()
+        
         workdir = os.getcwd()
+        
         os.chdir(self.__currpath)
         self.__flog.write('\t Submitting batch job: {0}/run_kstr \n'.format(self.__currpath))
         proc = subprocess.Popen(['sbatch run_shape'], shell=True)
         proc.wait()
+        
         os.chdir(workdir)
         return
     
@@ -82,11 +84,14 @@ class threads(object):
         ## Copy queuing script to calc directory:
         proc = subprocess.Popen(['cp run_kfcd {0}'.format(self.__currpath)], shell=True)
         proc.wait()
+        
         workdir = os.getcwd()
+        
         os.chdir(self.__currpath)
         self.__flog.write('\t Submitting batch job: {0}/run_kfcd \n'.format(self.__currpath))
         proc = subprocess.Popen(['sbatch run_kfcd'], shell=True)
         proc.wait()
+        
         os.chdir(workdir)
         return
     
@@ -159,6 +164,7 @@ class threads(object):
                 raise SystemExit('Existing calculations in {0}/prn/{1}. Please clean up first!'.format(self.__currpath, self.__kstrname))
             
             self.submit_kstr()
+            self.__flog.flush()
             t.append(threading.Thread(target=self.checkstatus, args=(self.__currpath, self.__kstrname)))
             
         for task in t: 
@@ -171,7 +177,7 @@ class threads(object):
         
         self.__q=queue.Queue() 
         t=[]   
-        print paths
+        
         for path in paths:
             self.__currpath = '{0}/{1}'.format(path,self.__shapepath)
             
@@ -181,8 +187,9 @@ class threads(object):
                 raise SystemExit('Existing calculations in {0}/prn/{1}. Please clean up first!'.format(self.__currpath, self.__kstrname))
             
             self.submit_shape()
-            
+            self.__flog.flush()
             t.append(threading.Thread(target=self.checkstatus, args=(self.__currpath, self.__shapename)))
+            
         for task in t: 
             task.deamon=True
             task.start()
@@ -193,7 +200,7 @@ class threads(object):
         
         self.__q=queue.Queue() 
         t=[]   
-        print paths
+        
         for path in paths:
             self.__currpath = '{0}/{1}'.format(path,self.__kgrnpath)
             
@@ -203,7 +210,7 @@ class threads(object):
                 raise SystemExit('Existing calculations in {0}/prn/{1}. Please clean up first!'.format(self.__currpath, self.__kstrname))
             
             self.submit_kgrn()
-            
+            self.__flog.flush()
             t.append(threading.Thread(target=self.checkstatus, args=(self.__currpath, self.__kgrnname)))
         for task in t: 
             task.deamon=True
@@ -215,7 +222,7 @@ class threads(object):
         
         self.__q=queue.Queue() 
         t=[]   
-        print paths
+        
         for path in paths:
             self.__currpath = '{0}/{1}'.format(path,self.__kfcdpath)
             
@@ -225,8 +232,9 @@ class threads(object):
                 raise SystemExit('Existing calculations in {0}/prn/{1}. Please clean up first!'.format(self.__currpath, self.__kstrname))
             
             self.submit_kfcd()
-            
+            self.__flog.flush()
             t.append(threading.Thread(target=self.checkstatus, args=(self.__currpath, self.__kfcdname)))
+            
         for task in t: 
             task.deamon=True
             task.start()

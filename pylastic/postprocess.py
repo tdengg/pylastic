@@ -63,6 +63,7 @@ class ECs(Check, Energy, Stress):
         #--------------------------------------------------------------------------------------------------------------------------------
         if self.__cod=='vasp': self.__CONV=2.*self.__ToGPa
         elif self.__cod in ['espresso','exciting','wien']: self.__CONV=1.*self.__ToGPa
+        
     def set_gsenergy(self, gsenergy=None):
         """Read groundstate energy for all atoms in structures.
         
@@ -372,9 +373,10 @@ class ECs(Check, Energy, Stress):
             grid=[5 for i in range(kk)]
             grid[-1]=len(strainList)%5
         
-
+        
         
         n=1
+        m=1
         for stype in strainList:
             atoms = self.get_atomsByStraintype(stype)
             self.__V0 = atoms[0].V0
@@ -392,10 +394,12 @@ class ECs(Check, Energy, Stress):
             spl = '1'+str(len(strainList))+str(n)
             #plt.subplot(int(spl))
             #a = f.add_subplot(int(spl))
-            if grid[(n-1)/5] == 5:
-                a = plt.subplot2grid((kk,ll), ((n-1)/5,n-1), colspan=1)
-            else:
-                a = plt.subplot2grid((kk,ll), ((n-1)/5,n-1), colspan=1)
+            if (n-1)%5==0: m=0
+            
+            
+            a = plt.subplot2grid((kk,ll), ((n-1)/5,m), colspan=1)
+            
+            
             j = 1
             for i in [2,4,6]:
                 ans = Energy()
@@ -415,6 +419,7 @@ class ECs(Check, Energy, Stress):
                 j+=1
             
             n+=1
+            m+=1
             
         a.legend(title='Order of fit')
         
@@ -428,7 +433,24 @@ class ECs(Check, Energy, Stress):
         A2 = []
         
         strainList= self.__structures.items()[0][1].strainList
+        
+        if len(strainList)<=5:
+            kk=1
+            ll=len(strainList)
+            grid=[ll]
+        elif len(strainList)%5 == 0:
+            kk=len(strainList)/5
+            ll=5
+            grid=[5 for i in range(kk)]
+        else:
+            kk=len(strainList)/5+1
+            ll=5
+            grid=[5 for i in range(kk)]
+            grid[-1]=len(strainList)%5
+        
+        
         n=1
+        m=1
         for stype in strainList:
             atoms = self.get_atomsByStraintype(stype)
             self.__V0 = atoms[0].V0
@@ -445,8 +467,13 @@ class ECs(Check, Energy, Stress):
             strain = [i.eta for i in atoms]
             
             spl = '1'+str(len(strainList))+str(n)
-            a = f.add_subplot(int(spl))
+            #plt.subplot(int(spl))
+            #a = f.add_subplot(int(spl))
+            if (n-1)%5==0: m=0
             
+            
+            a = plt.subplot2grid((kk,ll), ((n-1)/5,m), colspan=1)
+            print (kk,ll), ((n-1)/5,m)
             j = 0
             for i in [2,4,6]:
                 ans = Energy()
@@ -469,6 +496,7 @@ class ECs(Check, Energy, Stress):
                 j+=1
             
             n+=1
+            m+=1
             
         a.legend(title='Order of fit')
         return f

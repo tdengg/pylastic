@@ -1,4 +1,6 @@
 import os
+import sys
+import glob
 import time
 import threading
 import pickle
@@ -9,7 +11,7 @@ import subprocess
 class threads(object):
     def __init__(self, structfile):
         self.__structfile = structfile
-        
+        self.__starttime = time.time()
         
         f=open('setup.json')
         dic = json.load(f)
@@ -24,39 +26,39 @@ class threads(object):
         self.__kfcdpath = dic['emto']['pnames']['kfcd']
         self.__kfcdname = '%s.prn'%dic['emto']['jobnames']['system']
         
-        self.__vscjobs_dic = dic['cluster']
-        
         self.__currpath = None
-        
-        
-        self.__logstr = ""
-        
         return
     
     def submit_kstr(self):
         
-        self.__logstr += 'copying run_kstr to calculation directory: {0} \n'.format(self.__currpath)
+        #self.__flog.write('copying run_kstr to calculation directory: {0} \n'.format(self.__currpath))
         ## Copy queuing script to calc directory:
         proc = subprocess.Popen(['cp run_kstr {0}'.format(self.__currpath)], shell=True)
         proc.wait()
+        
         workdir = os.getcwd()
+        
         os.chdir(self.__currpath)
-        self.__logstr += 'Submitting batch job: {0}/run_kstr \n'.format(self.__currpath)
+        self.__flog.write('\t Submitting batch job: {0}/run_kstr \n'.format(self.__currpath))
         proc = subprocess.Popen(['sbatch run_kstr'], shell=True)
         proc.wait()
+        
         os.chdir(workdir)
         return
     
     def submit_shape(self):
         ## Copy queuing script to calc directory:
-        self.__logstr += 'copying run_shape to calculation directory: {0} \n'.format(self.__currpath)
+        #self.__flog.write('copying run_shape to calculation directory: {0} \n'.format(self.__currpath))
         proc = subprocess.Popen(['cp run_shape {0}'.format(self.__currpath)], shell=True)
         proc.wait()
+        
         workdir = os.getcwd()
+        
         os.chdir(self.__currpath)
-        self.__logstr += 'Submitting batch job: {0}/run_kstr \n'.format(self.__currpath)
+        self.__flog.write('\t Submitting batch job: {0}/run_kstr \n'.format(self.__currpath))
         proc = subprocess.Popen(['sbatch run_shape'], shell=True)
         proc.wait()
+        
         os.chdir(workdir)
         return
     
@@ -71,7 +73,7 @@ class threads(object):
         workdir = os.getcwd()
         
         os.chdir(self.__currpath)
-        self.__logstr += 'Submitting batch job: {0}/run_kgrn \n'.format(self.__currpath)
+        self.__flog.write('\t Submitting batch job: {0}/run_kgrn \n'.format(self.__currpath))
         proc = subprocess.Popen(['sbatch run_kgrn'], shell=True)
         proc.wait()
         
@@ -82,11 +84,14 @@ class threads(object):
         ## Copy queuing script to calc directory:
         proc = subprocess.Popen(['cp run_kfcd {0}'.format(self.__currpath)], shell=True)
         proc.wait()
+        
         workdir = os.getcwd()
+        
         os.chdir(self.__currpath)
-        self.__logstr += 'Submitting batch job: {0}/run_kfcd \n'.format(self.__currpath)
+        self.__flog.write('\t Submitting batch job: {0}/run_kfcd \n'.format(self.__currpath))
         proc = subprocess.Popen(['sbatch run_kfcd'], shell=True)
         proc.wait()
+        
         os.chdir(workdir)
         return
     
@@ -102,13 +107,29 @@ class threads(object):
                 f=open('{0}/prn/{1}'.format(path,fname))
                 lastline = f.readlines()[-1].split()
                 if 'Finished' in lastline or 'Volumes:' in lastline: # or 'Volumes:'
-                    
-                    self.__logstr += '#####################\n{0} FINISHED \n#####################\n'.format(path)
-                    
+                    stime=(time.time()-self.__starttime)
+                    M,S=divmod(stime,60)
+                    H,M=divmod(M,60)
+                    self.__flog.write('#####################\n{0} FINISHED \n Time: {1:02d}:{2:02d}:{3:02d} \n--------------------\n'.format(path, int(H), int(M), int(S)))
+                    self.__flog.flush()
                     self.__q.task_done()
                     Finished=True
+                for n in range(len(f.readlines())): 
+                    if 'Not converged' in f.readlines()[n].split():
+                        self.__flog.write('KGRN calculation for {0} NOT CONVERGED..... STOPPING!'.format(path))
+                        self.__flog.close()
+                        sys.exit('KGRN calculation for {0} NOT CONVERGED..... STOPPING!!'.format(path))
+                
                 f.close()
-        
+            slurmout = glob.glob('{0}/slurm*'.format(path))
+            if len(slurmout)!=0:
+                with open(slurmout[-1]) as f1:
+                    slurmlines = f1.readlines()
+                for line in slurmlines:
+                    if 'error' in line.split(): 
+                        self.__flog.write('ERROR in {0}/prn/{1}!!!! Check slurm output!'.format(path,fname))
+                        self.__flog.close()
+                        raise SystemExit('ERROR in {0}/prn/{1}!!!! Check slurm output!'.format(path,fname))
         return True
     
     def kstr(self):
@@ -118,6 +139,8 @@ class threads(object):
         f = open(self.__structfile)
         structobj = pickle.load(f)
         f.close()
+        
+        self.__flog = open('log.pyl','w')
         
         
         
@@ -131,71 +154,87 @@ class threads(object):
         self.__q=queue.Queue() 
         t=[]   
         
+        self.__flog.write('Starting KSTR calculations..... \n')
         for path in paths:
             self.__currpath = '{0}/{1}'.format(path,self.__kstrpath)
             
-            if os.path.exists('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)) and os.stat('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)).st_size != 0: raise SystemExit('Existing calculations in {0}/prn/{1}. Please clean up first!'.format(self.__currpath, self.__kstrname))
+            if os.path.exists('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)) and os.stat('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)).st_size != 0: 
+                self.__flog.write('Existing calculations in {0}/prn/{1}. Please clean up first!'.format(self.__currpath, self.__kstrname))
+                self.__flog.close()
+                raise SystemExit('Existing calculations in {0}/prn/{1}. Please clean up first!'.format(self.__currpath, self.__kstrname))
             
             self.submit_kstr()
+            self.__flog.flush()
             t.append(threading.Thread(target=self.checkstatus, args=(self.__currpath, self.__kstrname)))
             
         for task in t: 
             task.deamon=True
             task.start()
         self.__q.join()
-        print 'KSTR FINISHED --> Starting SHAPE calculations. \n\n'
+        self.__flog.write('KSTR FINISHED --> Starting SHAPE calculations. \n\n')
         
         #### Wait until KSTR has finished.... start SHAPE....
         
         self.__q=queue.Queue() 
         t=[]   
-        print paths
+        
         for path in paths:
             self.__currpath = '{0}/{1}'.format(path,self.__shapepath)
             
-            if os.path.exists('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)) and os.stat('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)).st_size != 0: raise SystemExit('Existing calculations in {0}/prn/{1}. Please clean up first!'.format(self.__currpath, self.__kstrname))
+            if os.path.exists('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)) and os.stat('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)).st_size != 0: 
+                self.__flog.write('Existing calculations in {0}/prn/{1}. Please clean up first!'.format(self.__currpath, self.__kstrname))
+                self.__flog.close()
+                raise SystemExit('Existing calculations in {0}/prn/{1}. Please clean up first!'.format(self.__currpath, self.__kstrname))
             
             self.submit_shape()
-            
+            self.__flog.flush()
             t.append(threading.Thread(target=self.checkstatus, args=(self.__currpath, self.__shapename)))
+            
         for task in t: 
             task.deamon=True
             task.start()
         self.__q.join()
-        print 'SHAPE FINISHED --> Starting KGRN calculations. \n\n'
+        self.__flog.write('SHAPE FINISHED --> Starting KGRN calculations. \n\n')
         
         #### Wait until SHAPE has finished.... start KGRN....
         
         self.__q=queue.Queue() 
         t=[]   
-        print paths
+        
         for path in paths:
             self.__currpath = '{0}/{1}'.format(path,self.__kgrnpath)
             
-            if os.path.exists('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)) and os.stat('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)).st_size != 0: raise SystemExit('Existing calculations in {0}/prn/{1}. Please clean up first!'.format(self.__currpath, self.__kstrname))
+            if os.path.exists('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)) and os.stat('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)).st_size != 0: 
+                self.__flog.write('Existing calculations in {0}/prn/{1}. Please clean up first!'.format(self.__currpath, self.__kstrname))
+                self.__flog.close()
+                raise SystemExit('Existing calculations in {0}/prn/{1}. Please clean up first!'.format(self.__currpath, self.__kstrname))
             
             self.submit_kgrn()
-            
+            self.__flog.flush()
             t.append(threading.Thread(target=self.checkstatus, args=(self.__currpath, self.__kgrnname)))
         for task in t: 
             task.deamon=True
             task.start()
         self.__q.join()
-        print 'KGRN FINISHED --> Starting KFCD calculations. \n\n'
+        self.__flog.write('KGRN FINISHED --> Starting KFCD calculations. \n\n')
         
         #### Wait until KGRN has finished.... start KFCD....
         
         self.__q=queue.Queue() 
         t=[]   
-        print paths
+        
         for path in paths:
             self.__currpath = '{0}/{1}'.format(path,self.__kfcdpath)
             
-            if os.path.exists('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)) and os.stat('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)).st_size != 0: raise SystemExit('Existing calculations in {0}/prn/{1}. Please clean up first!'.format(self.__currpath, self.__kstrname))
+            if os.path.exists('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)) and os.stat('{0}/prn/{1}'.format(self.__currpath, self.__kstrname)).st_size != 0: 
+                self.__flog.write('Existing calculations in {0}/prn/{1}. Please clean up first!'.format(self.__currpath, self.__kstrname))
+                self.__flog.close()
+                raise SystemExit('Existing calculations in {0}/prn/{1}. Please clean up first!'.format(self.__currpath, self.__kstrname))
             
             self.submit_kfcd()
-            
+            self.__flog.flush()
             t.append(threading.Thread(target=self.checkstatus, args=(self.__currpath, self.__kfcdname)))
+            
         for task in t: 
             task.deamon=True
             task.start()
@@ -204,6 +243,10 @@ class threads(object):
         try:
             self.__q.join()
             print "ALL CALCULATIONS FINISHED."
+            stime=(time.time()-self.__starttime)
+            M,S=divmod(stime,60)
+            H,M=divmod(M,60)
+            self.__flog.write('\n ALL CALCULATIONS FINISHED! \n Total time: {0:02d}:{1:02d}:{2:02d}'.format(int(H), int(M), int(S)))
             
             
         except (KeyboardInterrupt, SystemExit):
@@ -211,8 +254,8 @@ class threads(object):
             self.__q.join()
             print "Manually terminated!"
         finally:
-            with open("log.out",'w') as f:
-                f.write(self.__logstr)
+            self.__flog.close()
+            
         
         
         
