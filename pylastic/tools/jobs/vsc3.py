@@ -298,7 +298,7 @@ class vasp(object):
         
         while not Finished:
             time.sleep(5)
-            if os.path.exists('{0}/{1}'.format(path,fname)) and os.stat('{0}/{1}'.format(path,fname)).st_size != 0:
+            if os.path.exists('{0}/{1}'.format(path,fname)) and os.stat('{1}'.format(path,fname)).st_size != 0:
                 f=open('{0}/{1}'.format(path,fname))
                 lines = f.readlines()
                 for line in lines:
@@ -345,12 +345,12 @@ class vasp(object):
         
         self.__flog.write('Starting calculations..... \n')
         for path in paths:
-            self.__currpath = '{0}/{1}'.format(path,self.__path)
+            self.__currpath = '{0}'.format(path)
             
-            if os.path.exists('{0}/{1}'.format(self.__currpath, self.__name)) and os.stat('{0}/{1}'.format(self.__currpath, self.__name)).st_size != 0: 
-                self.__flog.write('Existing calculations in {0}/{1}. Please clean up first!'.format(self.__currpath, self.__name))
+            if os.path.exists('{0}'.format(self.__currpath)) and os.stat('{0}/{1}'.format(self.__currpath)).st_size != 0: 
+                self.__flog.write('Existing calculations in {0}. Please clean up first!'.format(self.__currpath))
                 self.__flog.close()
-                raise SystemExit('Existing calculations in {0}/{1}. Please clean up first!'.format(self.__currpath, self.__name))
+                raise SystemExit('Existing calculations in {0}. Please clean up first!'.format(self.__currpath))
             
             self.submit_kstr()
             self.__flog.flush()
