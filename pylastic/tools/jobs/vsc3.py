@@ -347,7 +347,7 @@ class vasp(object):
         for path in paths:
             self.__currpath = '{0}'.format(path)
             
-            if os.path.exists('{0}'.format(self.__currpath)) and os.stat('{0}/{1}'.format(self.__currpath)).st_size != 0: 
+            if os.path.exists('{0}'.format(self.__currpath)) and os.stat('{0}'.format(self.__currpath)).st_size != 0: 
                 self.__flog.write('Existing calculations in {0}. Please clean up first!'.format(self.__currpath))
                 self.__flog.close()
                 raise SystemExit('Existing calculations in {0}. Please clean up first!'.format(self.__currpath))
