@@ -352,7 +352,7 @@ class vasp(object):
                 self.__flog.close()
                 raise SystemExit('Existing calculations in {0}. Please clean up first!'.format(self.__currpath))
             
-            self.submit_kstr()
+            self.submit_vasp()
             self.__flog.flush()
             t.append(threading.Thread(target=self.checkstatus, args=(self.__currpath, self.__name)))
             
