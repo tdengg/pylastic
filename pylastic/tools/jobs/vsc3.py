@@ -8,6 +8,8 @@ import json
 import Queue as queue
 import subprocess
 
+
+
 class threads(object):
     def __init__(self, structfile):
         self.__structfile = structfile
@@ -256,7 +258,127 @@ class threads(object):
         finally:
             self.__flog.close()
             
+class vasp(object):
+    def __init__(self, structfile):
+        self.__structfile = structfile
+        self.__starttime = time.time()
         
+        f=open('setup.json')
+        dic = json.load(f)
+        f.close()
+        
+        
+        self.__path = dic['vasp']['pnames']
+        self.__name = 'OUTCAR'
+        
+        self.__currpath = None
+        return
+    
+    
+    def submit_vasp(self):
+        ## Copy queuing script to calc directory:
+        proc = subprocess.Popen(['cp run_vasp {0}'.format(self.__currpath)], shell=True)
+        proc.wait()
+        
+        workdir = os.getcwd()
+        
+        os.chdir(self.__currpath)
+        self.__flog.write('\t Submitting batch job: {0} \n'.format(self.__currpath))
+        proc = subprocess.Popen(['sbatch run_vasp'], shell=True)
+        proc.wait()
+        
+        os.chdir(workdir)
+        return
+    
+    def checkstatus(self,path,fname):
+
+        Finished = False
+        
+        self.__q.put(path)
+        
+        while not Finished:
+            time.sleep(5)
+            if os.path.exists('{0}/{1}'.format(path,fname)) and os.stat('{0}/{1}'.format(path,fname)).st_size != 0:
+                f=open('{0}/{1}'.format(path,fname))
+                lines = f.readlines()
+                for line in lines:
+                    if 'General timing and accounting informations for this job:' in line: # or 'Volumes:'
+                        stime=(time.time()-self.__starttime)
+                        M,S=divmod(stime,60)
+                        H,M=divmod(M,60)
+                        self.__flog.write('#####################\n{0} FINISHED \n Time: {1:02d}:{2:02d}:{3:02d} \n--------------------\n'.format(path, int(H), int(M), int(S)))
+                        self.__flog.flush()
+                        self.__q.task_done()
+                        Finished=True
+                
+                f.close()
+            slurmout = glob.glob('{0}/slurm*'.format(path))
+            if len(slurmout)!=0:
+                with open(slurmout[-1]) as f1:
+                    slurmlines = f1.readlines()
+                for line in slurmlines:
+                    if 'error' in line.split(): 
+                        self.__flog.write('ERROR in {0}!!!! Check slurm output!'.format(path,fname))
+                        self.__flog.close()
+                        raise SystemExit('ERROR in {0}!!!! Check slurm output!'.format(path,fname))
+        return True
+    
+
+    def start_jobs(self):
+        f = open(self.__structfile)
+        structobj = pickle.load(f)
+        f.close()
+        
+        self.__flog = open('log.pyl','w')
+        
+        
+        
+        paths=[]
+        for struct in structobj.get_structures().values():
+            paths.append(struct.path.split('/')[-2]+'/'+struct.path.split('/')[-1]+'/')
+        ######################################################
+        
+        
+            
+        self.__q=queue.Queue() 
+        t=[]   
+        
+        self.__flog.write('Starting calculations..... \n')
+        for path in paths:
+            self.__currpath = '{0}/{1}'.format(path,self.__path)
+            
+            if os.path.exists('{0}/{1}'.format(self.__currpath, self.__name)) and os.stat('{0}/{1}'.format(self.__currpath, self.__name)).st_size != 0: 
+                self.__flog.write('Existing calculations in {0}/{1}. Please clean up first!'.format(self.__currpath, self.__name))
+                self.__flog.close()
+                raise SystemExit('Existing calculations in {0}/{1}. Please clean up first!'.format(self.__currpath, self.__name))
+            
+            self.submit_kstr()
+            self.__flog.flush()
+            t.append(threading.Thread(target=self.checkstatus, args=(self.__currpath, self.__name)))
+            
+        for task in t: 
+            task.deamon=True
+            task.start()
+        self.__q.join()
+        self.__flog.write('FINISHED. \n\n')
+        
+        
+        
+        try:
+            self.__q.join()
+            print "ALL CALCULATIONS FINISHED."
+            stime=(time.time()-self.__starttime)
+            M,S=divmod(stime,60)
+            H,M=divmod(M,60)
+            self.__flog.write('\n ALL CALCULATIONS FINISHED! \n Total time: {0:02d}:{1:02d}:{2:02d}'.format(int(H), int(M), int(S)))
+            
+            
+        except (KeyboardInterrupt, SystemExit):
+            self.__q.put('exit')
+            self.__q.join()
+            print "Manually terminated!"
+        finally:
+            self.__flog.close()   
         
         
 #t = threading.Thread(target=subproc, args=(a,))
