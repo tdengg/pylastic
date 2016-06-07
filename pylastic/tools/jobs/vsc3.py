@@ -318,7 +318,7 @@ class vasp(object):
                     slurmlines = f1.readlines()
                 for line in slurmlines:
                     if 'error' in line.split(): 
-                        self.__flog.write('ERROR in {0}!!!! Check slurm output!'.format(path,fname))
+                        self.__flog.write('ERROR in {0}. Check slurm output!'.format(path,fname))
                         #self.__flog.close()
                         #raise SystemExit('ERROR in {0}!!!! Check slurm output!'.format(path,fname))
         return True

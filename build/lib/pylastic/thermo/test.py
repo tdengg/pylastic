@@ -419,7 +419,7 @@ class GET_THERMO(object):
                                           t_max=2500,
                                           t_min=0)
         
-        #print 'HHHHHHHHHHHHHHHHAAAAAAAAAAAAAAAAAAAAAAAAAAALLLLLLLLLLLLLLLLLLOOOOOOOOOOOO'
+        
         f = open('F_TV','w')
         for t, free_energy, entropy, cv in np.array(phonon.get_thermal_properties()).T:
             #print t, cv

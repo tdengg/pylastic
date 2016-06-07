@@ -48,7 +48,7 @@ class ECs(Check, Energy, Stress):
         self.__thermodyn = thermo
         self.__T = 0
         self.__emtoout = pars['emto']['jobnames']['system']+'.prn'
-        
+        self.__funct = 'GGA'
         self.delPoints=False
         
         #%%%%%%%%--- CONSTANTS ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -88,7 +88,7 @@ class ECs(Check, Energy, Stress):
                 getData = exciting.Energy()
                 outfile = 'INFO.OUT'
             elif self.__cod == 'emto':
-                getData = emto.Energy()
+                getData = emto.Energy(funct=self.__funct)
                 outfile = '%s/prn/%s'%(self.__pname,self.__emtoout)
             gsenergy=[]    
             for atoms in sorted(self.__structures.items()):
@@ -570,6 +570,16 @@ class ECs(Check, Energy, Stress):
     
     def get_fitorder(self):
         return self.__fitorder
+    
+    def set_funct(self, funct):
+        if funct in ['LDA','GGA','PBEsol']:
+            self.__funct = funct
+        else:
+            self.__funct = 'GGA'
+            print "Unknown type of functional! Please set xc functional to one either 'LDA','GGA' or 'PBEsol'. (set to default --> GGA)"
+    
+    def get_funct(self):
+        return self.__funct
     
     def set_ec(self, etacalc):                                           
         """Evaluate elastic constants from polynomials.
@@ -1631,5 +1641,6 @@ class ECs(Check, Energy, Stress):
     mthd = property( fget = get_method        , fset = set_method    )
     workdir = property( fget = get_workdir       , fset = set_workdir    )
     T =  property( fget = get_T       , fset = set_T    )
+    functional = property( fget = get_funct       , fset = set_funct    )
             
         
