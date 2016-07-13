@@ -436,7 +436,7 @@ class ECs(Check, Energy, Stress):
             
         a.legend(title='Order of fit')
         
-        return a
+        return f
         
     def plot_2nd(self, mod = 'F'):
         """Returns matplotlib axis instance of d2E/d(eta) plot."""
@@ -515,7 +515,7 @@ class ECs(Check, Energy, Stress):
             m+=1
             
         a.legend(title='Order of fit')
-        return a
+        return f
         
     def plot_energy(self, color=['r','g','b','c','m','y','k'], mod = 'E0'):
         """Return matplotlib axis instance for energy-strain curve.  """
