@@ -309,7 +309,7 @@ class Stress():
             
             strain = copy(self.__strain)
             stress = copy(stress_ii)
-            print strain, stress, s
+            #print strain, stress, s
             etacalc = []
             #--- first derivative coefficient calculation -----------------------------------------
             

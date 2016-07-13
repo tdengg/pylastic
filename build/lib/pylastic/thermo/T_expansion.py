@@ -54,13 +54,13 @@ class Setup(Structures, Distort, POS):
         
     
     
-    def generate_supercells(self):
+    def generate_supercells(self, size=5):
         
         dirnames = [struct[1].path for struct in self.__structures.get_structures().items()]
         rootdir = os.getcwd()
         for d in dirnames:
             os.chdir(d)
-            os.system('/home/MCL/t.dengg/bin/phonopy-1.7.4/bin/phonopy  -d --dim="5 5 5" -c POSCAR')
+            os.system('/home/MCL/t.dengg/bin/phonopy-1.7.4/bin/phonopy  -d --dim="{0} {0} {0}" -c POSCAR'.format(size))
             os.system('cp POSCAR POSCAR-p')
             os.system('mv SPOSCAR POSCAR')
             os.system('pwd')

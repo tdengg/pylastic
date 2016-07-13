@@ -13,6 +13,7 @@ import pylastic.io.emto as emto
 from pylastic.status import Check
 #from pylastic.prettyPrint import FileStructure
 
+import os
 import math
 import pickle
 import json
@@ -28,10 +29,11 @@ class ECs(Check, Energy, Stress):
     """Calculation of elastic constants and post-processing."""
     
     def __init__(self, cod='vasp', thermo=False):
-        
-        pars = json.load(open('setup.json'))
-        self.__pname = pars['emto']['pnames']['kfcd']
-        self.__pname = pars['emto']['pnames']['kfcd']
+        if cod == 'emto':
+            pars = json.load(open('setup.json'))
+            self.__pname = pars['emto']['pnames']['kfcd']
+            self.__pname = pars['emto']['pnames']['kfcd']
+            self.__emtoout = pars['emto']['jobnames']['system']+'.prn'
         #super(Check, self).__init__()
         #super(FileStructure, self).__init__()
         super(ECs, self).__init__()
@@ -47,7 +49,7 @@ class ECs(Check, Energy, Stress):
         self.__workdir = ''
         self.__thermodyn = thermo
         self.__T = 0
-        self.__emtoout = pars['emto']['jobnames']['system']+'.prn'
+        
         self.__funct = 'GGA'
         self.delPoints=False
         
@@ -57,7 +59,7 @@ class ECs(Check, Energy, Stress):
         Ryd2eV = 13.605698066                 # Ryd to eV
         Angstroem = 1.e-10
         self.__cnvrtr = (_e)/(1e9*Angstroem**3.)    # Ryd/[a.u.^3] to GPa
-        self.__ToGPa = (_e*Ryd2eV)/(1e9*Bohr**3)
+        self.__ToGPa = (_e*Ryd2eV)/(1e9*Bohr**3.)
         self.__vToGPa = (_e)/(1e9*Angstroem**3.)
         #self.__ToGPa  = (_e*Ryd2eV)/(1e9*Bohr**3.)
         #--------------------------------------------------------------------------------------------------------------------------------
@@ -97,12 +99,22 @@ class ECs(Check, Energy, Stress):
                     outfile = atoms[1].path.split('/')[-1] + '.scf'
                     
                 if not atoms[1].status:
-                    print atoms[1].status
+                    #print atoms[1].status
                     atoms[1].gsenergy = 0
                     continue
+                if atoms[1].exclude:
+                    atoms[1].gsenergy_ignored = getData.get_gsenergy()
+                    atoms[1].gsenergy = 0
+                    continue
+                if os.path.exists(atoms[1].path+'/exclude'):
+                    atoms[1].gsenergy_ignored = getData.get_gsenergy()
+                    atoms[1].gsenergy = 0
+                    continue
+                
+                
                 #getData.set_outfile('%s/%s/'%atoms[0] + outfile)
                 #getData.set_gsEnergy()
-                print atoms[1].path, self.__workdir + '%s/%s'%(atoms[1].path.split('/')[-2],atoms[1].path.split('/')[-1])+'/' + outfile
+                #print atoms[1].path, self.__workdir + '%s/%s'%(atoms[1].path.split('/')[-2],atoms[1].path.split('/')[-1])+'/' + outfile
                 #getData.set_fname(self.__workdir + '%s/'%atoms[1].path.lstrip('.') + outfile)
                 if 'eta' in atoms[1].path.split('/')[-1]:getData.set_fname(self.__workdir + '%s/%s'%(atoms[1].path.split('/')[-2],atoms[1].path.split('/')[-1])+'/' + outfile)
                 else: getData.set_fname(self.__workdir + '%s'%(atoms[1].path.split('/')[-1])+'/' + outfile)
@@ -124,12 +136,12 @@ class ECs(Check, Energy, Stress):
             if self.delPoints:
                 for atoms in sorted(self.__structures.items()):
                 
-                    print [atoms[1].eta for atoms in sorted(self.__structures.items())], gsenergy
+                    #print [atoms[1].eta for atoms in sorted(self.__structures.items())], gsenergy
                     coeff = np.polyfit([atoms[1].eta for atoms in self.__structures.items()], gsenergy, 2)
                     p = np.poly1d(coeff)
                     k=0
                     for (etas,energy) in zip(self.__structures.items(),gsenergy):
-                        print (energy-p(etas[1].eta))**2.
+                        #print (energy-p(etas[1].eta))**2.
                         if (energy-p(etas[1].eta))**2. > 0.0004: 
                             gsenergy[k]=0.
                             atoms[1].gsenergy = 0. 
@@ -193,6 +205,7 @@ class ECs(Check, Energy, Stress):
                 structures = pickle.load(input)
             if type(structures)==dict: self.__structures = structures
             else: self.__structures = structures.get_structures()
+            for atoms in sorted(self.__structures.items()): atoms[1].exclude=False
         else: pass
         
     def get_structures(self):
@@ -262,7 +275,7 @@ class ECs(Check, Energy, Stress):
                     elif self.__mthd == 'Stress':
                         
                         stress = [self.physicalToLagrangian(i.stress,i.defMatrix) for i in atoms]
-                        print stress
+                        #print stress
                         if mpl: plt.plot(strain,[i.stress[0][2] for i in atoms])
                         ans = Stress(code=self.__cod)
                         ans.set_stress(stress)
@@ -473,7 +486,7 @@ class ECs(Check, Energy, Stress):
             
             
             a = plt.subplot2grid((kk,ll), ((n-1)/5,m), colspan=1)
-            print (kk,ll), ((n-1)/5,m)
+            #print (kk,ll), ((n-1)/5,m)
             j = 0
             for i in [2,4,6]:
                 ans = Energy()
@@ -485,9 +498,12 @@ class ECs(Check, Energy, Stress):
                 ans.set_2nd(fitorder)
                 A2.append(ans.get_2nd())
                 
-                strains = sorted(map(float,A2[j].keys()))
-                dE = [A2[j+3*(n-1)][str(s)] for s in strains]
+                strains = sorted(map(float,A2[j+3*(n-1)].keys()))
                 
+                try:
+                    dE = [A2[j+3*(n-1)][str(s)] for s in strains]
+                except:
+                    continue
                 a.plot(strains, dE, label=str(fitorder))
                 a.set_title(stype)
                 a.set_xlabel('strain')
@@ -508,10 +524,31 @@ class ECs(Check, Energy, Stress):
         a = f.add_subplot(111)
         strainList= self.__structures.items()[0][1].strainList
         
+        if len(strainList)<=5:
+            kk=1
+            ll=len(strainList)
+            grid=[ll]
+        elif len(strainList)%5 == 0:
+            kk=len(strainList)/5
+            ll=5
+            grid=[5 for i in range(kk)]
+        else:
+            kk=len(strainList)/5+1
+            ll=5
+            grid=[5 for i in range(kk)]
+            grid[-1]=len(strainList)%5
         
         
+        n=1
+        m=1
         j=0
         for stype in strainList:
+            
+            spl = '1'+str(len(strainList))+str(n)
+            if (n-1)%5==0: m=0
+            a = plt.subplot2grid((kk,ll), ((n-1)/5,m), colspan=1)
+            
+            
             
             fi=open(stype+'.energy','w')
             
@@ -526,7 +563,12 @@ class ECs(Check, Energy, Stress):
             else:
                 energy = [i.gsenergy for i in atoms]
             strain = [i.eta for i in atoms]
-            print stype, energy, [i.scale for i in atoms]
+            
+            ii=0
+            for (e,s) in zip(energy,strain):
+                if e==0.: energy.pop(ii); strain.pop(ii)
+                ii+=1
+            #print stype, energy, [i.scale for i in atoms]
             plt.plot(strain, energy, '%s*'%color[j%7])
             
             k=0
@@ -539,10 +581,14 @@ class ECs(Check, Energy, Stress):
             xp = np.linspace(min(strain), max(strain), 100)
             a.plot(xp, poly(xp),color[j%7],label=stype)
             j+=1
+            
+            n+=1
+            m+=1
         
         a.set_xlabel('strain')
         a.set_ylabel(r'energy    in eV')
-        a.legend(title='Strain type:')
+        #a.legend(title='Strain type:')
+        a.set_title(stype)
         return f
             
     def set_fitorder(self, fitorder):

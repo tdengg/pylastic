@@ -378,7 +378,7 @@ class Analyze(Birch):
         from pylastic.postprocess import ECs
         
         from pylastic.tools.analyze_structure import CALC
-        self.__structure='fcc'
+        self.__structure='bcc'
         
         
         ec = ECs('vasp')

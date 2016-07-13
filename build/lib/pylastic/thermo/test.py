@@ -13,7 +13,7 @@ class GET_THERMO(object):
     def __init__(self):
         
         #species = 'WRe_0.25_conv'
-        species = 'WRe_0.25_conv'
+        species = 'WRe_0.50'
         #species = 'Re'
         ###read force constants from vasprun.xml###
         vasprun = etree.iterparse('vasprun.xml', tag='varray')
@@ -56,6 +56,34 @@ class GET_THERMO(object):
             phonon.set_thermal_properties(t_step=10,
                                           t_max=3700,
                                           t_min=0)
+            
+        elif species=='W_conv_2x2x2':
+        #Tungsten
+            fc = vasp.get_force_constants_vasprun_xml(vasprun,1,2)
+            s = 2.
+            a = superc.get_cell()[0][0]*2.
+            print a
+            bulk = PhonopyAtoms(symbols=['W','W'] * 1,
+                                scaled_positions= primitive.get_scaled_positions())
+            bulk.set_cell(np.diag((a, a, a)))
+            phonon = Phonopy(bulk,
+                             [[s,0.,0.],[0.,s,0.],[0.,0.,s]],
+                             primitive_matrix=[[-0.5, 0.5, 0.5],[0.5, -0.5, 0.5],[0.5, 0.5, -0.5]],
+                             distance=0.01, factor=15.633302)
+            print fc
+            phonon.set_force_constants(fc[0])
+            phonon.set_dynamical_matrix()
+            #print phonon.get_dynamical_matrix_at_q([0,0,0])
+            mesh = [100, 100, 100]
+            phonon.set_mesh(mesh)
+            qpoints, weights, frequencies, eigvecs = phonon.get_mesh()
+            print frequencies
+            phonon.set_total_DOS()
+            
+            phonon.set_thermal_properties(t_step=10,
+                                          t_max=3700,
+                                          t_min=0)
+        
         elif species=='W_conv':
         #Tungsten
             fc = vasp.get_force_constants_vasprun_xml(vasprun,1,2)
@@ -137,7 +165,7 @@ class GET_THERMO(object):
                                           t_min=0)
         elif species == 'WRe_0.00': 
             fc = vasp.get_force_constants_vasprun_xml(vasprun,1,0)
-            s = 5.
+            s = 2. #5.
             a = superc.get_cell()[0][0]*2.
             print a
             bulk = PhonopyAtoms(symbols=['W'] * 1,
@@ -162,7 +190,7 @@ class GET_THERMO(object):
                                           t_min=0)
         elif species == 'WRe_0.03': 
             fc = vasp.get_force_constants_vasprun_xml(vasprun,2,0)
-            s = 5.
+            s = 2.
             a = superc.get_cell()[0][0]*2.
             print a
             bulk = PhonopyAtoms(symbols=['W'] * 1,
@@ -187,7 +215,7 @@ class GET_THERMO(object):
                                           t_min=0)
         elif species == 'WRe_0.06': 
             fc = vasp.get_force_constants_vasprun_xml(vasprun,3,0)
-            s = 5.
+            s = 2.
             a = superc.get_cell()[0][0]*2.
             print a
             bulk = PhonopyAtoms(symbols=['W'] * 1,
@@ -213,7 +241,7 @@ class GET_THERMO(object):
         
         elif species == 'WRe_0.09': 
             fc = vasp.get_force_constants_vasprun_xml(vasprun,4,0)
-            s = 5.
+            s = 2.
             a = superc.get_cell()[0][0]*2.
             print a
             bulk = PhonopyAtoms(symbols=['W'] * 1,
@@ -238,7 +266,7 @@ class GET_THERMO(object):
                                           t_min=0)
         elif species == 'WRe_0.12': 
             fc = vasp.get_force_constants_vasprun_xml(vasprun,5,0)
-            s = 5.
+            s = 2.
             a = superc.get_cell()[0][0]*2.
             print a
             bulk = PhonopyAtoms(symbols=['W'] * 1,
@@ -264,7 +292,7 @@ class GET_THERMO(object):
         
         elif species == 'WRe_0.18': 
             fc = vasp.get_force_constants_vasprun_xml(vasprun,6,0)
-            s = 5.
+            s = 2.
             a = superc.get_cell()[0][0]*2.
             print a
             bulk = PhonopyAtoms(symbols=['W'] * 1,
@@ -289,7 +317,7 @@ class GET_THERMO(object):
                                           t_min=0)
         elif species == 'WRe_0.25': 
             fc = vasp.get_force_constants_vasprun_xml(vasprun,7,0)
-            s = 5.
+            s = 2.
             a = primitive.get_cell()[0][0]*2.
             print a, primitive.get_scaled_positions()
             bulk = PhonopyAtoms(symbols=['W'] * 1,
@@ -315,7 +343,7 @@ class GET_THERMO(object):
         
         elif species == 'WRe_0.50': 
             fc = vasp.get_force_constants_vasprun_xml(vasprun,8,0)
-            s = 5.
+            s = 2.
             a = superc.get_cell()[0][0]*2.
             print a
             bulk = PhonopyAtoms(symbols=['W'] * 1,
