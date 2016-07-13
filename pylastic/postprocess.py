@@ -566,7 +566,9 @@ class ECs(Check, Energy, Stress):
             
             ii=0
             for (e,s) in zip(energy,strain):
-                if e==0.: energy.pop(ii); strain.pop(ii)
+                if e==0.: 
+                    energy.pop(ii); strain.pop(ii)
+                    ii-=1
                 ii+=1
             #print stype, energy, [i.scale for i in atoms]
             plt.plot(strain, energy, '%s*'%color[j%7])
@@ -580,6 +582,9 @@ class ECs(Check, Energy, Stress):
             poly = np.poly1d(np.polyfit(strain,energy,self.__fitorder[j]))
             xp = np.linspace(min(strain), max(strain), 100)
             a.plot(xp, poly(xp),color[j%7],label=stype)
+            
+            a.set_title(stype)
+            
             j+=1
             
             n+=1
@@ -588,7 +593,7 @@ class ECs(Check, Energy, Stress):
         a.set_xlabel('strain')
         a.set_ylabel(r'energy    in eV')
         #a.legend(title='Strain type:')
-        a.set_title(stype)
+        
         return f
             
     def set_fitorder(self, fitorder):
