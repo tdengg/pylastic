@@ -27,17 +27,207 @@ import os
 class Distort(object):
     """ Generate DEFORMATION MATRIX for given spacegroup number and Lagranian strain.
     
-    Parameters:
-    -----------
-    volumecoserving : boolean
-        
-    mthd : string ('Energy'/'Stress') 
-        method of calculation
-        
-    order: integer (2 or 3) 
-        specify order of elastic constants
+    :param bool volumeconserving: Specify if volumeconserving strains should be applied (default=False) (only for cubic structures) .
+    
+    :param str mthd: Specify method of elastic constants calculation ('Energy'/'Stress').
+    
+    :param int order: Specify order of elastic constants.
+    
+    Deformation matices:
+    --------------------
+    
+    Dst 01:
+    
+    =============================================================	=============================================================
+    a																b
+    =============================================================	=============================================================
+    :math:`\\begin{pmatrix} 1 & 1 & 1 & 0 & 0 & 0 \\end{pmatrix}`	:math:`\\begin{pmatrix} 1 & 1 & 1 & 0 & 0 & 0 \\end{pmatrix}` 
+    =============================================================	============================================================= 	
+    :math:`\\begin{pmatrix} 1 & 1 & 1 & 0 & 0 & 0 \\end{pmatrix}` 	:math:`\\begin{pmatrix} 1 & 1 & 1 & 0 & 0 & 0 \\end{pmatrix}` 
+    ============================================================= 	=============================================================
+    :math:`\\begin{pmatrix} 1 & 1 & 1 & 0 & 0 & 0 \\end{pmatrix}`	:math:`\\begin{pmatrix} 1 & 1 & 1 & 0 & 0 & 0 \\end{pmatrix}` 
+    =============================================================	============================================================= 	
+    :math:`\\begin{pmatrix} 1 & 1 & 1 & 0 & 0 & 0 \\end{pmatrix}` 	:math:`\\begin{pmatrix} 1 & 1 & 1 & 0 & 0 & 0 \\end{pmatrix}` 
+    ============================================================= 	=============================================================
+    
+    .. math::
+        \\begin{pmatrix} 1 & 1 & 1 & 0 & 0 & 0 \\end{pmatrix}
+    
+    Dst 02:
+    .. math::
+        \\begin{pmatrix} 1 & 0 & 0 & 0 & 0 & 0  \\end{pmatrix}
+    
+    Dst 03:
+    .. math::
+        \\begin{pmatrix} 0 & 1 & 0 & 0 & 0 & 0 \\end{pmatrix}
+    Dst 04:
+    
+    .. math::
+        \\begin{pmatrix} 0 & 0 & 1 & 0 & 0 & 0 \\end{pmatrix}
+    Dst 05:
+    
+    .. math::
+        \\begin{pmatrix} 0 & 0 & 0 & 2 & 0 & 0 \\end{pmatrix}
+    Dst 06:
+    
+    .. math::
+        \\begin{pmatrix} 0 & 0 & 0 & 0 & 2 & 0 \\end{pmatrix}
+    Dst 07:
+    
+    .. math::
+        \\begin{pmatrix} 0 & 0 & 0 & 0 & 0 & 2 \\end{pmatrix}
+    Dst 08:
+    
+    .. math::
+        \\begin{pmatrix} 1 & 1 & 0 & 0 & 0 & 0 \\end{pmatrix}
+    Dst 09:
+    
+    .. math::
+        \\begin{pmatrix} 1 & 0 & 1 & 0 & 0 & 0 \\end{pmatrix}
+    Dst 10:
+    
+    .. math::
+        \\begin{pmatrix} 1 & 0 & 0 & 2 & 0 & 0 \\end{pmatrix}
+    Dst 11:
+    
+    .. math::
+        \\begin{pmatrix} 1 & 0 & 0 & 0 & 2 & 0 \\end{pmatrix}
+    Dst 12:
+    
+    .. math::
+        \\begin{pmatrix} 1 & 0 & 0 & 0 & 0 & 2 \\end{pmatrix}
+    Dst 13:
+    
+    .. math::
+        \\begin{pmatrix} 0 & 1 & 1 & 0 & 0 & 0 \\end{pmatrix}
+    Dst 14:
+    
+    .. math::
+        \\begin{pmatrix} 0 & 1 & 0 & 2 & 0 & 0 \\end{pmatrix}
+    Dst 15:
+    
+    .. math::
+        \\begin{pmatrix} 0 & 1 & 0 & 0 & 2 & 0 \\end{pmatrix}
+    Dst 16:
+    
+    .. math::
+        \\begin{pmatrix} 0 & 1 & 0 & 0 & 0 & 2 \\end{pmatrix}
+    Dst 17:
+    
+    .. math::
+        \\begin{pmatrix} 0 & 0 & 1 & 2 & 0 & 0 \\end{pmatrix}
+    Dst 18:
+    
+    .. math::
+        \\begin{pmatrix} 0 & 0 & 1 & 0 & 2 & 0 \\end{pmatrix}
+    Dst 19:
+    
+    .. math::
+        \\begin{pmatrix} 0 & 0 & 1 & 0 & 0 & 2 \\end{pmatrix}
+    Dst 20:
+    
+    .. math::
+        \\begin{pmatrix} 0 & 0 & 0 & 2 & 2 & 0 \\end{pmatrix}
+    Dst 21:
+    
+    .. math::
+        \\begin{pmatrix} 0 & 0 & 0 & 2 & 0 & 2 \\end{pmatrix}
+    Dst 22:
+    
+    .. math::
+        \\begin{pmatrix} 0 & 0 & 0 & 0 & 2 & 2 \\end{pmatrix}
+    Dst 23:
+    
+    .. math::
+        \\begin{pmatrix} 0 & 0 & 0 & 2 & 2 & 2 \\end{pmatrix}
+    Dst 24:
+    
+    .. math::
+        \\begin{pmatrix} -1 & 0.5 & 0.5 & 0 & 0 & 0 \\end{pmatrix}
+    Dst 25:
+    
+    .. math::
+        \\begin{pmatrix} 0.5 & -1 & 0.5 & 0 & 0 & 0 \\end{pmatrix}
+    Dst 26:
+    
+    .. math::
+        \\begin{pmatrix} 0.5 & 0.5 & 2 & 0 & 0 & 0 \\end{pmatrix}
+    Dst 27:
+    
+    .. math::
+        \\begin{pmatrix} 1 & -1 & 0 & 0 & 0 & 0 \\end{pmatrix}
+    Dst 28:
+    
+    .. math::
+        \\begin{pmatrix} 1 & -1 & 0 & 2 & 0 & 0 \\end{pmatrix}
+    Dst 29:
+    
+    .. math::
+        \\begin{pmatrix} 1 & -1 & 0 & 0 & 0 & 2 \\end{pmatrix}
+    Dst 30:
+    
+    .. math::
+        \\begin{pmatrix} 1 & 0 & -1 & 0 & 2 & 0 \\end{pmatrix}
+    Dst 31:
+    
+    .. math::
+        \\begin{pmatrix} 0 & 1 & -1 & 0 & 0 & 2 \\end{pmatrix}
+    Dst 32:
+    
+    .. math::
+        \\begin{pmatrix} 0 & 1 & -1 & 2 & 2 & 2 \\end{pmatrix}
+    Dst 33:
+    
+    .. math::
+        \\begin{pmatrix} 1 & 0 & 0 & 2 & 2 & 0 \\end{pmatrix}
+    Dst 34:
+    
+    .. math::
+        \\begin{pmatrix} 0 & 1 & 0 & 2 & 2 & 0 \\end{pmatrix}
+    Dst 35:
+    
+    .. math::
+        \\begin{pmatrix} 1 & 1 & 0 & 2 & 2 & 0 \\end{pmatrix}
+    Dst 36:
+    
+    .. math::
+        \\begin{pmatrix} 1 & 1 & 0 & 2 & 0 & 0 \\end{pmatrix}
+    Dst 37:
+    
+    .. math::
+        \\begin{pmatrix} 1 & 1 & -1 & 0 & 0 & 0 \\end{pmatrix}
+    Dst 38:
+    
+    .. math::
+        \\begin{pmatrix} 1 & 1 & 1 & -2 & -2 & -2 \\end{pmatrix}
+    Dst 39:
+    
+    .. math::
+        \\begin{pmatrix} 1 & 2 & 3 & 4 & 5 & 6 \\end{pmatrix}
+    Dst 40:
+    
+    .. math::
+        \\begin{pmatrix} -2 & 1 & 4 & -3 & 6 & -5 \\end{pmatrix}
+    Dst 41:
+    
+    .. math::
+        \\begin{pmatrix} 3 & -5 & -1 & 6 & 2 & -4 \\end{pmatrix}
+    Dst 42:
+    
+    .. math::
+        \\begin{pmatrix} -4 & -6 & 5 & 1 & -3 & 2 \\end{pmatrix}
+    Dst 43:
+    
+    .. math::
+        \\begin{pmatrix} 5 & 4 & 6 & -2 & -1 & -3 \\end{pmatrix}
+    Dst 44:
+    
+    .. math::
+        \\begin{pmatrix} -6 & 3 & -2 & 5 & 4 & -1 \\end{pmatrix}
     """
     def __init__(self, volumeconserving = False, mthd = 'Energy', order = 2):
+        
+        
         self.__eta = 0.05
         self.volumeconserving = volumeconserving
         self.__mthd = mthd
@@ -248,10 +438,8 @@ class Distort(object):
     def set_eta(self, eta):
         """Set Lagrangian strain.
         
-        Parameters
-        ----------
-        eta : float
-            Lagrangian strain value.
+        :param float eta: Lagrangian strain value.
+        
         """
         if eta <= 0.1:
             self.__eta = eta
@@ -265,10 +453,8 @@ class Distort(object):
     def set_sgn(self, sgn):
         """Set spacegroup number.
         
-        Parameters
-        ----------
-        sgn : int
-            Space group number of parent crystal structure. 
+        :param int sgn: Space group number of parent crystal structure. 
+        
         """
         self.__sgn = sgn
         
@@ -278,10 +464,8 @@ class Distort(object):
     def set_strainType(self, strainType = None):
         """Set current strain (deformation) type.
         
-        Parameters
-        ----------
-        strainType : string
-            Strain type.
+        :param str strainType: Set strain type.
+
         """
         if not self.__Lag_strain_list: self.set_strainList()
         if strainType in self.__Lag_strain_list:
@@ -293,7 +477,14 @@ class Distort(object):
         return self.__strainType
     
     def set_defMatrix(self, code, volconserving=False):
-        """Calculate deformation matrix."""
+        """Calculate deformation matrix.
+        Conversion to Lagrangian strain:
+        
+        .. math::
+        	\\eta = \\epsilon + \\frac{1}{2} \\epsilon \\cdot \\epsilon
+        	
+        
+        """
         
         self.volumeconserving=volconserving
         self.__code = code
@@ -518,10 +709,8 @@ class Distort(object):
     def set_V0(self, V0):
         """Set equilibrium volume of parent structure.
         
-        Parameters
-        ----------
-        V0 : float
-            Equilibrium volume of supercell.
+        :param float V0: Equilibrium volume.
+        
         """
         self.__V0 = V0
     

@@ -2,7 +2,7 @@ pylastic's modules
 ------------------
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    
    modules/elatoms
    modules/distort
@@ -11,3 +11,7 @@ pylastic's modules
    modules/vaspIO
    modules/get_DFTdata
    modules/spacegroup
+   modules/io/vasp
+   modules/io/emto
+   modules/io/xcrysden
+   modules/tools/birch

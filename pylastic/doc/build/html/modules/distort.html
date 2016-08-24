@@ -78,68 +78,221 @@
 <dt id="distort.Distort">
 <em class="property">class </em><tt class="descclassname">distort.</tt><tt class="descname">Distort</tt><big>(</big><em>volumeconserving=False</em>, <em>mthd='Energy'</em>, <em>order=2</em><big>)</big><a class="headerlink" href="#distort.Distort" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate DEFORMATION MATRIX for given spacegroup number and Lagranian strain.</p>
-<p>volumecoserving : boolean</p>
-<dl class="docutils">
-<dt>mthd <span class="classifier-delimiter">:</span> <span class="classifier">string (&#8216;Energy&#8217;/&#8217;Stress&#8217;) </span></dt>
-<dd>method of calculation</dd>
-<dt>order: integer (2 or 3) </dt>
-<dd>specify order of elastic constants</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>volumeconserving</strong> (<em>bool</em>) &#8211; Specify if volumeconserving strains should be applied (default=False) (only for cubic structures) .</li>
+<li><strong>mthd</strong> (<em>str</em>) &#8211; Specify method of elastic constants calculation (&#8216;Energy&#8217;/&#8217;Stress&#8217;).</li>
+<li><strong>order</strong> (<em>int</em>) &#8211; Specify order of elastic constants.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Dst 01:</p>
+<p><span class="math">\(\begin{pmatrix} 1 &amp; 1 &amp; 1 &amp; 0 &amp; 0 &amp; 0 \end{pmatrix}\)</span>         <span class="math">\(\begin{pmatrix} 1 &amp; 1 &amp; 1 &amp; 0 &amp; 0 &amp; 0 \end{pmatrix}\)</span> 
+=============================================================       =============================================================
+<span class="math">\(\begin{pmatrix} 1 &amp; 1 &amp; 1 &amp; 0 &amp; 0 &amp; 0 \end{pmatrix}\)</span> <span class="math">\(\begin{pmatrix} 1 &amp; 1 &amp; 1 &amp; 0 &amp; 0 &amp; 0 \end{pmatrix}\)</span> 
+=============================================================       =============================================================   
+<span class="math">\(\begin{pmatrix} 1 &amp; 1 &amp; 1 &amp; 0 &amp; 0 &amp; 0 \end{pmatrix}\)</span>         <span class="math">\(\begin{pmatrix} 1 &amp; 1 &amp; 1 &amp; 0 &amp; 0 &amp; 0 \end{pmatrix}\)</span> 
+=============================================================       =============================================================</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} 1 &amp; 1 &amp; 1 &amp; 0 &amp; 0 &amp; 0 \end{pmatrix}\end{split}\]</div>
+<p>Dst 02:
+.. math:</p>
+<div class="highlight-python"><pre>\begin{pmatrix} 1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0  \end{pmatrix}</pre>
+</div>
+<p>Dst 03:
+.. math:</p>
+<div class="highlight-python"><pre>\begin{pmatrix} 0 &amp; 1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 \end{pmatrix}</pre>
+</div>
+<p>Dst 04:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} 0 &amp; 0 &amp; 1 &amp; 0 &amp; 0 &amp; 0 \end{pmatrix}\end{split}\]</div>
+<p>Dst 05:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} 0 &amp; 0 &amp; 0 &amp; 2 &amp; 0 &amp; 0 \end{pmatrix}\end{split}\]</div>
+<p>Dst 06:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} 0 &amp; 0 &amp; 0 &amp; 0 &amp; 2 &amp; 0 \end{pmatrix}\end{split}\]</div>
+<p>Dst 07:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 2 \end{pmatrix}\end{split}\]</div>
+<p>Dst 08:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} 1 &amp; 1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 \end{pmatrix}\end{split}\]</div>
+<p>Dst 09:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} 1 &amp; 0 &amp; 1 &amp; 0 &amp; 0 &amp; 0 \end{pmatrix}\end{split}\]</div>
+<p>Dst 10:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} 1 &amp; 0 &amp; 0 &amp; 2 &amp; 0 &amp; 0 \end{pmatrix}\end{split}\]</div>
+<p>Dst 11:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} 1 &amp; 0 &amp; 0 &amp; 0 &amp; 2 &amp; 0 \end{pmatrix}\end{split}\]</div>
+<p>Dst 12:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} 1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 2 \end{pmatrix}\end{split}\]</div>
+<p>Dst 13:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} 0 &amp; 1 &amp; 1 &amp; 0 &amp; 0 &amp; 0 \end{pmatrix}\end{split}\]</div>
+<p>Dst 14:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} 0 &amp; 1 &amp; 0 &amp; 2 &amp; 0 &amp; 0 \end{pmatrix}\end{split}\]</div>
+<p>Dst 15:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} 0 &amp; 1 &amp; 0 &amp; 0 &amp; 2 &amp; 0 \end{pmatrix}\end{split}\]</div>
+<p>Dst 16:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} 0 &amp; 1 &amp; 0 &amp; 0 &amp; 0 &amp; 2 \end{pmatrix}\end{split}\]</div>
+<p>Dst 17:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} 0 &amp; 0 &amp; 1 &amp; 2 &amp; 0 &amp; 0 \end{pmatrix}\end{split}\]</div>
+<p>Dst 18:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} 0 &amp; 0 &amp; 1 &amp; 0 &amp; 2 &amp; 0 \end{pmatrix}\end{split}\]</div>
+<p>Dst 19:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} 0 &amp; 0 &amp; 1 &amp; 0 &amp; 0 &amp; 2 \end{pmatrix}\end{split}\]</div>
+<p>Dst 20:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} 0 &amp; 0 &amp; 0 &amp; 2 &amp; 2 &amp; 0 \end{pmatrix}\end{split}\]</div>
+<p>Dst 21:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} 0 &amp; 0 &amp; 0 &amp; 2 &amp; 0 &amp; 2 \end{pmatrix}\end{split}\]</div>
+<p>Dst 22:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} 0 &amp; 0 &amp; 0 &amp; 0 &amp; 2 &amp; 2 \end{pmatrix}\end{split}\]</div>
+<p>Dst 23:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} 0 &amp; 0 &amp; 0 &amp; 2 &amp; 2 &amp; 2 \end{pmatrix}\end{split}\]</div>
+<p>Dst 24:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} -1 &amp; 0.5 &amp; 0.5 &amp; 0 &amp; 0 &amp; 0 \end{pmatrix}\end{split}\]</div>
+<p>Dst 25:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} 0.5 &amp; -1 &amp; 0.5 &amp; 0 &amp; 0 &amp; 0 \end{pmatrix}\end{split}\]</div>
+<p>Dst 26:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} 0.5 &amp; 0.5 &amp; 2 &amp; 0 &amp; 0 &amp; 0 \end{pmatrix}\end{split}\]</div>
+<p>Dst 27:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} 1 &amp; -1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 \end{pmatrix}\end{split}\]</div>
+<p>Dst 28:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} 1 &amp; -1 &amp; 0 &amp; 2 &amp; 0 &amp; 0 \end{pmatrix}\end{split}\]</div>
+<p>Dst 29:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} 1 &amp; -1 &amp; 0 &amp; 0 &amp; 0 &amp; 2 \end{pmatrix}\end{split}\]</div>
+<p>Dst 30:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} 1 &amp; 0 &amp; -1 &amp; 0 &amp; 2 &amp; 0 \end{pmatrix}\end{split}\]</div>
+<p>Dst 31:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} 0 &amp; 1 &amp; -1 &amp; 0 &amp; 0 &amp; 2 \end{pmatrix}\end{split}\]</div>
+<p>Dst 32:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} 0 &amp; 1 &amp; -1 &amp; 2 &amp; 2 &amp; 2 \end{pmatrix}\end{split}\]</div>
+<p>Dst 33:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} 1 &amp; 0 &amp; 0 &amp; 2 &amp; 2 &amp; 0 \end{pmatrix}\end{split}\]</div>
+<p>Dst 34:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} 0 &amp; 1 &amp; 0 &amp; 2 &amp; 2 &amp; 0 \end{pmatrix}\end{split}\]</div>
+<p>Dst 35:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} 1 &amp; 1 &amp; 0 &amp; 2 &amp; 2 &amp; 0 \end{pmatrix}\end{split}\]</div>
+<p>Dst 36:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} 1 &amp; 1 &amp; 0 &amp; 2 &amp; 0 &amp; 0 \end{pmatrix}\end{split}\]</div>
+<p>Dst 37:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} 1 &amp; 1 &amp; -1 &amp; 0 &amp; 0 &amp; 0 \end{pmatrix}\end{split}\]</div>
+<p>Dst 38:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} 1 &amp; 1 &amp; 1 &amp; -2 &amp; -2 &amp; -2 \end{pmatrix}\end{split}\]</div>
+<p>Dst 39:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} 1 &amp; 2 &amp; 3 &amp; 4 &amp; 5 &amp; 6 \end{pmatrix}\end{split}\]</div>
+<p>Dst 40:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} -2 &amp; 1 &amp; 4 &amp; -3 &amp; 6 &amp; -5 \end{pmatrix}\end{split}\]</div>
+<p>Dst 41:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} 3 &amp; -5 &amp; -1 &amp; 6 &amp; 2 &amp; -4 \end{pmatrix}\end{split}\]</div>
+<p>Dst 42:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} -4 &amp; -6 &amp; 5 &amp; 1 &amp; -3 &amp; 2 \end{pmatrix}\end{split}\]</div>
+<p>Dst 43:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} 5 &amp; 4 &amp; 6 &amp; -2 &amp; -1 &amp; -3 \end{pmatrix}\end{split}\]</div>
+<p>Dst 44:</p>
+<div class="math">
+\[\begin{split}\begin{pmatrix} -6 &amp; 3 &amp; -2 &amp; 5 &amp; 4 &amp; -1 \end{pmatrix}\end{split}\]</div>
+<dl class="method">
+<dt id="distort.Distort.get_info">
+<tt class="descname">get_info</tt><big>(</big><em>v=True</em><big>)</big><a class="headerlink" href="#distort.Distort.get_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns dictionary with object properties</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="distort.Distort.get_strainList_iter">
+<tt class="descname">get_strainList_iter</tt><big>(</big><big>)</big><a class="headerlink" href="#distort.Distort.get_strainList_iter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns strain list as iterator object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="distort.Distort.set_V0">
+<tt class="descname">set_V0</tt><big>(</big><em>V0</em><big>)</big><a class="headerlink" href="#distort.Distort.set_V0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set equilibrium volume of parent structure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>V0</strong> (<em>float</em>) &#8211; Equilibrium volume.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="distort.Distort.set_defMatrix">
+<tt class="descname">set_defMatrix</tt><big>(</big><em>code</em>, <em>volconserving=False</em><big>)</big><a class="headerlink" href="#distort.Distort.set_defMatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate deformation matrix.
+Conversion to Lagrangian strain:</p>
+<div class="math">
+\[\eta = \epsilon + \frac{1}{2} \epsilon \cdot \epsilon\]</div>
+</dd></dl>
+
 <dl class="method">
 <dt id="distort.Distort.set_eta">
 <tt class="descname">set_eta</tt><big>(</big><em>eta</em><big>)</big><a class="headerlink" href="#distort.Distort.set_eta" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set Lagrangian strain.</p>
-<dl class="docutils">
-<dt>eta <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>Lagrangian strain value.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>eta</strong> (<em>float</em>) &#8211; Lagrangian strain value.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
-
-<dl class="method">
-<dt id="distort.Distort.get_eta">
-<tt class="descname">get_eta</tt><big>(</big><big>)</big><a class="headerlink" href="#distort.Distort.get_eta" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="method">
 <dt id="distort.Distort.set_sgn">
 <tt class="descname">set_sgn</tt><big>(</big><em>sgn</em><big>)</big><a class="headerlink" href="#distort.Distort.set_sgn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set spacegroup number.</p>
-<dl class="docutils">
-<dt>sgn <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
-<dd>Space group number of parent crystal structure.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>sgn</strong> (<em>int</em>) &#8211; Space group number of parent crystal structure.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
-
-<dl class="method">
-<dt id="distort.Distort.get_sgn">
-<tt class="descname">get_sgn</tt><big>(</big><big>)</big><a class="headerlink" href="#distort.Distort.get_sgn" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="distort.Distort.set_strainType">
-<tt class="descname">set_strainType</tt><big>(</big><em>strainType=None</em><big>)</big><a class="headerlink" href="#distort.Distort.set_strainType" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set current strain (deformation) type.</p>
-<dl class="docutils">
-<dt>strainType <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
-<dd>Strain type.</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="distort.Distort.get_strainType">
-<tt class="descname">get_strainType</tt><big>(</big><big>)</big><a class="headerlink" href="#distort.Distort.get_strainType" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="distort.Distort.set_defMatrix">
-<tt class="descname">set_defMatrix</tt><big>(</big><em>code</em><big>)</big><a class="headerlink" href="#distort.Distort.set_defMatrix" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate deformation matrix.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="distort.Distort.get_defMatrix">
-<tt class="descname">get_defMatrix</tt><big>(</big><big>)</big><a class="headerlink" href="#distort.Distort.get_defMatrix" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="method">
 <dt id="distort.Distort.set_strainList">
@@ -148,34 +301,18 @@
 </dd></dl>
 
 <dl class="method">
-<dt id="distort.Distort.get_strainList">
-<tt class="descname">get_strainList</tt><big>(</big><big>)</big><a class="headerlink" href="#distort.Distort.get_strainList" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="distort.Distort.set_V0">
-<tt class="descname">set_V0</tt><big>(</big><em>V0</em><big>)</big><a class="headerlink" href="#distort.Distort.set_V0" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set equilibrium volume of parent structure.</p>
-<dl class="docutils">
-<dt>V0 <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>Equilibrium volume of supercell.</dd>
-</dl>
+<dt id="distort.Distort.set_strainType">
+<tt class="descname">set_strainType</tt><big>(</big><em>strainType=None</em><big>)</big><a class="headerlink" href="#distort.Distort.set_strainType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set current strain (deformation) type.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>strainType</strong> (<em>str</em>) &#8211; Set strain type.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
-
-<dl class="method">
-<dt id="distort.Distort.get_V0">
-<tt class="descname">get_V0</tt><big>(</big><big>)</big><a class="headerlink" href="#distort.Distort.get_V0" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="distort.Distort.set_LC">
-<tt class="descname">set_LC</tt><big>(</big><em>LC</em><big>)</big><a class="headerlink" href="#distort.Distort.set_LC" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="distort.Distort.get_LC">
-<tt class="descname">get_LC</tt><big>(</big><big>)</big><a class="headerlink" href="#distort.Distort.get_LC" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 </dd></dl>
 

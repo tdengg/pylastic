@@ -38,14 +38,14 @@ class ECs(Check, Energy, Stress):
         #super(FileStructure, self).__init__()
         super(ECs, self).__init__()
         
-        self.__CVS = []
+        self.__CVS = {}
         self.__V0 = None
         self.__structures = None
         self.__cod = cod
         self.__mthd = 'Energy'
         self.__fitorder = [6,6,6]
         self.__etacalc = None
-        self.__rms = []
+        self.__rms = {}
         self.__workdir = ''
         self.__thermodyn = thermo
         self.__T = 0
@@ -69,10 +69,8 @@ class ECs(Check, Energy, Stress):
     def set_gsenergy(self, gsenergy=None):
         """Read groundstate energy for all atoms in structures.
         
-        Parameters
-        ----------
-            gsenergy : float???? DEBUG???? 
-                Groundstate energy.
+        :param list gsenergy: Groundstate energy for all distorted structures (list of floats).
+        
         """
         self.status()
         if not gsenergy:
@@ -116,8 +114,10 @@ class ECs(Check, Energy, Stress):
                 #getData.set_gsEnergy()
                 #print atoms[1].path, self.__workdir + '%s/%s'%(atoms[1].path.split('/')[-2],atoms[1].path.split('/')[-1])+'/' + outfile
                 #getData.set_fname(self.__workdir + '%s/'%atoms[1].path.lstrip('.') + outfile)
-                if 'eta' in atoms[1].path.split('/')[-1]:getData.set_fname(self.__workdir + '%s/%s'%(atoms[1].path.split('/')[-2],atoms[1].path.split('/')[-1])+'/' + outfile)
+                if 'eta' in atoms[1].path.split('/')[-1] and self.__thermodyn:getData.set_fname(self.__workdir + '%s/%s/%s'%(atoms[1].path.split('/')[-3],atoms[1].path.split('/')[-2],atoms[1].path.split('/')[-1])+'/' + outfile)
+                elif 'eta' in atoms[1].path.split('/')[-1] and not self.__thermodyn:getData.set_fname(self.__workdir + '%s/%s'%(atoms[1].path.split('/')[-2],atoms[1].path.split('/')[-1])+'/' + outfile)
                 else: getData.set_fname(self.__workdir + '%s'%(atoms[1].path.split('/')[-1])+'/' + outfile)
+                print getData.get_fname()
                 getData.set_gsenergy()
                 if self.__thermodyn:
                     outfile_ph = 'F_TV'
@@ -128,7 +128,7 @@ class ECs(Check, Energy, Stress):
                     atoms[1].phenergy = getData.get_phenergy()
                     atoms[1].T = getData.T
                 #atoms[1].gsenergy = getData.get_gsEnergy()
-                    atoms[1].gsenergy = getData.get_gsenergy()/1.
+                    atoms[1].gsenergy = getData.get_gsenergy()/125.
                 else:
                     atoms[1].gsenergy = getData.get_gsenergy()
                     gsenergy.append(atoms[1].gsenergy)
@@ -166,10 +166,10 @@ class ECs(Check, Energy, Stress):
     
     def set_stress(self, stress=None):
         """Read stress for all atoms in structures.
-        
+        :param list stress: Physical stress as list of floats
         Parameters
         ----------
-            stress : float???? DEBUG???? 
+            stress : 
                 Physical stress.
         """
         self.status()
@@ -217,10 +217,8 @@ class ECs(Check, Energy, Stress):
     def get_atomsByStraintype(self, strainType):
         """Sort structures by strain type to get an ordered list of distortions.
         
-        Parameters
-        ----------
-            strainType : string 
-                Strain type.
+        :param str strainType: Strain type.
+                
         """
         atomslist = []
         for dic in sorted(self.__structures):
@@ -243,13 +241,13 @@ class ECs(Check, Energy, Stress):
             * plot of energy vs. strain curves.
         """
         if self.__thermodyn:
-            self.__A2 = []
+            self.__A2 = {}
             
             for t in range(len(self.__T)):
                 
-                self.__A2.append([])
-                self.__CVS.append([])
-                self.__rms.append([])
+                self.__A2[str(self.__T[t])]=[]
+                self.__CVS[str(self.__T[t])]={}
+                self.__rms[str(self.__T[t])]={}
                 #self.status()
                 # Check status of every atoms object
                 strainList= self.__structures.items()[0][1].strainList
@@ -287,9 +285,9 @@ class ECs(Check, Energy, Stress):
                     ans.set_2nd(fitorder)
                     
                     ans.set_cvs(fitorder)
-                    self.__rms[t].append(ans.get_r())
-                    self.__CVS[t].append(ans.get_cvs())
-                    self.__A2[t].append(ans.get_2nd())
+                    self.__rms[str(self.__T[t])]=(ans.get_r())
+                    self.__CVS[str(self.__T[t])][stype]=(ans.get_cvs())
+                    self.__A2[str(self.__T[t])].append(ans.get_2nd())
                     
                     #spl = str(len(strainList))+'1'+str(n)
                     #plt.subplot(int(spl))
@@ -343,8 +341,8 @@ class ECs(Check, Energy, Stress):
                 ans.set_2nd(self.__fitorder[n-1])
                 
                 ans.set_cvs(self.__fitorder[n-1])
-                self.__rms.append(ans.get_r())
-                self.__CVS.append(ans.get_cvs())
+                self.__rms[stype]=ans.get_r()
+                self.__CVS[stype]=ans.get_cvs()
                 self.__A2.append(ans.get_2nd())
                 
                 #spl = str(len(strainList))+'1'+str(n)
@@ -436,7 +434,7 @@ class ECs(Check, Energy, Stress):
             
         a.legend(title='Order of fit')
         
-        return a
+        return f
         
     def plot_2nd(self, mod = 'F'):
         """Returns matplotlib axis instance of d2E/d(eta) plot."""
@@ -515,10 +513,10 @@ class ECs(Check, Energy, Stress):
             m+=1
             
         a.legend(title='Order of fit')
-        return a
+        return f
         
     def plot_energy(self, color=['r','g','b','c','m','y','k'], mod = 'E0'):
-        """Return matplotlib axis instance for energy-strain curve.  """
+        """Returns matplotlib axis instance for energy-strain curve.  """
         if not mpl: raise "Problem with matplotib: Plotting not possible."
         f = plt.figure(figsize=(5,4), dpi=100)
         a = f.add_subplot(111)
@@ -599,10 +597,8 @@ class ECs(Check, Energy, Stress):
     def set_fitorder(self, fitorder):
         """Set fitorder of polynomial energy - strain fit.
         
-        Parameters
-        ----------
-            fitorder : integer 
-                Order of polynomial energy-strain fit.
+        :param list fitorder: Order of polynomial energy-strain fit (one for each distortion type).
+                
         """
         self.__fitorder = fitorder
     
@@ -612,10 +608,8 @@ class ECs(Check, Energy, Stress):
     def set_etacalc(self, etacalc):
         """Set maximum lagrangian strain for the fitting procedure.
         
-        Parameters
-        ----------
-            etacalc : float 
-                Maximum lagrangian strain.
+        :param list etacalc: List of strings containing maximum lagrangian strain used for fitting.
+        
         """
         self.__etacalc = etacalc
     
@@ -623,6 +617,11 @@ class ECs(Check, Energy, Stress):
         return self.__fitorder
     
     def set_funct(self, funct):
+        """Set exchange-correlation functional for EMTO calculations.
+        
+        :param str funct: Choose one of LDA, GGA or PBEsol.
+                
+        """
         if funct in ['LDA','GGA','PBEsol']:
             self.__funct = funct
         else:
@@ -633,14 +632,10 @@ class ECs(Check, Energy, Stress):
         return self.__funct
     
     def set_ec(self, etacalc):                                           
-        """Evaluate elastic constants from polynomials.
+        """Evaluate elastic constants from polynomial fitting.
         
-        Parameters
-        ----------
-            etacalc : float 
-                Maximum lagrangian strain.
-            A2 : list
-                Coefficients of polynomial fit.
+        :param etacalc: Either list containing maximum Lagrangian strain used for fitting or only single strain used for each distortion type.
+        
         """
         if not self.__thermodyn:
             C = np.zeros((6,6))
@@ -1145,7 +1140,7 @@ class ECs(Check, Energy, Stress):
         
         else:
             Cs = []
-            for t in range(len(self.__T)):
+            for t in map(str,self.__T):#for t in range(len(self.__T)):
                 C = np.zeros((6,6))
                 
                 LC = self.__structures.items()[0][1].LC
@@ -1626,7 +1621,7 @@ class ECs(Check, Energy, Stress):
                         C[j,i] = C[i,j] 
                 #%%%--- Calculating the elastic moduli ---%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 if self.__cod == 'espresso': C = -C/10.
-                elif self.__cod in ['vasp','emto','exciting','wien']: C = C/4.#C=C*self.__CONV/self.__V0#C = C/4.
+                elif self.__cod in ['vasp','emto','exciting','wien']: C=C*self.__vToGPa/self.__V0#C = C/4.#C=C*self.__CONV/self.__V0#C = C/4.
                 self.BV = (C[0,0]+C[1,1]+C[2,2]+2*(C[0,1]+C[0,2]+C[1,2]))/9
                 self.GV = ((C[0,0]+C[1,1]+C[2,2])-(C[0,1]+C[0,2]+C[1,2])+3*(C[3,3]+C[4,4]+C[5,5]))/15
                 self.EV = (9*self.BV*self.GV)/(3*self.BV+self.GV)
@@ -1649,6 +1644,11 @@ class ECs(Check, Energy, Stress):
         return self.__C
     
     def set_code(self, code):
+        """Set ab-initio code.
+        
+        :param str code: Set ab-initio code vasp,exciting,espresso,wien or emto.
+        
+        """
         if code in ['vasp','exciting','espresso','wien','emto']:
             self.__cod = code
         else:
@@ -1658,6 +1658,11 @@ class ECs(Check, Energy, Stress):
         return self.__cod
     
     def set_method(self, mthd):
+        """Set approach of elastic constants calculation ('Energy' or 'Strain').
+        
+        :param str mthd: Set to 'Stress' or 'Energy'.
+        
+        """
         if mthd in ['Energy','Stress']: 
             self.__mthd = mthd
             

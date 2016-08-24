@@ -1,5 +1,12 @@
+#import imp
+
+#vasp = imp.load_source('vasp', '/home/t.dengg/.local/lib/python2.7/site-packages/phonopy/interface/vasp.py')
+
+
+
 import sys
-print sys.path.pop(2)
+print sys.path.pop(3)
+sys.path.append('/home/t.dengg/.local/lib/python2.7/site-packages/phonopy')
 import pickle
 from phonopy import Phonopy
 from phonopy.structure.atoms import Atoms as PhonopyAtoms
@@ -13,7 +20,7 @@ class GET_THERMO(object):
     def __init__(self):
         
         #species = 'WRe_0.25_conv'
-        species = 'WRe_0.50'
+        species = 'WRe_0.00'
         #species = 'Re'
         ###read force constants from vasprun.xml###
         vasprun = etree.iterparse('vasprun.xml', tag='varray')
@@ -164,8 +171,8 @@ class GET_THERMO(object):
                                           t_max=3700,
                                           t_min=0)
         elif species == 'WRe_0.00': 
-            fc = vasp.get_force_constants_vasprun_xml(vasprun,1,0)
-            s = 2. #5.
+            fc = vasp.get_force_constants_vasprun_xml(vasprun,1)
+            s = 5.
             a = superc.get_cell()[0][0]*2.
             print a
             bulk = PhonopyAtoms(symbols=['W'] * 1,

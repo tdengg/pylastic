@@ -62,7 +62,31 @@
 <dl class="class">
 <dt id="elatoms.ElAtoms">
 <em class="property">class </em><tt class="descclassname">elatoms.</tt><tt class="descname">ElAtoms</tt><big>(</big><em>cod='vasp'</em><big>)</big><a class="headerlink" href="#elatoms.ElAtoms" title="Permalink to this definition">¶</a></dt>
-<dd><p>Object similar to the <tt class="docutils literal"><span class="pre">atoms</span></tt> class in <em>ASE</em>, containing information related to the structure.</p>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Setter V0:</th><td class="field-body"></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first simple">
+<li><strong>V</strong> &#8211; </li>
+<li><strong>cell</strong> &#8211; </li>
+<li><strong>natom</strong> &#8211; </li>
+<li><strong>scale</strong> &#8211; </li>
+<li><strong>species</strong> &#8211; </li>
+<li><strong>poscar</strong> &#8211; </li>
+<li><strong>poscarnew</strong> &#8211; </li>
+<li><strong>gsenergy</strong> &#8211; </li>
+<li><strong>phenergy</strong> &#8211; </li>
+<li><strong>T</strong> &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Path path:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<p>Object similar to the <tt class="docutils literal"><span class="pre">atoms</span></tt> class in <em>ASE</em>, containing information related to the structure.</p>
 <p><strong>Example:</strong></p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">poscar</span> <span class="o">=</span> <span class="n">POS</span><span class="p">(</span><span class="s">&#39;POSCAR&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read_pos</span><span class="p">()</span>
 <span class="n">structures</span> <span class="o">=</span> <span class="n">Structures</span><span class="p">()</span>
@@ -88,10 +112,14 @@
 <dt id="elatoms.ElAtoms.set_cell">
 <tt class="descname">set_cell</tt><big>(</big><em>cell</em><big>)</big><a class="headerlink" href="#elatoms.ElAtoms.set_cell" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set lattice vectors of crystal cell.</p>
-<dl class="docutils">
-<dt>cell <span class="classifier-delimiter">:</span> <span class="classifier">list of 3 lists</span></dt>
-<dd>Lattice vectors in Cartesian coordinates.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cell</strong> (<em>list</em>) &#8211; List of lattice vectors in cartesian coordinates.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -103,10 +131,14 @@
 <dt id="elatoms.ElAtoms.set_natom">
 <tt class="descname">set_natom</tt><big>(</big><em>natom</em><big>)</big><a class="headerlink" href="#elatoms.ElAtoms.set_natom" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set number of atoms in crystal cell.</p>
-<dl class="docutils">
-<dt>natom <span class="classifier-delimiter">:</span> <span class="classifier">integer</span></dt>
-<dd>Number of atoms in crystal cell.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>natom</strong> (<em>int</em>) &#8211; Number of atoms in crystal cell.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -118,10 +150,14 @@
 <dt id="elatoms.ElAtoms.set_scale">
 <tt class="descname">set_scale</tt><big>(</big><em>scale</em><big>)</big><a class="headerlink" href="#elatoms.ElAtoms.set_scale" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set scaling factor for cell vectors</p>
-<dl class="docutils">
-<dt>scale <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>Unit cell scaling.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>scale</strong> (<em>float</em>) &#8211; Unit cell scaling factor.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -133,10 +169,14 @@
 <dt id="elatoms.ElAtoms.set_species">
 <tt class="descname">set_species</tt><big>(</big><em>species</em><big>)</big><a class="headerlink" href="#elatoms.ElAtoms.set_species" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set basis vectors.</p>
-<dl class="docutils">
-<dt>species <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
-<dd>Basis vectors</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>species</strong> (<em>list</em>) &#8211; Basis vectors.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -148,10 +188,14 @@
 <dt id="elatoms.ElAtoms.set_path">
 <tt class="descname">set_path</tt><big>(</big><em>path</em><big>)</big><a class="headerlink" href="#elatoms.ElAtoms.set_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set path to the calculations sub-directory.</p>
-<dl class="docutils">
-<dt>path <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
-<dd>Path to calculation subdir.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<em>str</em>) &#8211; Path to calculation subdir.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -185,10 +229,14 @@
 <dt id="elatoms.ElAtoms.set_V0">
 <tt class="descname">set_V0</tt><big>(</big><em>V0</em><big>)</big><a class="headerlink" href="#elatoms.ElAtoms.set_V0" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set equilibrium volume of crystal cell.</p>
-<dl class="docutils">
-<dt>V0 <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>Equilibrium volume of crystal cell.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>V0</strong> (<em>float</em>) &#8211; Equilibrium volume of crystal cell.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -200,10 +248,14 @@
 <dt id="elatoms.ElAtoms.set_gsenergy">
 <tt class="descname">set_gsenergy</tt><big>(</big><em>gsenergy</em><big>)</big><a class="headerlink" href="#elatoms.ElAtoms.set_gsenergy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Give atoms object a groundstate energy.</p>
-<dl class="docutils">
-<dt>gsenergy <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>groundstate energy in eV</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>gsenergy</strong> (<em>float</em>) &#8211; Groundstate energy in eV</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -213,30 +265,42 @@
 
 <dl class="method">
 <dt id="elatoms.ElAtoms.distort">
-<tt class="descname">distort</tt><big>(</big><em>eta=0.0</em>, <em>strainType_index=0</em><big>)</big><a class="headerlink" href="#elatoms.ElAtoms.distort" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">distort</tt><big>(</big><em>eta=0.0</em>, <em>strainType_index=0</em>, <em>volconserving=False</em><big>)</big><a class="headerlink" href="#elatoms.ElAtoms.distort" title="Permalink to this definition">¶</a></dt>
 <dd><p>Distort the structure.</p>
-<dl class="docutils">
-<dt>eta <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>lagrangian strain value</dd>
-<dt>strainType_index <span class="classifier-delimiter">:</span> <span class="classifier">integer</span></dt>
-<dd>List-index of strainType in strainList.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>eta</strong> (<em>float</em>) &#8211; lagrangian strain value</li>
+<li><strong>strainType_index</strong> (<em>int</em>) &#8211; List-index of strainType in strainList.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="elatoms.ElAtoms.poscarToAtoms">
 <tt class="descname">poscarToAtoms</tt><big>(</big><em>poscar</em><big>)</big><a class="headerlink" href="#elatoms.ElAtoms.poscarToAtoms" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set properties of poscar input to atoms object.</p>
-<dl class="docutils">
-<dt>poscar <span class="classifier-delimiter">:</span> <span class="classifier">dictionary</span></dt>
-<dd>POSCAR file converted to dictionary.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>poscar</strong> (<em>dict</em>) &#8211; POSCAR file converted to dictionary.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="elatoms.ElAtoms.atomsToPoscar">
 <tt class="descname">atomsToPoscar</tt><big>(</big><big>)</big><a class="headerlink" href="#elatoms.ElAtoms.atomsToPoscar" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create poscar out of atoms object.</p>
+<dd><p>Create poscar out of atoms object.
+:returns poscar: Structural information as dictionary.
+:rtype: dict</p>
 </dd></dl>
 
 </dd></dl>
@@ -244,31 +308,54 @@
 <dl class="class">
 <dt id="elatoms.Structures">
 <em class="property">class </em><tt class="descclassname">elatoms.</tt><tt class="descname">Structures</tt><big>(</big><em>cod='vasp'</em>, <em>thermo=False</em><big>)</big><a class="headerlink" href="#elatoms.Structures" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate a series of distorted structures.</p>
+<dd><p>Generate a series of distorted structures.
+:var str executable: Location of VASP executable (setter/getter).
+:var str workdir: Calculation root directory (setter/getter).
+:var str code: Ab-initio code (setter/getter).</p>
 <dl class="method">
 <dt id="elatoms.Structures.set_executable">
 <tt class="descname">set_executable</tt><big>(</big><em>executable</em><big>)</big><a class="headerlink" href="#elatoms.Structures.set_executable" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set path to vasp executable.</p>
-<dl class="docutils">
-<dt>executable <span class="classifier-delimiter">:</span> <span class="classifier">string </span></dt>
-<dd>Location of vasp executable (e.g. /home/user/bin/vasp)</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>executable</strong> (<em>str</em>) &#8211; Location of vasp executable (e.g. /home/user/bin/vasp).</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="elatoms.Structures.set_fname">
 <tt class="descname">set_fname</tt><big>(</big><em>fnames</em><big>)</big><a class="headerlink" href="#elatoms.Structures.set_fname" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set absolute path to calculations sub-directory.</p>
-<dl class="docutils">
-<dt>fnames <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
-<dd>Absolute pathname to calculation sub-directory.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fname</strong> (<em>str</em>) &#8211; Absolute pathname to calculation sub-directory.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="elatoms.Structures.write_structures">
 <tt class="descname">write_structures</tt><big>(</big><em>struct</em>, <em>overwrite=True</em><big>)</big><a class="headerlink" href="#elatoms.Structures.write_structures" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a file structure and write all input files for vasp.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>struct</strong> (<em>obj</em>) &#8211; <tt class="docutils literal"><span class="pre">Structures</span></tt> object to be written to structures.pkl</li>
+<li><strong>overwrite</strong> (<em>bool</em>) &#8211; Specify if existing files should be overwritten (default=True)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <p>Filestructure:</p>
 <ul>
 <li><dl class="first docutils">
@@ -301,40 +388,50 @@
 </dl>
 </li>
 </ul>
-<dl class="docutils">
-<dt>struct <span class="classifier-delimiter">:</span> <span class="classifier">object</span></dt>
-<dd><tt class="docutils literal"><span class="pre">Structures</span></tt> object to be written to structures.pkl</dd>
-</dl>
-<dl class="docutils">
-<dt>overwrite <span class="classifier-delimiter">:</span> <span class="classifier">boolean</span></dt>
-<dd>Specify if existing files should be overwritten (default=True)</dd>
-</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="elatoms.Structures.append_structure">
 <tt class="descname">append_structure</tt><big>(</big><em>atoms</em><big>)</big><a class="headerlink" href="#elatoms.Structures.append_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Append structure to <tt class="docutils literal"><span class="pre">Structures</span></tt> object to create a set of distorted structures.</p>
-<dl class="docutils">
-<dt>atoms <span class="classifier-delimiter">:</span> <span class="classifier">object </span></dt>
-<dd>atoms object created from ElAtoms class.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>atoms</strong> (<em>obj</em>) &#8211; <tt class="docutils literal"><span class="pre">atoms</span></tt> object created from ElAtoms class.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="elatoms.Structures.get_atomsByStraintype">
 <tt class="descname">get_atomsByStraintype</tt><big>(</big><em>strainType</em><big>)</big><a class="headerlink" href="#elatoms.Structures.get_atomsByStraintype" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a sorted list of structures with given strain-type.</p>
-<dl class="docutils">
-<dt>strainType <span class="classifier-delimiter">:</span> <span class="classifier">string </span></dt>
-<dd>Strain type.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>strainType</strong> (<em>str</em>) &#8211; Strain type.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="elatoms.Structures.get_structures">
 <tt class="descname">get_structures</tt><big>(</big><big>)</big><a class="headerlink" href="#elatoms.Structures.get_structures" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return dictionary with all structures.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">All structures.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>

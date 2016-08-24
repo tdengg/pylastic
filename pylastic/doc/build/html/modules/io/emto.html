@@ -1,0 +1,158 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Module io.emto &mdash; pylastic 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="pylastic 0.1 documentation" href="../../index.html" />
+    <link rel="up" title="pylastic’s modules" href="../../modules.html" />
+    <link rel="next" title="Module xcrysden" href="xcrysden.html" />
+    <link rel="prev" title="Module vasp" href="vasp.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="xcrysden.html" title="Module xcrysden"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="vasp.html" title="Module vasp"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../../index.html">pylastic 0.1 documentation</a> &raquo;</li>
+          <li><a href="../../modules.html" accesskey="U">pylastic&#8217;s modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-io-emto">
+<h1>Module io.emto<a class="headerlink" href="#module-io-emto" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-pylastic.io.emto"></span><dl class="class">
+<dt id="pylastic.io.emto.Energy">
+<em class="property">class </em><tt class="descclassname">pylastic.io.emto.</tt><tt class="descname">Energy</tt><big>(</big><em>fname='etot.dat'</em>, <em>funct='GGA'</em><big>)</big><a class="headerlink" href="#pylastic.io.emto.Energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get energies from EMTO output file.</p>
+<dl class="method">
+<dt id="pylastic.io.emto.Energy.get_gsenergy">
+<tt class="descname">get_gsenergy</tt><big>(</big><big>)</big><a class="headerlink" href="#pylastic.io.emto.Energy.get_gsenergy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return groundstate energy.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylastic.io.emto.Energy.get_phenergy">
+<tt class="descname">get_phenergy</tt><big>(</big><big>)</big><a class="headerlink" href="#pylastic.io.emto.Energy.get_phenergy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return phonon free energy for temperature T</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pylastic.io.emto.Energy.gsenergy">
+<tt class="descname">gsenergy</tt><a class="headerlink" href="#pylastic.io.emto.Energy.gsenergy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return groundstate energy.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylastic.io.emto.Energy.set_gsenergy">
+<tt class="descname">set_gsenergy</tt><big>(</big><big>)</big><a class="headerlink" href="#pylastic.io.emto.Energy.set_gsenergy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get groundstate energy from vasprun.xml</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylastic.io.emto.Energy.set_phenergy">
+<tt class="descname">set_phenergy</tt><big>(</big><em>ph_file</em><big>)</big><a class="headerlink" href="#pylastic.io.emto.Energy.set_phenergy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read phonon free energy from phonopy output (default filename: F_TV) for temperature T.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="vasp.html"
+                        title="previous chapter">Module vasp</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="xcrysden.html"
+                        title="next chapter">Module xcrysden</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/modules/io/emto.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="xcrysden.html" title="Module xcrysden"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="vasp.html" title="Module vasp"
+             >previous</a> |</li>
+        <li><a href="../../index.html">pylastic 0.1 documentation</a> &raquo;</li>
+          <li><a href="../../modules.html" >pylastic&#8217;s modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Dengg Thomas.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

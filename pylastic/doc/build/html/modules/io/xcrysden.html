@@ -1,0 +1,149 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Module xcrysden &mdash; pylastic 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="pylastic 0.1 documentation" href="../../index.html" />
+    <link rel="up" title="pylastic’s modules" href="../../modules.html" />
+    <link rel="next" title="Module birch" href="../tools/birch.html" />
+    <link rel="prev" title="Module io.emto" href="emto.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../tools/birch.html" title="Module birch"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="emto.html" title="Module io.emto"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../../index.html">pylastic 0.1 documentation</a> &raquo;</li>
+          <li><a href="../../modules.html" accesskey="U">pylastic&#8217;s modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-xcrysden">
+<h1>Module xcrysden<a class="headerlink" href="#module-xcrysden" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-pylastic.io.xcrysden"></span><dl class="class">
+<dt id="pylastic.io.xcrysden.XCD">
+<em class="property">class </em><tt class="descclassname">pylastic.io.xcrysden.</tt><tt class="descname">XCD</tt><big>(</big><em>verbouse=False</em><big>)</big><a class="headerlink" href="#pylastic.io.xcrysden.XCD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Module for generating xcrysden input files from atoms object.</p>
+<dl class="method">
+<dt id="pylastic.io.xcrysden.XCD.trans_csystem">
+<tt class="descname">trans_csystem</tt><big>(</big><em>in_mat</em>, <em>out_mat</em>, <em>in_vec</em><big>)</big><a class="headerlink" href="#pylastic.io.xcrysden.XCD.trans_csystem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transformation of coordinate system.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>in_mat</strong> (<em>3x3-matrix</em>) &#8211; Old coordinate frame.</li>
+<li><strong>out_mat</strong> (<em>3x3-matrix</em>) &#8211; New coordinate frame.</li>
+<li><strong>in_vec</strong> (<em>3-vector</em>) &#8211; Vector to transform.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="math">
+\[v_{out}= M_{in}^T M_{out}^T v_{in}\]</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="emto.html"
+                        title="previous chapter">Module io.emto</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../tools/birch.html"
+                        title="next chapter">Module birch</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/modules/io/xcrysden.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../tools/birch.html" title="Module birch"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="emto.html" title="Module io.emto"
+             >previous</a> |</li>
+        <li><a href="../../index.html">pylastic 0.1 documentation</a> &raquo;</li>
+          <li><a href="../../modules.html" >pylastic&#8217;s modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Dengg Thomas.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

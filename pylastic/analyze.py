@@ -12,15 +12,10 @@ except:
     
 class Energy(object):
     """ Implementation of the energy aproach for determination of elastic constants.
+    :param list energy: List of energy values (float).
+    :param list strain: List of strain values (float).
+    :param float V0: Equilibrium volume of parent structure.
     
-    Parameters
-    ----------
-    strain : list
-        List of energy values (float).
-    strain : list
-        List of strain values (float).
-    V0 : float 
-        Equilibrium volume of parent structure.
     """
     def __init__(self, strain=None, energy=None, V0=None, code='vasp'):
         _e        =  1.602176565e-19              # elementary charge
@@ -60,10 +55,8 @@ class Energy(object):
     def set_2nd(self, fitorder):
         """Fit energy vs. strain curve and evaluate 2nd derivatives in order to get 2nd order elastic constants.
         
-        Parameters
-        ----------
-        fitorder : integer 
-            Order of polynomial energy-strain fit.
+        :param int fitorder: Order of polynomial energy-strain fit.
+        
         """
         
         self.search_for_failed()
@@ -115,10 +108,8 @@ class Energy(object):
     def set_3rd(self, fitorder):
         """Evaluate 3rd order elastic constants from energy strain curves.
         
-        Parameters
-        ----------
-        fitorder : integer 
-            Order of polynomial energy-strain fit.
+        :param int fitorder: Order of polynomial energy-strain fit.
+        
         """
         self.search_for_failed()
         
@@ -164,10 +155,8 @@ class Energy(object):
     def set_cvs(self, fitorder):
         """Evaluation of cross validation score.
         
-        Parameters
-        ----------
-        fitorder : integer 
-            Order of polynomial energy-strain fit.
+        :param int fitorder: Order of polynomial energy-strain fit.
+        
         """
         self.search_for_failed()
         
@@ -227,14 +216,10 @@ class Energy(object):
 class Stress():
     """ Implementation of the stress aproach for determination of elastic constants.
     
-    Parameters
-    ----------
-    strain : list
-        List of energy values (float).
-    strain : list
-        List of strain values (float).
-    V0 : float 
-        Equilibrium volume of parent structure.
+    :param list stress: List of stress values (float).
+    :param list strain: List of strain values (float).
+    :param float V0: Equilibrium volume of parent structure.
+    
     """
     def __init__(self, strain=None, stress=None, V0=None, code='vasp'):
         _e        =  1.602176565e-19              # elementary charge

@@ -1,7 +1,19 @@
+"""Functions for equation of state fitting.
+"""
 import numpy as np
 from scipy.optimize import curve_fit
 
 class EOS(object):
+    """
+    :ivar list E0: Groundstate energy to corresponding volumes.
+    :ivar list V0: Volume points.
+    
+    :var list par: Fitting parameters.
+    :var list pcov: Standard deviation of fitting parameters.
+    :var float gamma_LT: Low temperature Gruneisen parameter.
+    :var float gamma_HT: Low temperature Gruneisen parameter.
+    :var float B0: Zero pressure bulk modulus.
+    """
     def __init__(self, V0,E0):
         
         _e     = 1.602176565e-19              # elementary charge
@@ -17,11 +29,53 @@ class EOS(object):
         self.__E0 = E0
         
     def fbirch(self, V,v0,b0,db0,emin):
+        """Birch Murnaghan equation of state
+        
+        
+        :param float V: Volume :math:`V`
+                
+        :param float v0: Equilibrium volume :math:`V_0` (fitting parameter).
+        
+        :param float b0: Zero pressure bulk modulus :math:`B_0` (fitting parameter). 
+        
+        :param float db0: Pressure derivative of the bulk modulus at zero pressure :math:`B_0'` (fitting parameter).
+        
+        :param float emin: Energy minimum :math:`E_0` (fitting parameter).
+
+        :return: Energy at volume :math:`V`.
+        :rtype: float
+                
+                
+        .. math::
+            
+            E(V) = E_0+\\frac{9 V_0 B_0}{16}\\left\\lbrace \\left[\\left( \\frac{V_0}{V} \\right)^\\frac{2}{3}-1\\right]^3 B_0' + \\left[\\left( \\frac{V_0}{V} \\right)^\\frac{2}{3}-1\\right]^2 \\left[6-4\\left( \\frac{V_0}{V} \\right)^\\frac{2}{3}\\right] \\right\\rbrace
+        """
         vov = (v0/V)**(2./3.)
         return emin + 9. * v0 * b0/16. * ((vov - 1.)**3. * db0 + (vov - 1.)**2. * (6. - 4. * vov))
     
     def fvinet(self, V,v0,b0,db0,emin):
-        vov = (V/v0)**(1./3.)
+        """Vinet equation of state
+        
+        :param float V: Volume :math:`V`
+                
+        :param float v0: Equilibrium volume :math:`V_0` (fitting parameter).
+        
+        :param float b0: Zero pressure bulk modulus :math:`B_0` (fitting parameter). 
+        
+        :param float db0: Pressure derivative of the bulk modulus at zero pressure :math:`B_0'` (fitting parameter).
+        
+        :param float emin: Energy minimum :math:`E_0` (fitting parameter).
+
+        :return: Energy at volume :math:`V`.
+        :rtype: float
+                
+        .. math::
+            b = \\frac{3}{2}\\left( B_0' - 1 \\right) \\,
+            v = \\left( \\frac{V_0}{V} \\right)^\\frac{1}{3}
+        .. math::
+            E(V) = E_0+\\frac{9 V_0 B_0}{b^2}\\left\\lbrace 1+\\left[ b \\left( 1-v \\right) -1 \\right] e^{b \\left( 1-v \\right)} \\right\\rbrace
+        """
+        vov = (V/v0)**(1/3)
         xi = 3./2.*(db0-1.)
         #return emin + 2.*b0*v0/(db0-1)**2.*(2.-(5.+3.*db0*(vov-1.)*np.exp(-3.*(db0-1)*(vov-1)/2.)))
         return emin + 9.*b0*v0/xi**2.*(1.+(xi*(1.-vov)-1.)*np.exp(xi*(1.-vov)))

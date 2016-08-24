@@ -64,6 +64,38 @@
 <em class="property">class </em><tt class="descclassname">postprocess.</tt><tt class="descname">ECs</tt><big>(</big><em>cod='vasp'</em>, <em>thermo=False</em><big>)</big><a class="headerlink" href="#postprocess.ECs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculation of elastic constants and post-processing.</p>
 <dl class="method">
+<dt id="postprocess.ECs.get_atomsByStraintype">
+<tt class="descname">get_atomsByStraintype</tt><big>(</big><em>strainType</em><big>)</big><a class="headerlink" href="#postprocess.ECs.get_atomsByStraintype" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sort structures by strain type to get an ordered list of distortions.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>strainType</strong> (<em>str</em>) &#8211; Strain type.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="postprocess.ECs.plot_2nd">
+<tt class="descname">plot_2nd</tt><big>(</big><em>mod='F'</em><big>)</big><a class="headerlink" href="#postprocess.ECs.plot_2nd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns matplotlib axis instance of d2E/d(eta) plot.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postprocess.ECs.plot_cvs">
+<tt class="descname">plot_cvs</tt><big>(</big><em>mod='F'</em><big>)</big><a class="headerlink" href="#postprocess.ECs.plot_cvs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns matplotlib axis instance of cross validation score plot.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="postprocess.ECs.plot_energy">
+<tt class="descname">plot_energy</tt><big>(</big><em>color=['r', 'g', 'b', 'c', 'm', 'y', 'k'], mod='E0'</em><big>)</big><a class="headerlink" href="#postprocess.ECs.plot_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns matplotlib axis instance for energy-strain curve.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="postprocess.ECs.set_analytics">
 <tt class="descname">set_analytics</tt><big>(</big><big>)</big><a class="headerlink" href="#postprocess.ECs.set_analytics" title="Permalink to this definition">¶</a></dt>
 <dd><p>Standard analysis including:</p>
@@ -76,78 +108,123 @@
 </dd></dl>
 
 <dl class="method">
-<dt id="postprocess.ECs.set_gsenergy">
-<tt class="descname">set_gsenergy</tt><big>(</big><em>gsenergy=None</em><big>)</big><a class="headerlink" href="#postprocess.ECs.set_gsenergy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read groundstate energy for all atoms in structures.</p>
-<blockquote>
-<div><dl class="docutils">
-<dt>gsenergy <span class="classifier-delimiter">:</span> <span class="classifier">float???? DEBUG???? </span></dt>
-<dd>Groundstate energy.</dd>
-</dl>
-</div></blockquote>
+<dt id="postprocess.ECs.set_code">
+<tt class="descname">set_code</tt><big>(</big><em>code</em><big>)</big><a class="headerlink" href="#postprocess.ECs.set_code" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set ab-initio code.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>code</strong> (<em>str</em>) &#8211; Set ab-initio code vasp,exciting,espresso,wien or emto.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
-<dt id="postprocess.ECs.get_gsenergy">
-<tt class="descname">get_gsenergy</tt><big>(</big><big>)</big><a class="headerlink" href="#postprocess.ECs.get_gsenergy" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="postprocess.ECs.set_structures">
-<tt class="descname">set_structures</tt><big>(</big><big>)</big><a class="headerlink" href="#postprocess.ECs.set_structures" title="Permalink to this definition">¶</a></dt>
-<dd><p>Import structures object from file.</p>
+<dt id="postprocess.ECs.set_ec">
+<tt class="descname">set_ec</tt><big>(</big><em>etacalc</em><big>)</big><a class="headerlink" href="#postprocess.ECs.set_ec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate elastic constants from polynomial fitting.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>etacalc</strong> &#8211; Either list containing maximum Lagrangian strain used for fitting or only single strain used for each distortion type.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
-<dt id="postprocess.ECs.get_structures">
-<tt class="descname">get_structures</tt><big>(</big><big>)</big><a class="headerlink" href="#postprocess.ECs.get_structures" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="postprocess.ECs.get_atomsByStraintype">
-<tt class="descname">get_atomsByStraintype</tt><big>(</big><em>strainType</em><big>)</big><a class="headerlink" href="#postprocess.ECs.get_atomsByStraintype" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sort structures by strain type to get an ordered list of distortions.</p>
-<blockquote>
-<div><dl class="docutils">
-<dt>strainType <span class="classifier-delimiter">:</span> <span class="classifier">string </span></dt>
-<dd>Strain type.</dd>
-</dl>
-</div></blockquote>
+<dt id="postprocess.ECs.set_etacalc">
+<tt class="descname">set_etacalc</tt><big>(</big><em>etacalc</em><big>)</big><a class="headerlink" href="#postprocess.ECs.set_etacalc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set maximum lagrangian strain for the fitting procedure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>etacalc</strong> (<em>list</em>) &#8211; List of strings containing maximum lagrangian strain used for fitting.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="postprocess.ECs.set_fitorder">
 <tt class="descname">set_fitorder</tt><big>(</big><em>fitorder</em><big>)</big><a class="headerlink" href="#postprocess.ECs.set_fitorder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set fitorder of polynomial energy - strain fit.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fitorder</strong> (<em>list</em>) &#8211; Order of polynomial energy-strain fit (one for each distortion type).</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="postprocess.ECs.set_funct">
+<tt class="descname">set_funct</tt><big>(</big><em>funct</em><big>)</big><a class="headerlink" href="#postprocess.ECs.set_funct" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set exchange-correlation functional for EMTO calculations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>funct</strong> (<em>str</em>) &#8211; Choose one of LDA, GGA or PBEsol.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="postprocess.ECs.set_gsenergy">
+<tt class="descname">set_gsenergy</tt><big>(</big><em>gsenergy=None</em><big>)</big><a class="headerlink" href="#postprocess.ECs.set_gsenergy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read groundstate energy for all atoms in structures.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>gsenergy</strong> (<em>list</em>) &#8211; Groundstate energy for all distorted structures (list of floats).</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="postprocess.ECs.set_method">
+<tt class="descname">set_method</tt><big>(</big><em>mthd</em><big>)</big><a class="headerlink" href="#postprocess.ECs.set_method" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set approach of elastic constants calculation (&#8216;Energy&#8217; or &#8216;Strain&#8217;).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>mthd</strong> (<em>str</em>) &#8211; Set to &#8216;Stress&#8217; or &#8216;Energy&#8217;.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="postprocess.ECs.set_stress">
+<tt class="descname">set_stress</tt><big>(</big><em>stress=None</em><big>)</big><a class="headerlink" href="#postprocess.ECs.set_stress" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read stress for all atoms in structures.
+:param list stress: Physical stress as list of floats
+Parameters
+&#8212;&#8212;&#8212;-</p>
 <blockquote>
 <div><dl class="docutils">
-<dt>fitorder <span class="classifier-delimiter">:</span> <span class="classifier">integer </span></dt>
-<dd>Order of polynomial energy-strain fit.</dd>
+<dt>stress <span class="classifier-delimiter">:</span> <span class="classifier"></span></dt>
+<dd>Physical stress.</dd>
 </dl>
 </div></blockquote>
 </dd></dl>
 
 <dl class="method">
-<dt id="postprocess.ECs.get_fitorder">
-<tt class="descname">get_fitorder</tt><big>(</big><big>)</big><a class="headerlink" href="#postprocess.ECs.get_fitorder" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="postprocess.ECs.set_etacalc">
-<tt class="descname">set_etacalc</tt><big>(</big><em>etacalc</em><big>)</big><a class="headerlink" href="#postprocess.ECs.set_etacalc" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set maximum lagrangian strain for the fitting procedure.</p>
-<blockquote>
-<div><dl class="docutils">
-<dt>etacalc <span class="classifier-delimiter">:</span> <span class="classifier">float </span></dt>
-<dd>Maximum lagrangian strain.</dd>
-</dl>
-</div></blockquote>
+<dt id="postprocess.ECs.set_structures">
+<tt class="descname">set_structures</tt><big>(</big><big>)</big><a class="headerlink" href="#postprocess.ECs.set_structures" title="Permalink to this definition">¶</a></dt>
+<dd><p>Import structures object from file.</p>
 </dd></dl>
-
-<dl class="method">
-<dt id="postprocess.ECs.get_etacalc">
-<tt class="descname">get_etacalc</tt><big>(</big><big>)</big><a class="headerlink" href="#postprocess.ECs.get_etacalc" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 </dd></dl>
 

@@ -41,7 +41,7 @@ class Setup(Structures, Distort, POS):
                     self.__structures.append_structure(subatom)
         
         self.__structures.write_structures(self.__structures)
-        
+        print [struct[1].path for struct in self.__structures.get_structures().items()]
         #return self.__structures
     
     def generate_supercells(self):

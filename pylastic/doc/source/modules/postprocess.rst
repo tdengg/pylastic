@@ -4,28 +4,29 @@ Module postprocess
 .. automodule:: postprocess
 
 	.. autoclass:: ECs
-
-		.. automethod:: set_analytics
+		:members:
 		
-		.. automethod:: set_gsenergy
+		.. v automethod:: set_analytics
 		
-		.. automethod:: get_gsenergy
+		.. v automethod:: set_gsenergy
 		
-		.. automethod:: set_structures
+		.. v automethod:: get_gsenergy
 		
-		.. automethod:: get_structures
+		.. v automethod:: set_structures
 		
-		.. automethod:: get_atomsByStraintype
+		.. v automethod:: get_structures
 		
-		.. automethod:: set_fitorder
+		.. v automethod:: get_atomsByStraintype
 		
-		.. automethod:: get_fitorder
+		.. v automethod:: set_fitorder
 		
-		.. automethod:: set_etacalc
+		.. v automethod:: get_fitorder
 		
-		.. automethod:: get_etacalc
+		.. v automethod:: set_etacalc
 		
-		.. automethod:: set_C
+		.. v automethod:: get_etacalc
 		
-		.. automethod:: get_C
+		.. v automethod:: set_C
+		
+		.. v automethod:: get_C
 		

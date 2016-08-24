@@ -4,6 +4,8 @@ import sys
 import numpy as np
 
 class XCD(object):
+    """ Module for generating xcrysden input files from atoms object.
+    """
     def __init__(self, verbouse=False):
         self.__verbouse=verbouse
         self.__basevect=[]
@@ -12,6 +14,17 @@ class XCD(object):
         self.__pos={}
         
     def trans_csystem(self, in_mat, out_mat, in_vec):
+        """Transformation of coordinate system.
+        
+        :param 3x3-matrix in_mat: Old coordinate frame.
+        
+        :param 3x3-matrix out_mat: New coordinate frame.
+        
+        :param 3-vector in_vec: Vector to transform.
+        
+        .. math::
+            v_{out}= M_{in}^T M_{out}^T v_{in}
+        """
         c_vec = np.dot(np.dot(np.linalg.inv(np.transpose(in_mat)),np.transpose(out_mat)), in_vec)
         #c_vec = np.dot(np.dot(np.linalg.inv(in_mat),out_mat), in_vec)
         return c_vec

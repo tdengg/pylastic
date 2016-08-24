@@ -18,6 +18,22 @@ from pylastic.io.xcrysden import XCD
 
 class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
     '''
+    Setters/getters:
+    ----------------
+    
+    :setter V0:
+    :var V:
+    :var cell:
+    :var natom:
+    :var scale:
+    :var species:
+    :path path:
+    :var poscar:
+    :var poscarnew:
+    :var gsenergy:
+    :var phenergy:
+    :var T:
+    
     Object similar to the ``atoms`` class in *ASE*, containing information related to the structure.
      
     **Example:**
@@ -75,8 +91,8 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
     def set_cell(self, cell):
         """Set lattice vectors of crystal cell.
         
-        cell : list of 3 lists
-            Lattice vectors in Cartesian coordinates.
+        :param list cell: List of lattice vectors in cartesian coordinates.
+        
         """
         
         if isinstance(cell, list): self.__cell = cell
@@ -90,10 +106,8 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
     def set_natom(self, natom):
         """Set number of atoms in crystal cell.
         
+        :param int natom: Number of atoms in crystal cell.
         
-        
-        natom : integer
-            Number of atoms in crystal cell.
         """
         if isinstance(natom, int): self.__natom = natom
         else: print 'Number of atoms is invalid type: %s. Must be integer instead!'%(type(natom))
@@ -105,11 +119,8 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
     def set_scale(self, scale):
         """Set scaling factor for cell vectors
         
-        Parameters
-        ----------
+        :param float scale: Unit cell scaling factor.
         
-        scale : float
-            Unit cell scaling.
         """
         if isinstance(scale, float) or isinstance(scale, list): 
             self.__scale = scale
@@ -123,10 +134,8 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
     def set_species(self,species):
         """Set basis vectors.
         
-        Parameters
-        ----------
-        species : list
-            Basis vectors
+        :param list species: Basis vectors.
+        
         """
         self.__species = species
     
@@ -137,10 +146,8 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
     def set_path(self, path):
         """Set path to the calculations sub-directory.
         
-        Parameters
-        ----------
-        path : string
-            Path to calculation subdir.
+        :param str path: Path to calculation subdir.
+            
         """
         self.__path = path
         
@@ -151,13 +158,10 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
     def distort(self, eta=0.0, strainType_index=0, volconserving=False):
         """Distort the structure.
         
-        Parameters
-        ----------
-        eta : float
-            lagrangian strain value
-            
-        strainType_index : integer
-            List-index of strainType in strainList. 
+        :param float eta:  lagrangian strain value
+        
+        :param int strainType_index: List-index of strainType in strainList. 
+        
         """
         self.mthd = self.__mthd
         self.sgn = self.__sgn
@@ -178,7 +182,9 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
         
     
     def deform_volume(self, eta=0.0):
-        """Hydrostatic deformation"""    
+        """Hydrostatic deformation
+        :param float eta: Hydrostatic strain.
+        """    
         def_matrix = np.array([[1,0,0],[0,1,0],[0,0,1]])+np.array([[eta,0,0],[0,eta,0],[0,0,eta]])
         M_new = np.dot(self.__cell, def_matrix)
         self.eta=eta
@@ -189,6 +195,7 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
         self.__poscarnew['vlatt_3'] = self.__cell[2]
         #print np.linalg.det(self.__cell*self.__scale)
         self.__V = np.linalg.det(self.__cell*self.__scale)
+        self.__V0 = np.linalg.det(self.__cell*self.__scale)
         self.set_strainType('vol')
         
     ### VASP
@@ -196,10 +203,8 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
     def poscarToAtoms(self, poscar):
         """Set properties of poscar input to atoms object.
         
-        Parameters
-        ----------
-        poscar : dictionary
-            POSCAR file converted to dictionary.
+        :param dict poscar: POSCAR file converted to dictionary.
+            
         """
         if self.__verbose: print 'Converting dictionary to atoms object ....'
         self.__poscar = poscar
@@ -222,7 +227,10 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
         self.__sgn = self.sgn
     
     def atomsToPoscar(self):
-        """Create poscar out of atoms object."""
+        """Create poscar out of atoms object.
+        :returns poscar: Structural information as dictionary.
+        :rtype: dict
+        """
         poscar = {}
         print 'creating poscar: scale=%s'%self.__scale
         poscar['vlatt_1'] = self.__cell[0]
@@ -258,10 +266,8 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
     def set_V0(self, V0):
         """Set equilibrium volume of crystal cell.
         
-        Parameters
-        ----------
-        V0 : float
-            Equilibrium volume of crystal cell.
+        :param float V0: Equilibrium volume of crystal cell.
+            
         """
         self.__V0 = V0
         
@@ -271,10 +277,8 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
     def set_V(self, V):
         """Set volume of distorted cell.
         
-        Parameters
-        ----------
-        V : float
-            Volume of distorted crystal cell.
+        :param float V: Volume of distorted crystal cell.
+            
         """
         self.__V = V
         
@@ -284,10 +288,8 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
     def set_gsenergy(self, gsenergy):
         """Give atoms object a groundstate energy.
         
-        Parameters
-        ----------
-        gsenergy : float
-            groundstate energy in eV
+        :param float gsenergy: Groundstate energy in eV
+        
         """
         self.__gsenergy = gsenergy
         
@@ -297,10 +299,8 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
     def set_phenergy(self, phenergy):
         """Give atoms object a phonon free energy.
         
-        Parameters
-        ----------
-        phenergy : float
-            groundstate energy in eV
+        :param phenergy: Vibrational free energy in eV
+        
         """
         self.__phenergy = phenergy
         
@@ -341,7 +341,7 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
     poscarnew  = property( fget = get_poscarnew       , fset = set_poscarnew )
     gsenergy= property( fget = get_gsenergy     , fset = set_gsenergy)
     phenergy= property( fget = get_phenergy     , fset = set_phenergy)
-    T = property( fget = get_T       , fset = set_T   )
+    T       = property( fget = get_T       , fset = set_T   )
     
     mthd = property( fget = get_method       , fset = set_method)
     code = property( fget = get_code       , fset = set_code)
@@ -349,7 +349,9 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
     
 class Structures(ElAtoms, Sgroup):
     """Generate a series of distorted structures.
-    
+    :var str executable: Location of VASP executable (setter/getter).
+    :var str workdir: Calculation root directory (setter/getter).
+    :var str code: Ab-initio code (setter/getter).
     """
     def __init__(self, cod = 'vasp', thermo=False):
         super(Structures, self).__init__()
@@ -377,20 +379,16 @@ class Structures(ElAtoms, Sgroup):
     def set_fname(self, fnames):
         """Set absolute path to calculations sub-directory.
         
-        Parameters
-        ----------
-        fnames : string
-            Absolute pathname to calculation sub-directory.
+        :param str fname: Absolute pathname to calculation sub-directory.
+        
         """
         self.__fnames = fnames
         
     def set_workdir(self, workdir):
         """Set working directory.
         
-        Parameters
-        ----------
-        workdir : string
-            Working directory.
+        :param str workdir: Working directory.
+        
         """
         if os.path.isdir(workdir): self.__workdir = workdir
         else: "Directory '%s' does not exist!"%workdir
@@ -400,6 +398,10 @@ class Structures(ElAtoms, Sgroup):
         
     def write_structures(self, struct, overwrite=True):
         """Generate a file structure and write all input files for vasp. 
+        
+        :param obj struct: ``Structures`` object to be written to structures.pkl
+        
+        :param bool overwrite: Specify if existing files should be overwritten (default=True)
         
         Filestructure:
         
@@ -413,16 +415,7 @@ class Structures(ElAtoms, Sgroup):
                 * eta2
                 * ...
             * ...
-            
-        Parameters
-        ----------
-        struct : object
-            ``Structures`` object to be written to structures.pkl
         
-        Keyword arguments
-        -----------------
-        overwrite : boolean
-            Specify if existing files should be overwritten (default=True)
         """
         
         if self.__thermo:
@@ -613,10 +606,8 @@ class Structures(ElAtoms, Sgroup):
     def set_executable(self, executable):
         """Set path to vasp executable. 
         
-        Parameters
-        ----------
-        executable : string 
-            Location of vasp executable (e.g. /home/user/bin/vasp)
+        :param str executable: Location of vasp executable (e.g. /home/user/bin/vasp).
+        
         """
         
         if os.path.isfile(executable): self.__executable = executable
@@ -629,12 +620,10 @@ class Structures(ElAtoms, Sgroup):
     def calc_vasp(self,lock=None, overwrite = True):
         """Perform local vasp calculations.
         
-        Keyword arguments
-        -----------------
-        lock : object 
-            thread locker object (default=None)
-        overwrite : boolean
-            Specify if existing files should be overwritten (default=True)
+        :param obj lock: thread locker object (default=None).
+        
+        :param bool overwrite: Specify if existing files should be overwritten (default=True).
+        
         """
         
         for atoms in self.__structures:
@@ -661,10 +650,8 @@ class Structures(ElAtoms, Sgroup):
     def append_structure(self, atoms):
         """Append structure to ``Structures`` object to create a set of distorted structures.
         
-        Parameters
-        ----------
-        atoms : object 
-            atoms object created from ElAtoms class.
+        :param obj atoms: ``atoms`` object created from ElAtoms class.
+           
         """
         if self.__thermo:
             self.__structures[(atoms.strainType,round(atoms.eta,3),round(atoms.V0,3))]= atoms
@@ -677,10 +664,8 @@ class Structures(ElAtoms, Sgroup):
     def get_atomsByStraintype(self, strainType):
         """Returns a sorted list of structures with given strain-type.
         
-        Parameters
-        ----------
-        strainType : string 
-            Strain type.
+        :param str strainType: Strain type.
+        
         """
         atomslist = []
         for dic in sorted(self.__structures):
@@ -690,7 +675,12 @@ class Structures(ElAtoms, Sgroup):
         
         
     def get_structures(self):
-        """Return dictionary with all structures."""
+        """Return dictionary with all structures.
+        
+        :returns: All structures.
+        :rtype: dict
+        
+        """
         return self.__structures
     
     def set_code(self, code):
@@ -711,7 +701,7 @@ class Structures(ElAtoms, Sgroup):
         
     executable    = property( fget = get_executable        , fset = set_executable)
     workdir = property( fget = get_workdir        , fset = set_workdir)
-    code = property( fget = get_code       , fset = set_code)
+    code = property( fget = get_code       , fset = set_code) #:getter
     
     
     
