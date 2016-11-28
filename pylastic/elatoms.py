@@ -366,6 +366,9 @@ class Structures(ElAtoms, Sgroup):
             self.__kgrnname = "kgrn"
             self.__kfcdname = "kfcd"
             self.__shapename = "shape"
+            
+            self.__structname = 'B2'
+            self.__systemname = 'W'
     
     def set_emtonames(self, kstr, shape, kgrn, kfcd, structname, systemname):
         self.__kstrname = kstr
@@ -699,9 +702,9 @@ class Structures(ElAtoms, Sgroup):
         self.__status = state.check_calc()
         return self.__status
         
-    executable    = property( fget = get_executable        , fset = set_executable)
-    workdir = property( fget = get_workdir        , fset = set_workdir)
-    code = property( fget = get_code       , fset = set_code) #:getter
+    executable    = property( fget = get_executable , fset = set_executable)
+    workdir = property( fget = get_workdir  , fset = set_workdir)
+    code = property( fget = get_code    , fset = set_code) #:getter
     
     
     

@@ -17,7 +17,7 @@ print vasp.__file__
 import os
 
 class GET_THERMO(object):
-    def __init__(self):
+    def __init__(self, numbatom=125, supercell=5):
         
         #species = 'WRe_0.25_conv'
         species = 'WRe_0.00'
@@ -39,7 +39,7 @@ class GET_THERMO(object):
         print numbatom, species, os.getcwd()
         if species=='W':
         #Tungsten
-            fc = vasp.get_force_constants_vasprun_xml(vasprun,1,0)
+            fc = vasp.get_force_constants_vasprun_xml(vasprun,1,0,64)
             s = 4.
             a = superc.get_cell()[0][0]*2.
             print a
@@ -120,7 +120,7 @@ class GET_THERMO(object):
         
         elif species=='WRe_0.25_conv':
         #Tungsten
-            fc = vasp.get_force_constants_vasprun_xml(vasprun,8,2)
+            fc = vasp.get_force_constants_vasprun_xml(vasprun,8,2,64)
             s = 4.
             a = superc.get_cell()[0][0]*2.
             print a, primitive.get_scaled_positions()
@@ -171,8 +171,8 @@ class GET_THERMO(object):
                                           t_max=3700,
                                           t_min=0)
         elif species == 'WRe_0.00': 
-            fc = vasp.get_force_constants_vasprun_xml(vasprun,1)
-            s = 5.
+            fc = vasp.get_force_constants_vasprun_xml(vasprun,1,0,numbatom)
+            s = supercell
             a = superc.get_cell()[0][0]*2.
             print a
             bulk = PhonopyAtoms(symbols=['W'] * 1,
@@ -186,7 +186,7 @@ class GET_THERMO(object):
             phonon.set_force_constants(fc[0])
             phonon.set_dynamical_matrix()
             #print phonon.get_dynamical_matrix_at_q([0,0,0])
-            mesh = [100, 100, 100]
+            mesh = [200, 200, 200]
             phonon.set_mesh(mesh)
             qpoints, weights, frequencies, eigvecs = phonon.get_mesh()
             print frequencies

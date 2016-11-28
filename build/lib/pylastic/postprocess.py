@@ -198,8 +198,9 @@ class ECs(Check, Energy, Stress):
     def get_stress(self):
         return self.__stress
         
-    def set_structures(self):
+    def set_structures(self, excluded=None):
         """Import structures object from file."""
+        self.__excluded = excluded
         if not self.__structures: 
             with open('structures.pkl', 'rb') as input:
                 structures = pickle.load(input)
@@ -207,7 +208,8 @@ class ECs(Check, Energy, Stress):
             else: self.__structures = structures.get_structures()
             for atoms in sorted(self.__structures.items()): atoms[1].exclude=False
         else: pass
-        
+        if self.__excluded != None: 
+            for exc in self.__excluded: self.__structures[exc].exclude = True 
     def get_structures(self):
         if self.__structures == None:
             self.set_structures()
