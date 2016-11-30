@@ -366,6 +366,9 @@ class Structures(ElAtoms, Sgroup):
             self.__kgrnname = "kgrn"
             self.__kfcdname = "kfcd"
             self.__shapename = "shape"
+            
+            self.__structname = 'bcc'
+            self.__systemname = 'W'
     
     def set_emtonames(self, kstr, shape, kgrn, kfcd, structname, systemname):
         self.__kstrname = kstr
