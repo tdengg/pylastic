@@ -4,6 +4,12 @@ import sys
 import numpy as np
 
 class POS(object):
+    """
+    EMTO input/output handling.
+    
+    Note:
+    kstr vectors multiplied by SWS_old/SWS_new to give the same volume as before deformation and account for volume change with SWS in kgrn.
+    """
     def __init__(self, verbouse=False):
         self.__verbouse=verbouse
         self.__basevect=[]
@@ -415,7 +421,7 @@ class POS(object):
         V0latt = abs(np.linalg.det(np.array([posold['vlatt_1'],posold['vlatt_2'],posold['vlatt_3']])))
         cell = np.array([BS1,BS2,BS3])
         self.__V1cell = abs(np.linalg.det(cell))
-        A = (V0latt/self.__V1cell)**(1./3.)
+        A = (V0latt/self.__V1cell)**(1./3.) #Rescale kstr to constant volume
         
         QX=[]
         QY=[]
