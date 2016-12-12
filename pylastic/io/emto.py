@@ -4,6 +4,12 @@ import sys
 import numpy as np
 
 class POS(object):
+    """
+    EMTO input/output handling.
+    
+    Note:
+    kstr vectors multiplied by SWS_old/SWS_new to give the same volume as before deformation and account for volume change with SWS in kgrn.
+    """
     def __init__(self, verbouse=False):
         self.__verbouse=verbouse
         self.__basevect=[]
@@ -409,7 +415,13 @@ class POS(object):
         
         aold=np.sqrt(posold['vlatt_1'][0]**2.+posold['vlatt_1'][1]**2.+posold['vlatt_1'][2]**2.)
         
-        A=a/aold
+        #A=a/aold
+        #A_scale = self.__pos['vlatt_1'][0]/posold['vlatt_1'][0]
+        
+        V0latt = abs(np.linalg.det(np.array([posold['vlatt_1'],posold['vlatt_2'],posold['vlatt_3']])))
+        cell = np.array([BS1,BS2,BS3])
+        self.__V1cell = abs(np.linalg.det(cell))
+        A = (V0latt/self.__V1cell)**(1./3.) #Rescale kstr to constant volume
         
         QX=[]
         QY=[]
@@ -421,9 +433,9 @@ class POS(object):
             C_vec.append(self.trans_csystem(C_matrix, B_matrix, B_vec)) #Convert direct to cartesian coordinates
         
         for vec in C_vec:
-            QX.append(vec[0]/A)   #everything devided by a in previous version
-            QY.append(vec[1]/A)   #
-            QZ.append(vec[2]/A)   #
+            QX.append(vec[0])   #everything multiplied by A in previous version
+            QY.append(vec[1])   #
+            QZ.append(vec[2])   #
         #for i in range(len(QX)):
         self.__kstr = self.replace(self.__kstr, "kstr", "QX", QX)
         self.__kstr = self.replace(self.__kstr, "kstr", "QY", QY)
@@ -446,9 +458,9 @@ class POS(object):
             self.__kstr = self.replace(self.__kstr, "kstr", "Bet", beta)
             self.__kstr = self.replace(self.__kstr, "kstr", "Gam", gamma)
         else:
-            BSX=[BS1[0]/A,BS2[0]/A,BS3[0]/A]  #everything devided by a in previous version
-            BSY=[BS1[1]/A,BS2[1]/A,BS3[1]/A]  #
-            BSZ=[BS1[2]/A,BS2[2]/A,BS3[2]/A]  #
+            BSX=[BS1[0],BS2[0],BS3[0]]  #everything multiplied by A in previous version
+            BSY=[BS1[1],BS2[1],BS3[1]]  #
+            BSZ=[BS1[2],BS2[2],BS3[2]]  #
             
             self.__kstr = self.replace(self.__kstr, "kstr", "BSX", BSX)
             self.__kstr = self.replace(self.__kstr, "kstr", "BSY", BSY)
@@ -461,19 +473,18 @@ class POS(object):
         f.writelines(self.__kstr)
         f.close()
         #print a,b,c
-        cell = np.array([BS1,BS2,BS3])
-        self.__V1cell = abs(np.linalg.det(cell))
+        
         self.__natoms = len(QX)
         self.__a = a
         
         
-        V0latt = abs(np.linalg.det(np.array([posold['vlatt_1'],posold['vlatt_2'],posold['vlatt_3']])))
+        
         
         V0_Vlatt = (4./3.*self.__natoms*np.pi*posold['scale']**3.)/V0latt
         #print 'V0_latt, V0_sws, V1_cell ',V0latt,(4./3.*self.__natoms*np.pi*posold['scale']**3.), self.__V1cell
         #SWS = self.calc_sws(V0_Vlatt, self.__natoms, self.__V1cell)
         SWS = posold['scale']*(self.__V1cell/V0latt)**(1./3.)
-        print 'SWS ', SWS, posold['scale']
+        print 'SWS ', SWS, posold['scale'], V0latt, np.linalg.det(np.array([BSX,BSY,BSZ]))
         # print a, b, c
         return SWS#a
     

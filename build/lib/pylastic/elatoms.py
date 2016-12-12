@@ -702,9 +702,9 @@ class Structures(ElAtoms, Sgroup):
         self.__status = state.check_calc()
         return self.__status
         
-    executable    = property( fget = get_executable        , fset = set_executable)
-    workdir = property( fget = get_workdir        , fset = set_workdir)
-    code = property( fget = get_code       , fset = set_code) #:getter
+    executable    = property( fget = get_executable , fset = set_executable)
+    workdir = property( fget = get_workdir  , fset = set_workdir)
+    code = property( fget = get_code    , fset = set_code) #:getter
     
     
     

@@ -110,6 +110,12 @@ class EOS(object):
     def get_V0(self):
         return self.__V0
     
+    def set_Vequi(self,Vequi):
+        self.__Vequi=Vequi
+        
+    def get_Vequi(self):
+        return self.__Vequi
+    
     def set_par(self,par):
         self.__par=par
         
@@ -143,6 +149,8 @@ class EOS(object):
     E0 = property(fget=get_E0, fset=set_E0)
       
     V0 = property(fget=get_V0, fset=set_V0)
+    
+    Vequi = property(fget=get_Vequi, fset=set_Vequi)
     
     par = property(fget=get_par, fset=set_par)
     

@@ -1,3 +1,7 @@
+"""
+Starting and submitting scripts on vsc3.
+"""
+
 import os
 import sys
 import glob

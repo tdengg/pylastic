@@ -367,7 +367,11 @@ class Structures(ElAtoms, Sgroup):
             self.__kfcdname = "kfcd"
             self.__shapename = "shape"
             
+<<<<<<< HEAD
             self.__structname = 'bcc'
+=======
+            self.__structname = 'B2'
+>>>>>>> emto_kstr_nonscaled
             self.__systemname = 'W'
     
     def set_emtonames(self, kstr, shape, kgrn, kfcd, structname, systemname):
