@@ -433,9 +433,9 @@ class POS(object):
             C_vec.append(self.trans_csystem(C_matrix, B_matrix, B_vec)) #Convert direct to cartesian coordinates
         
         for vec in C_vec:
-            QX.append(vec[0]*A)   #everything devided by A in previous version
-            QY.append(vec[1]*A)   #
-            QZ.append(vec[2]*A)   #
+            QX.append(vec[0])   #everything multiplied by A in previous version
+            QY.append(vec[1])   #
+            QZ.append(vec[2])   #
         #for i in range(len(QX)):
         self.__kstr = self.replace(self.__kstr, "kstr", "QX", QX)
         self.__kstr = self.replace(self.__kstr, "kstr", "QY", QY)
@@ -458,9 +458,9 @@ class POS(object):
             self.__kstr = self.replace(self.__kstr, "kstr", "Bet", beta)
             self.__kstr = self.replace(self.__kstr, "kstr", "Gam", gamma)
         else:
-            BSX=[BS1[0]*A,BS2[0]*A,BS3[0]*A]  #everything devided by A in previous version
-            BSY=[BS1[1]*A,BS2[1]*A,BS3[1]*A]  #
-            BSZ=[BS1[2]*A,BS2[2]*A,BS3[2]*A]  #
+            BSX=[BS1[0],BS2[0],BS3[0]]  #everything multiplied by A in previous version
+            BSY=[BS1[1],BS2[1],BS3[1]]  #
+            BSZ=[BS1[2],BS2[2],BS3[2]]  #
             
             self.__kstr = self.replace(self.__kstr, "kstr", "BSX", BSX)
             self.__kstr = self.replace(self.__kstr, "kstr", "BSY", BSY)
