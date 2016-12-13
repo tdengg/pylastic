@@ -12,6 +12,7 @@ class POS(object):
     """
     def __init__(self, verbouse=False, OLDKSTR=False):
         self.__OLDKSTR = OLDKSTR
+        self.__inputdigits = None
         self.__verbouse=verbouse
         self.__basevect=[]
         self.__lattvect_pos=None
@@ -253,7 +254,16 @@ class POS(object):
         for line in ifile:
             if parname in line:
                 if parname.startswith('BS') or parname.startswith('QX') and self.__OLDKSTR==False:                            #New KSTR version
-                    val.append(float(line.split()[pos]))                #New KSTR version
+                    lstr = line.split()[pos]
+                    if self.__inputdigits == None:
+                        if lstr[1]=='.':
+                            dig=lstr[2:]
+                        elif lstr[2]=='.':
+                            dig=lstr[3:]
+                        else:
+                            dig = lstr
+                        self.__inputdigits = len(dig)
+                    val.append(float(lstr))                #New KSTR version
                 else:
                     f_read=self.__format[fname][parname]["read"]
                     val.append(float(line[f_read[0]:f_read[1]]))
@@ -270,10 +280,10 @@ class POS(object):
             if parname in line:
                 if parname in ['QX','BS1','BS2','BS3'] and self.__OLDKSTR==False:
                     if parname == 'QX':
-                        for v in val: line = "{0:s} {1:.10f} {2:.10f} {3:.10f}\n".format(parname,v[0],v[1],v[2])
+                        for v in val: line = "{0:s} {1:.{4}f} {2:.{5}f} {3:.{6}f}\n".format(parname,v[0],v[1],v[2],str(self.__inputdigits),str(self.__inputdigits),str(self.__inputdigits))
                     else:
                         
-                        line = "{0:s} {1:.10f} {2:.10f} {3:.10f}\n".format(parname,val[0],val[1],val[2])
+                        line = "{0:s} {1:.{4}f} {2:.{5}f} {3:.{6}f}\n".format(parname,val[0],val[1],val[2],str(self.__inputdigits),str(self.__inputdigits),str(self.__inputdigits))
                 else:
                     f_read=self.__format[fname][parname]["read"]
                     li = list(line)
@@ -404,7 +414,8 @@ class POS(object):
             
         self.__pos['csystem'] = 'd'
         
-        
+        self.__pos['inputdigits'] = self.__inputdigits
+        print self.__inputdigits
         
         return self.__pos
         
@@ -415,6 +426,9 @@ class POS(object):
         return self.__pos
     
     def write_kstr(self, pos, fname, posold, pname, STRUCT_name):
+        
+        self.__inputdigits = posold['inputdigits']
+        
         path = fname.rstrip(os.path.basename(fname))
         fname = os.path.basename(fname)
         
