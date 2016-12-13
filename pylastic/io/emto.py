@@ -10,7 +10,8 @@ class POS(object):
     Note:
     kstr vectors multiplied by SWS_old/SWS_new to give the same volume as before deformation and account for volume change with SWS in kgrn.
     """
-    def __init__(self, verbouse=False):
+    def __init__(self, verbouse=False, OLDKSTR=False):
+        self.__OLDKSTR = OLDKSTR
         self.__verbouse=verbouse
         self.__basevect=[]
         self.__lattvect_pos=None
@@ -230,10 +231,32 @@ class POS(object):
     def find(self, ifile, fname, parname):
         j=0
         val=[]
+        if self.__OLDKSTR==False:
+            if parname=='BSX':                                              #New KSTR version
+                parname='BS'                                                #New KSTR version
+                pos=1
+            if parname=='BSY':
+                parname='BS'
+                pos=2
+            if parname=='BSZ':
+                parname='BS'
+                pos=3                                                       #New KSTR version
+            if parname=='QX':                                              #New KSTR version
+                parname='QX'                                                #New KSTR version
+                pos=1
+            if parname=='QY':
+                parname='QX'
+                pos=2
+            if parname=='QZ':
+                parname='QX'
+                pos=3                                                       #New KSTR version
         for line in ifile:
             if parname in line:
-                f_read=self.__format[fname][parname]["read"]
-                val.append(float(line[f_read[0]:f_read[1]]))
+                if parname.startswith('BS') or parname.startswith('QX') and self.__OLDKSTR==False:                            #New KSTR version
+                    val.append(float(line.split()[pos]))                #New KSTR version
+                else:
+                    f_read=self.__format[fname][parname]["read"]
+                    val.append(float(line[f_read[0]:f_read[1]]))
             
                 j+=1
         if len(val)==1: val=val[0]
@@ -245,27 +268,33 @@ class POS(object):
         j=0
         for line in ifile:
             if parname in line:
-        
-                f_read=self.__format[fname][parname]["read"]
-                li = list(line)
-                del li[f_read[0]:f_read[1]]
-                if type(val) is list:
-                    if fname=='kstr' and float(val[j]) < 1. and float(val[j]) >= 0.:
-                        li[f_read[0]] = self.__format[fname][parname]["write_nlz"].format(float(val[j])).lstrip('0')
-                    elif fname=='kstr' and float(val[j]) < 0. and float(val[j]) >= -1.:
+                if parname in ['QX','BS1','BS2','BS3'] and self.__OLDKSTR==False:
+                    if parname == 'QX':
+                        for v in val: line = "{0:s} {1:.10f} {2:.10f} {3:.10f}\n".format(parname,v[0],v[1],v[2])
+                    else:
                         
-                        li[f_read[0]] = '-'+self.__format[fname][parname]["write_nnlz"].format(float(val[j])).lstrip('-0')
-                    else:
-                        li[f_read[0]] = self.__format[fname][parname]["write"].format(float(val[j]))
-                else: 
-                    if fname=='kstr' and float(val) < 1.:
-                        li[f_read[0]] = self.__format[fname][parname]["write_nlz"].format(float(val)).lstrip('0')
-                    elif fname=='kstr' and float(val) >= 100.: 
-                        li[f_read[0]] = self.__format[fname][parname]["write"].format(float(val))[0:-1]
-                    else:
-                        li[f_read[0]] = self.__format[fname][parname]["write"].format(float(val))
-        
-                line = ''.join(li)
+                        line = "{0:s} {1:.10f} {2:.10f} {3:.10f}\n".format(parname,val[0],val[1],val[2])
+                else:
+                    f_read=self.__format[fname][parname]["read"]
+                    li = list(line)
+                    del li[f_read[0]:f_read[1]]
+                    if type(val) is list:
+                        if fname=='kstr' and float(val[j]) < 1. and float(val[j]) >= 0.:
+                            li[f_read[0]] = self.__format[fname][parname]["write_nlz"].format(float(val[j])).lstrip('0')
+                        elif fname=='kstr' and float(val[j]) < 0. and float(val[j]) >= -1.:
+                            
+                            li[f_read[0]] = '-'+self.__format[fname][parname]["write_nnlz"].format(float(val[j])).lstrip('-0')
+                        else:
+                            li[f_read[0]] = self.__format[fname][parname]["write"].format(float(val[j]))
+                    else: 
+                        if fname=='kstr' and float(val) < 1.:
+                            li[f_read[0]] = self.__format[fname][parname]["write_nlz"].format(float(val)).lstrip('0')
+                        elif fname=='kstr' and float(val) >= 100.: 
+                            li[f_read[0]] = self.__format[fname][parname]["write"].format(float(val))[0:-1]
+                        else:
+                            li[f_read[0]] = self.__format[fname][parname]["write"].format(float(val))
+            
+                    line = ''.join(li)
                 ifile[i] = line
             
                 j+=1
@@ -436,10 +465,13 @@ class POS(object):
             QX.append(vec[0])   #everything multiplied by A in previous version
             QY.append(vec[1])   #
             QZ.append(vec[2])   #
-        #for i in range(len(QX)):
-        self.__kstr = self.replace(self.__kstr, "kstr", "QX", QX)
-        self.__kstr = self.replace(self.__kstr, "kstr", "QY", QY)
-        self.__kstr = self.replace(self.__kstr, "kstr", "QZ", QZ)
+        
+        if self.__OLDKSTR:
+            self.__kstr = self.replace(self.__kstr, "kstr", "QX", QX)                #Old KSTR input
+            self.__kstr = self.replace(self.__kstr, "kstr", "QY", QY)                #Old KSTR input
+            self.__kstr = self.replace(self.__kstr, "kstr", "QZ", QZ)                #Old KSTR input
+        else:
+            self.__kstr = self.replace(self.__kstr, "kstr", "QX", C_vec)
 
         
         
@@ -461,10 +493,14 @@ class POS(object):
             BSX=[BS1[0],BS2[0],BS3[0]]  #everything multiplied by A in previous version
             BSY=[BS1[1],BS2[1],BS3[1]]  #
             BSZ=[BS1[2],BS2[2],BS3[2]]  #
-            
-            self.__kstr = self.replace(self.__kstr, "kstr", "BSX", BSX)
-            self.__kstr = self.replace(self.__kstr, "kstr", "BSY", BSY)
-            self.__kstr = self.replace(self.__kstr, "kstr", "BSZ", BSZ)
+            if self.__OLDKSTR:
+                self.__kstr = self.replace(self.__kstr, "kstr", "BSX", BSX)
+                self.__kstr = self.replace(self.__kstr, "kstr", "BSY", BSY)
+                self.__kstr = self.replace(self.__kstr, "kstr", "BSZ", BSZ)
+            else:
+                self.__kstr = self.replace(self.__kstr, "kstr", "BS1", BS1)
+                self.__kstr = self.replace(self.__kstr, "kstr", "BS2", BS2)
+                self.__kstr = self.replace(self.__kstr, "kstr", "BS3", BS3)
         #self.__kstr = self.replace(self.__kstr,"kstr","BSX", BSX)
         #self.__kstr = self.replace(self.__kstr,"kstr","BSY", BSY)
         #self.__kstr = self.replace(self.__kstr,"kstr","BSZ", BSZ)
@@ -484,7 +520,7 @@ class POS(object):
         #print 'V0_latt, V0_sws, V1_cell ',V0latt,(4./3.*self.__natoms*np.pi*posold['scale']**3.), self.__V1cell
         #SWS = self.calc_sws(V0_Vlatt, self.__natoms, self.__V1cell)
         SWS = posold['scale']*(self.__V1cell/V0latt)**(1./3.)
-        print 'SWS ', SWS, posold['scale'], V0latt, np.linalg.det(np.array([BSX,BSY,BSZ]))
+        #print 'SWS ', SWS, posold['scale'], V0latt, np.linalg.det(np.array([BSX,BSY,BSZ]))
         # print a, b, c
         return SWS#a
     
