@@ -280,7 +280,7 @@ class POS(object):
             if parname in line:
                 if parname in ['QX','BS1','BS2','BS3'] and self.__OLDKSTR==False:
                     if parname == 'QX':
-                        for v in val: line = "{0:s} {1:.{4}f} {2:.{5}f} {3:.{6}f}\n".format(parname,v[0],v[1],v[2],str(self.__inputdigits),str(self.__inputdigits),str(self.__inputdigits))
+                        line = "{0:s} {1:.{4}f} {2:.{5}f} {3:.{6}f}\n".format(parname,val[j][0],val[j][1],val[j][2],str(self.__inputdigits),str(self.__inputdigits),str(self.__inputdigits))
                     else:
                         
                         line = "{0:s} {1:.{4}f} {2:.{5}f} {3:.{6}f}\n".format(parname,val[0],val[1],val[2],str(self.__inputdigits),str(self.__inputdigits),str(self.__inputdigits))
