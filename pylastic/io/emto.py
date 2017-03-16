@@ -10,7 +10,7 @@ class POS(object):
     Note:
     kstr vectors multiplied by SWS_old/SWS_new to give the same volume as before deformation and account for volume change with SWS in kgrn.
     """
-    def __init__(self, verbouse=False, OLDKSTR=False):
+    def __init__(self, verbouse=False, OLDKSTR=True):
         self.__OLDKSTR = OLDKSTR
         self.__inputdigits = None
         self.__verbouse=verbouse
@@ -253,7 +253,7 @@ class POS(object):
                 pos=3                                                       #New KSTR version
         for line in ifile:
             if parname in line:
-                if parname.startswith('BS') or parname.startswith('QX') and self.__OLDKSTR==False:                            #New KSTR version
+                if parname.startswith('BS') and self.__OLDKSTR==False or parname.startswith('QX') and self.__OLDKSTR==False:                            #New KSTR version
                     lstr = line.split()[pos]
                     if self.__inputdigits == None:
                         if lstr[1]=='.':

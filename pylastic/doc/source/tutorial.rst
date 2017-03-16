@@ -94,6 +94,19 @@ The calculations are started after calling the method:
 	
 	structures.calc_vasp()
 	
+Starting calculations on cluster
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To write the paths to each singe electronic structure calculation to the file 'calcpaths':
+
+.. code-block:: python
+	f=open('calcpaths','w')
+	for st in structures.get_structures().values():
+		f.write(st.path.split('/')[-2]+'/'+st.path.split('/')[-1]+'/\n')
+	f.close()
+
+This file is intended for use in job subission scripts on a cluster.
+
 Postprocessing
 ^^^^^^^^^^^^^^
 
@@ -145,7 +158,22 @@ Finally the elastic constants are computed for a specific maximal lagrangian str
 	ec.set_ec('0.05')
 	print ec.get_ec()
 	
-	
+
+Equation of state calculations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Pylastic offers a tool for calculating and analyzing the equation of state (EOS) using Birch-Murnaghan as well as Vinet energy vs. volume fits. 
+To generate the electronic structure input:
+
+.. code-block:: python
+	from pylastic.tools.eos import Setup, Analyze
+	Setup(2.8,3.3,13, loc='cluster', cod='vasp')
+
+After electronic structure calculations are finished you can generate an object 'analyze' containing information on the EOS
+
+.. code-block:: python
+	analyze = Analyze()
+
 	
 	
 	

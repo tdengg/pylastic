@@ -227,6 +227,7 @@ class Distort(object):
     """
     def __init__(self, volumeconserving = False, mthd = 'Energy', order = 2):
         
+        self.__lagrangian=True
         
         self.__eta = 0.05
         self.volumeconserving = volumeconserving
@@ -523,11 +524,13 @@ class Distort(object):
         eps_matrix = eta_matrix
         if (np.linalg.norm(eta_matrix) > 0.7):
             sys.exit('\n     ... Oops ERROR: Too large deformation!\n') 
-
-        while( norm > 1.e-10 ):
-            x          = eta_matrix - np.dot(eps_matrix, eps_matrix)/2.
-            norm       = np.linalg.norm(x - eps_matrix)      
-            eps_matrix = x
+            
+        if self.__lagrangian:
+            #print 'LAGRANGIAN!'
+            while( norm > 1.e-10 ):
+                x          = eta_matrix - np.dot(eps_matrix, eps_matrix)/2.
+                norm       = np.linalg.norm(x - eps_matrix)      
+                eps_matrix = x
             
         i_matrix   = np.array([[1., 0., 0.],
                             [0., 1., 0.], 

@@ -342,7 +342,7 @@ class Birch(object):
     
     
 class Setup(object):
-    def __init__(self, Vmin, Vmax, N, cod='vasp', executable='/home/t.dengg/bin/vasp/vasp.5.3/vasp'):
+    def __init__(self, Vmin, Vmax, N, cod='vasp', executable='/home/t.dengg/bin/vasp/vasp.5.3/vasp', loc='local'):
         self.__cod=cod
         if self.__cod=='vasp': from pylastic.io.vasp import POS
         from pylastic.elatoms import Structures, ElAtoms
@@ -367,10 +367,15 @@ class Setup(object):
 
         ####################### Write vasp input files: #######################
         structures.write_structures(structures)
-
-        #################### Start local vasp calculation: ####################
-        structures.executable = executable
-        structures.calc_vasp()
+        if loc=='local':
+            #################### Start local vasp calculation: ####################
+            structures.executable = executable
+            structures.calc_vasp()
+        else:
+            f=open('calcpaths','w')
+            for st in structures.get_structures().values():
+                f.write(st.path.split('/')[-2]+'/'+st.path.split('/')[-1]+'/\n')
+            f.close()
 
 class Analyze(Birch):
     def __init__(self, verbous=False):
