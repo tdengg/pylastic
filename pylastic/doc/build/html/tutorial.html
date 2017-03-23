@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -15,7 +13,7 @@
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
+        URL_ROOT:    './',
         VERSION:     '0.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
@@ -27,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="pylastic 0.1 documentation" href="index.html" />
-    <link rel="next" title="Example script using pylastic" href="example_setup.html" />
+    <link rel="next" title="Starting calculations on VSC3" href="vsc3.html" />
     <link rel="prev" title="Download and installation" href="install.html" /> 
   </head>
   <body>
@@ -38,10 +36,7 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="example_setup.html" title="Example script using pylastic"
+          <a href="vsc3.html" title="Starting calculations on VSC3"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="install.html" title="Download and installation"
@@ -70,6 +65,10 @@
 </div>
 </li>
 <li><p class="first">using <em>ASE</em> (external package <em>ASE</em> required)</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Not tested in new version.</p>
+</div>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">ase.io</span> <span class="kn">import</span> <span class="n">vasp</span>
 
 <span class="n">pos</span> <span class="o">=</span> <span class="n">vasp</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s">&#39;POSCAR&#39;</span><span class="p">)</span>
@@ -130,6 +129,19 @@
 </pre></div>
 </div>
 </div>
+<div class="section" id="starting-calculations-on-cluster">
+<h2>Starting calculations on cluster<a class="headerlink" href="#starting-calculations-on-cluster" title="Permalink to this headline">¶</a></h2>
+<p>To write the paths to each singe electronic structure calculation to the file &#8216;calcpaths&#8217;:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">f</span><span class="o">=</span><span class="nb">open</span><span class="p">(</span><span class="s">&#39;calcpaths&#39;</span><span class="p">,</span><span class="s">&#39;w&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">st</span> <span class="ow">in</span> <span class="n">structures</span><span class="o">.</span><span class="n">get_structures</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">st</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="s">&#39;/&#39;</span><span class="o">+</span><span class="n">st</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="s">&#39;/</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+<span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This file is intended for use in job subission scripts on a cluster.</p>
+<blockquote>
+<div><a href="#id1"><span class="problematic" id="id2">`Starting calculations on VSC3`_</span></a></div></blockquote>
+</div>
 <div class="section" id="postprocessing">
 <h2>Postprocessing<a class="headerlink" href="#postprocessing" title="Permalink to this headline">¶</a></h2>
 <p>The following section describes how to proceed when DFT calculations have finished. The modules to be imported for the subsequent steps are:</p>
@@ -169,6 +181,19 @@ To get 2nd order derivatives of the energy and the Cross-Validation-Score (CVS) 
 </pre></div>
 </div>
 </div>
+<div class="section" id="equation-of-state-calculations">
+<h2>Equation of state calculations<a class="headerlink" href="#equation-of-state-calculations" title="Permalink to this headline">¶</a></h2>
+<p>Pylastic offers a tool for calculating and analyzing the equation of state (EOS) using Birch-Murnaghan as well as Vinet energy vs. volume fits.
+To generate the electronic structure input:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pylastic.tools.eos</span> <span class="kn">import</span> <span class="n">Setup</span><span class="p">,</span> <span class="n">Analyze</span>
+<span class="n">Setup</span><span class="p">(</span><span class="mf">2.8</span><span class="p">,</span><span class="mf">3.3</span><span class="p">,</span><span class="mi">13</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s">&#39;cluster&#39;</span><span class="p">,</span> <span class="n">cod</span><span class="o">=</span><span class="s">&#39;vasp&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>After electronic structure calculations are finished you can generate an object &#8216;analyze&#8217; containing information on the EOS</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">analyze</span> <span class="o">=</span> <span class="n">Analyze</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
 </div>
 
 
@@ -186,7 +211,9 @@ To get 2nd order derivatives of the energy and the Cross-Validation-Score (CVS) 
 <li><a class="reference internal" href="#distorting-the-atoms-object">Distorting the atoms object</a></li>
 <li><a class="reference internal" href="#the-structures-class">The <tt class="docutils literal"><span class="pre">Structures</span></tt> class</a></li>
 <li><a class="reference internal" href="#starting-local-calculations-using-vasp">Starting local calculations using <em>VASP</em></a></li>
+<li><a class="reference internal" href="#starting-calculations-on-cluster">Starting calculations on cluster</a></li>
 <li><a class="reference internal" href="#postprocessing">Postprocessing</a></li>
+<li><a class="reference internal" href="#equation-of-state-calculations">Equation of state calculations</a></li>
 </ul>
 </li>
 </ul>
@@ -195,8 +222,8 @@ To get 2nd order derivatives of the energy and the Cross-Validation-Score (CVS) 
   <p class="topless"><a href="install.html"
                         title="previous chapter">Download and installation</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="example_setup.html"
-                        title="next chapter">Example script using pylastic</a></p>
+  <p class="topless"><a href="vsc3.html"
+                        title="next chapter">Starting calculations on VSC3</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/tutorial.txt"
@@ -226,10 +253,7 @@ To get 2nd order derivatives of the energy and the Cross-Validation-Score (CVS) 
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="example_setup.html" title="Example script using pylastic"
+          <a href="vsc3.html" title="Starting calculations on VSC3"
              >next</a> |</li>
         <li class="right" >
           <a href="install.html" title="Download and installation"
@@ -239,7 +263,7 @@ To get 2nd order derivatives of the energy and the Cross-Validation-Score (CVS) 
     </div>
     <div class="footer">
         &copy; Copyright 2014, Dengg Thomas.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>
 </html>

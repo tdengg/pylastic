@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -38,9 +36,6 @@
           <a href="../../genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="../io/xcrysden.html" title="Module xcrysden"
              accesskey="P">previous</a> |</li>
         <li><a href="../../index.html">pylastic 0.1 documentation</a> &raquo;</li>
@@ -53,92 +48,8 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="module-pylastic.tools.birch">
-<span id="module-birch"></span><h1>Module birch<a class="headerlink" href="#module-pylastic.tools.birch" title="Permalink to this headline">¶</a></h1>
-<p>Functions for equation of state fitting.</p>
-<dl class="class">
-<dt id="pylastic.tools.birch.EOS">
-<em class="property">class </em><tt class="descclassname">pylastic.tools.birch.</tt><tt class="descname">EOS</tt><big>(</big><em>V0</em>, <em>E0</em><big>)</big><a class="headerlink" href="#pylastic.tools.birch.EOS" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
-<li><strong>E0</strong> (<em>list</em>) &#8211; Groundstate energy to corresponding volumes.</li>
-<li><strong>V0</strong> (<em>list</em>) &#8211; Volume points.</li>
-<li><strong>par</strong> (<em>list</em>) &#8211; Fitting parameters.</li>
-<li><strong>pcov</strong> (<em>list</em>) &#8211; Standard deviation of fitting parameters.</li>
-<li><strong>gamma_LT</strong> (<em>float</em>) &#8211; Low temperature Gruneisen parameter.</li>
-<li><strong>gamma_HT</strong> (<em>float</em>) &#8211; Low temperature Gruneisen parameter.</li>
-<li><strong>B0</strong> (<em>float</em>) &#8211; Zero pressure bulk modulus.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
-<dt id="pylastic.tools.birch.EOS.fbirch">
-<tt class="descname">fbirch</tt><big>(</big><em>V</em>, <em>v0</em>, <em>b0</em>, <em>db0</em>, <em>emin</em><big>)</big><a class="headerlink" href="#pylastic.tools.birch.EOS.fbirch" title="Permalink to this definition">¶</a></dt>
-<dd><p>Birch Murnaghan equation of state</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>V</strong> (<em>float</em>) &#8211; Volume <span class="math">\(V\)</span></li>
-<li><strong>v0</strong> (<em>float</em>) &#8211; Equilibrium volume <span class="math">\(V_0\)</span> (fitting parameter).</li>
-<li><strong>b0</strong> (<em>float</em>) &#8211; Zero pressure bulk modulus <span class="math">\(B_0\)</span> (fitting parameter).</li>
-<li><strong>db0</strong> (<em>float</em>) &#8211; Pressure derivative of the bulk modulus at zero pressure <span class="math">\(B_0'\)</span> (fitting parameter).</li>
-<li><strong>emin</strong> (<em>float</em>) &#8211; Energy minimum <span class="math">\(E_0\)</span> (fitting parameter).</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Energy at volume <span class="math">\(V\)</span>.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
-</td>
-</tr>
-</tbody>
-</table>
-<div class="math">
-\[E(V) = E_0+\frac{9 V_0 B_0}{16}\left\lbrace \left[\left( \frac{V_0}{V} \right)^\frac{2}{3}-1\right]^3 B_0' + \left[\left( \frac{V_0}{V} \right)^\frac{2}{3}-1\right]^2 \left[6-4\left( \frac{V_0}{V} \right)^\frac{2}{3}\right] \right\rbrace\]</div>
-</dd></dl>
-
-<dl class="method">
-<dt id="pylastic.tools.birch.EOS.fvinet">
-<tt class="descname">fvinet</tt><big>(</big><em>V</em>, <em>v0</em>, <em>b0</em>, <em>db0</em>, <em>emin</em><big>)</big><a class="headerlink" href="#pylastic.tools.birch.EOS.fvinet" title="Permalink to this definition">¶</a></dt>
-<dd><p>Vinet equation of state</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>V</strong> (<em>float</em>) &#8211; Volume <span class="math">\(V\)</span></li>
-<li><strong>v0</strong> (<em>float</em>) &#8211; Equilibrium volume <span class="math">\(V_0\)</span> (fitting parameter).</li>
-<li><strong>b0</strong> (<em>float</em>) &#8211; Zero pressure bulk modulus <span class="math">\(B_0\)</span> (fitting parameter).</li>
-<li><strong>db0</strong> (<em>float</em>) &#8211; Pressure derivative of the bulk modulus at zero pressure <span class="math">\(B_0'\)</span> (fitting parameter).</li>
-<li><strong>emin</strong> (<em>float</em>) &#8211; Energy minimum <span class="math">\(E_0\)</span> (fitting parameter).</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Energy at volume <span class="math">\(V\)</span>.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
-</td>
-</tr>
-</tbody>
-</table>
-<div class="math">
-\[b = \frac{3}{2}\left( B_0' - 1 \right) \,
-v = \left( \frac{V_0}{V} \right)^\frac{1}{3}\]</div>
-<div class="math">
-\[E(V) = E_0+\frac{9 V_0 B_0}{b^2}\left\lbrace 1+\left[ b \left( 1-v \right) -1 \right] e^{b \left( 1-v \right)} \right\rbrace\]</div>
-</dd></dl>
-
-</dd></dl>
-
+  <div class="section" id="module-birch">
+<h1>Module birch<a class="headerlink" href="#module-birch" title="Permalink to this headline">¶</a></h1>
 </div>
 
 
@@ -179,9 +90,6 @@ v = \left( \frac{V_0}{V} \right)^\frac{1}{3}\]</div>
           <a href="../../genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="../io/xcrysden.html" title="Module xcrysden"
              >previous</a> |</li>
         <li><a href="../../index.html">pylastic 0.1 documentation</a> &raquo;</li>
@@ -190,7 +98,7 @@ v = \left( \frac{V_0}{V} \right)^\frac{1}{3}\]</div>
     </div>
     <div class="footer">
         &copy; Copyright 2014, Dengg Thomas.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>
 </html>

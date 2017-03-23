@@ -19,6 +19,10 @@ Two options are available for importing atomic positions from *VASP* POSCAR file
 		
 *	using *ASE* (external package *ASE* required)
 
+	.. warning:: 
+	
+		Not tested in new version.
+
 	.. code-block:: python
 	
 		from ase.io import vasp
@@ -100,12 +104,15 @@ Starting calculations on cluster
 To write the paths to each singe electronic structure calculation to the file 'calcpaths':
 
 .. code-block:: python
+
 	f=open('calcpaths','w')
 	for st in structures.get_structures().values():
 		f.write(st.path.split('/')[-2]+'/'+st.path.split('/')[-1]+'/\n')
 	f.close()
 
 This file is intended for use in job subission scripts on a cluster.
+
+	`Starting calculations on VSC3`_
 
 Postprocessing
 ^^^^^^^^^^^^^^
@@ -166,12 +173,14 @@ Pylastic offers a tool for calculating and analyzing the equation of state (EOS)
 To generate the electronic structure input:
 
 .. code-block:: python
+
 	from pylastic.tools.eos import Setup, Analyze
 	Setup(2.8,3.3,13, loc='cluster', cod='vasp')
 
 After electronic structure calculations are finished you can generate an object 'analyze' containing information on the EOS
 
 .. code-block:: python
+
 	analyze = Analyze()
 
 	

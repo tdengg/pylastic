@@ -151,6 +151,9 @@ if not options.is_gnuplot:
 
 colors = ['r-', 'b--', 'g-', 'c--', 'm-', 'k--', 'y-', 
           'r--', 'b--', 'g--', 'c--', 'm--', 'y--', 'k--']
+          
+#colors = ['r-','r--', 'b-', 'g-', 'c-', 'c--', 'k--', 'y-']
+
 if options.is_points:
     colors = [x + 'o' for x in colors]
 
@@ -259,7 +262,7 @@ if not options.is_gnuplot:
         plt.title(options.title)
 
     if options.show_legend:
-        plt.legend()
+        plt.legend(loc=8)
 
     if options.dos:
         ax2 = plt.subplot(gs[0, 1], sharey=ax1)

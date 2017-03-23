@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Units &mdash; pylastic 0.1 documentation</title>
+    <title>Starting calculations on VSC3 &mdash; pylastic 0.1 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -25,8 +25,8 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="pylastic 0.1 documentation" href="index.html" />
-    <link rel="next" title="Download and installation" href="install.html" />
-    <link rel="prev" title="Introduction" href="intro.html" /> 
+    <link rel="next" title="Example script using pylastic" href="example_setup.html" />
+    <link rel="prev" title="Tutorials" href="tutorial.html" /> 
   </head>
   <body>
     <div class="related">
@@ -36,10 +36,10 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="install.html" title="Download and installation"
+          <a href="example_setup.html" title="Example script using pylastic"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="intro.html" title="Introduction"
+          <a href="tutorial.html" title="Tutorials"
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">pylastic 0.1 documentation</a> &raquo;</li> 
       </ul>
@@ -50,50 +50,47 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="units">
-<h1>Units<a class="headerlink" href="#units" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="energy-and-distance">
-<h2>Energy and distance:<a class="headerlink" href="#energy-and-distance" title="Permalink to this headline">¶</a></h2>
-<p>Units of energy and distance in <strong>pylastic</strong>&#8216;s in- and output are determined by the natural units of the DFT code used:</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="34%" />
-<col width="34%" />
-<col width="31%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">&nbsp;</th>
-<th class="head">Energy</th>
-<th class="head">Distance</th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr class="row-even"><td><strong>VASP</strong></td>
-<td>eV</td>
-<td>Angstrom</td>
-</tr>
-<tr class="row-odd"><td><strong>exciting</strong></td>
-<td>Ry</td>
-<td>Bohr</td>
-</tr>
-<tr class="row-even"><td><strong>espresso</strong></td>
-<td>Ry</td>
-<td>Bohr</td>
-</tr>
-<tr class="row-odd"><td><strong>WIEN2k</strong></td>
-<td>Ry</td>
-<td>Bohr</td>
-</tr>
-</tbody>
-</table>
+  <div class="section" id="starting-calculations-on-vsc3">
+<h1>Starting calculations on VSC3<a class="headerlink" href="#starting-calculations-on-vsc3" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li>Start with copying your calculation directory to the cluster.</li>
+<li>Change to the root directory of your calculations.</li>
+<li>Generate job submission script named &#8216;run_vasp&#8217;</li>
+</ul>
+<div class="highlight-python"><div class="highlight"><pre>#!/bin/tcsh
+#SBATCH --qos=devel_0128
+#SBATCH --partition=mem_0128
+#SBATCH -N 1
+#SBATCH -J $SLURM_SUBMIT_DIR:t
+#SBATCH --tasks-per-node=16
+#SBATCH -t 00:10:00
+mpirun /home/lv70372/tde/bin/vasp/vasp.5.3.3-collin_DNGZhalf_mkl_vtst_3.0d/vasp
+</pre></div>
 </div>
-<div class="section" id="elastic-constants">
-<h2>Elastic constants:<a class="headerlink" href="#elastic-constants" title="Permalink to this headline">¶</a></h2>
-<p>Given in GPa Units</p>
+<ul class="simple">
+<li>Write shell script named &#8216;run.sh&#8217; to submit all jobs:</li>
+</ul>
+<div class="highlight-python"><div class="highlight"><pre>#!/bin/bash
+#
+
+
+for path in 3*; do
+        cd $path
+        cdir=&quot;$(pwd)&quot;
+
+    cd ${line}
+    cp ../run_vasp .
+    sbatch run_vasp
+
+        cd ..
+done
+</pre></div>
 </div>
-<div class="section" id="phonon-calculations">
-<h2>Phonon calculations:<a class="headerlink" href="#phonon-calculations" title="Permalink to this headline">¶</a></h2>
-<p>Frequency in THz</p>
+<ul class="simple">
+<li>Start job script</li>
+</ul>
+<div class="highlight-python"><div class="highlight"><pre>./run.sh
+</pre></div>
 </div>
 </div>
 
@@ -103,25 +100,15 @@
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Units</a><ul>
-<li><a class="reference internal" href="#energy-and-distance">Energy and distance:</a></li>
-<li><a class="reference internal" href="#elastic-constants">Elastic constants:</a></li>
-<li><a class="reference internal" href="#phonon-calculations">Phonon calculations:</a></li>
-</ul>
-</li>
-</ul>
-
   <h4>Previous topic</h4>
-  <p class="topless"><a href="intro.html"
-                        title="previous chapter">Introduction</a></p>
+  <p class="topless"><a href="tutorial.html"
+                        title="previous chapter">Tutorials</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="install.html"
-                        title="next chapter">Download and installation</a></p>
+  <p class="topless"><a href="example_setup.html"
+                        title="next chapter">Example script using pylastic</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
-    <li><a href="_sources/units.txt"
+    <li><a href="_sources/vsc3.txt"
            rel="nofollow">Show Source</a></li>
   </ul>
 <div id="searchbox" style="display: none">
@@ -148,10 +135,10 @@
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="install.html" title="Download and installation"
+          <a href="example_setup.html" title="Example script using pylastic"
              >next</a> |</li>
         <li class="right" >
-          <a href="intro.html" title="Introduction"
+          <a href="tutorial.html" title="Tutorials"
              >previous</a> |</li>
         <li><a href="index.html">pylastic 0.1 documentation</a> &raquo;</li> 
       </ul>

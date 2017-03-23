@@ -22,6 +22,7 @@ Contents:
    units
    install
    tutorial
+   vsc3
    example_setup
    modules
 

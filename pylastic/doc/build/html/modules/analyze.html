@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -39,9 +37,6 @@
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="postprocess.html" title="Module postprocess"
              accesskey="N">next</a> |</li>
         <li class="right" >
@@ -58,126 +53,7 @@
           <div class="body">
             
   <div class="section" id="module-analyze">
-<span id="module-analyze"></span><h1>Module analyze<a class="headerlink" href="#module-analyze" title="Permalink to this headline">¶</a></h1>
-<p>Determination of elastic constant and cross validation score.</p>
-<dl class="class">
-<dt id="analyze.Energy">
-<em class="property">class </em><tt class="descclassname">analyze.</tt><tt class="descname">Energy</tt><big>(</big><em>strain=None</em>, <em>energy=None</em>, <em>V0=None</em>, <em>code='vasp'</em><big>)</big><a class="headerlink" href="#analyze.Energy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Implementation of the energy aproach for determination of elastic constants.
-:param list energy: List of energy values (float).
-:param list strain: List of strain values (float).
-:param float V0: Equilibrium volume of parent structure.</p>
-<dl class="method">
-<dt id="analyze.Energy.search_for_failed">
-<tt class="descname">search_for_failed</tt><big>(</big><em>mod='pass'</em><big>)</big><a class="headerlink" href="#analyze.Energy.search_for_failed" title="Permalink to this definition">¶</a></dt>
-<dd><p>Handle failed calculations</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="analyze.Energy.set_2nd">
-<tt class="descname">set_2nd</tt><big>(</big><em>fitorder</em><big>)</big><a class="headerlink" href="#analyze.Energy.set_2nd" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fit energy vs. strain curve and evaluate 2nd derivatives in order to get 2nd order elastic constants.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fitorder</strong> (<em>int</em>) &#8211; Order of polynomial energy-strain fit.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="analyze.Energy.set_3rd">
-<tt class="descname">set_3rd</tt><big>(</big><em>fitorder</em><big>)</big><a class="headerlink" href="#analyze.Energy.set_3rd" title="Permalink to this definition">¶</a></dt>
-<dd><p>Evaluate 3rd order elastic constants from energy strain curves.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fitorder</strong> (<em>int</em>) &#8211; Order of polynomial energy-strain fit.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="analyze.Energy.set_cvs">
-<tt class="descname">set_cvs</tt><big>(</big><em>fitorder</em><big>)</big><a class="headerlink" href="#analyze.Energy.set_cvs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Evaluation of cross validation score.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fitorder</strong> (<em>int</em>) &#8211; Order of polynomial energy-strain fit.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="analyze.Stress">
-<em class="property">class </em><tt class="descclassname">analyze.</tt><tt class="descname">Stress</tt><big>(</big><em>strain=None</em>, <em>stress=None</em>, <em>V0=None</em>, <em>code='vasp'</em><big>)</big><a class="headerlink" href="#analyze.Stress" title="Permalink to this definition">¶</a></dt>
-<dd><p>Implementation of the stress aproach for determination of elastic constants.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>stress</strong> (<em>list</em>) &#8211; List of stress values (float).</li>
-<li><strong>strain</strong> (<em>list</em>) &#8211; List of strain values (float).</li>
-<li><strong>V0</strong> (<em>float</em>) &#8211; Equilibrium volume of parent structure.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
-<dt id="analyze.Stress.plot_stress">
-<tt class="descname">plot_stress</tt><big>(</big><em>etamax=0.05</em>, <em>fitorder=4</em><big>)</big><a class="headerlink" href="#analyze.Stress.plot_stress" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return matplotlib axis instance for energy-strain curve.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="analyze.Stress.search_for_failed">
-<tt class="descname">search_for_failed</tt><big>(</big><em>mod='pass'</em><big>)</big><a class="headerlink" href="#analyze.Stress.search_for_failed" title="Permalink to this definition">¶</a></dt>
-<dd><p>Handle failed calculations</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="analyze.Stress.set_2nd">
-<tt class="descname">set_2nd</tt><big>(</big><em>fitorder</em><big>)</big><a class="headerlink" href="#analyze.Stress.set_2nd" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fit stress strain curve and evaluate 2nd derivative in order to get 2nd order elastic constants.</p>
-<dl class="docutils">
-<dt>fitorder <span class="classifier-delimiter">:</span> <span class="classifier">integer </span></dt>
-<dd>Order of polynomial stress-strain fit.</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="analyze.Stress.set_3rd">
-<tt class="descname">set_3rd</tt><big>(</big><em>fitorder</em><big>)</big><a class="headerlink" href="#analyze.Stress.set_3rd" title="Permalink to this definition">¶</a></dt>
-<dd><p>Evaluate 3rd order elastic constants from energy strain curves.</p>
-<dl class="docutils">
-<dt>fitorder <span class="classifier-delimiter">:</span> <span class="classifier">integer </span></dt>
-<dd>Order of polynomial energy-strain fit.</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="analyze.Stress.set_cvs">
-<tt class="descname">set_cvs</tt><big>(</big><em>fitorder</em><big>)</big><a class="headerlink" href="#analyze.Stress.set_cvs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Evaluation of cross validation score.</p>
-<dl class="docutils">
-<dt>fitorder <span class="classifier-delimiter">:</span> <span class="classifier">integer </span></dt>
-<dd>Order of polynomial energy-strain fit.</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+<h1>Module analyze<a class="headerlink" href="#module-analyze" title="Permalink to this headline">¶</a></h1>
 </div>
 
 
@@ -221,9 +97,6 @@
           <a href="../genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="postprocess.html" title="Module postprocess"
              >next</a> |</li>
         <li class="right" >
@@ -235,7 +108,7 @@
     </div>
     <div class="footer">
         &copy; Copyright 2014, Dengg Thomas.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>
 </html>
