@@ -60,7 +60,7 @@ class Setup(Structures, Distort, POS):
         rootdir = os.getcwd()
         for d in dirnames:
             os.chdir(d)
-            os.system('/home/MCL/t.dengg/bin/phonopy-1.7.4/bin/phonopy  -d --dim="{0} {0} {0}" -c POSCAR'.format(size))
+            os.system('~/bin/phonopy-1.11.8.16/scripts/phonopy  -d --dim="{0} {0} {0}" -c POSCAR'.format(size))
             os.system('cp POSCAR POSCAR-p')
             os.system('mv SPOSCAR POSCAR')
             os.system('pwd')

@@ -343,6 +343,7 @@ class Birch(object):
     
 class Setup(object):
     def __init__(self, Vmin, Vmax, N, cod='vasp', executable='/home/t.dengg/bin/vasp/vasp.5.3/vasp', loc='local'):
+        self.__executable = executable
         self.__cod=cod
         if self.__cod=='vasp': from pylastic.io.vasp import POS
         from pylastic.elatoms import Structures, ElAtoms
@@ -369,7 +370,7 @@ class Setup(object):
         structures.write_structures(structures)
         if loc=='local':
             #################### Start local vasp calculation: ####################
-            structures.executable = executable
+            structures.set_executable(self.__executable)
             structures.calc_vasp()
         else:
             f=open('calcpaths','w')
