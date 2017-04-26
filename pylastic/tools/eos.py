@@ -379,12 +379,12 @@ class Setup(object):
             f.close()
 
 class Analyze(Birch):
-    def __init__(self, verbous=False):
+    def __init__(self, verbous=False, structure='bcc'):
         
         from pylastic.postprocess import ECs
         
         from pylastic.tools.analyze_structure import CALC
-        self.__structure='bcc'
+        self.__structure=structure
         
         
         ec = ECs('vasp')
@@ -417,7 +417,9 @@ class Analyze(Birch):
         plt.plot(V,gsenergy)
         if verbous: plt.show()
         self.__a0 = birch.a0[0]
+
         
+    
     def set_structure(self, structure):
         self.__structure = structure
         
