@@ -38,7 +38,8 @@ class CALC(object):
             volumemod=True
             vol = -scale
             scale=1.
-            
+        else:
+            volumemod=False
         self.__scale = scale
         self.__cell = np.array([self.__poscar['vlatt_1'],self.__poscar['vlatt_2'],self.__poscar['vlatt_3']])*self.__scale
         self.__a = np.sqrt(self.__poscar['vlatt_1'][0]**2. + self.__poscar['vlatt_1'][1]**2. + self.__poscar['vlatt_1'][2]**2.)*self.__scale

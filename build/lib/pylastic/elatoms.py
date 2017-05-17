@@ -613,10 +613,10 @@ class Structures(ElAtoms, Sgroup):
         
         """
         
-        if os.path.isfile(executable): 
-            self.__executable = executable
-            print "Executable set to: %s"%executable
-        else: print "Wrong path to executable '%s'"%executable
+        #if os.path.isfile(executable): 
+        self.__executable = executable
+        print "Executable set to: %s"%executable
+        #else: print "ERROR: Wrong path to executable '%s'"%executable
         
     def get_executable(self):
         return self.__executable

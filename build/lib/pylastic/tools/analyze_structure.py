@@ -33,7 +33,13 @@ class CALC(object):
         return self.__c
         
     def volume(self):
-        self.__scale = self.__poscar['scale']
+        scale = self.__poscar['scale']
+        if scale<0.:
+            volumemod=True
+            vol = -scale
+            scale=1.
+            
+        self.__scale = scale
         self.__cell = np.array([self.__poscar['vlatt_1'],self.__poscar['vlatt_2'],self.__poscar['vlatt_3']])*self.__scale
         self.__a = np.sqrt(self.__poscar['vlatt_1'][0]**2. + self.__poscar['vlatt_1'][1]**2. + self.__poscar['vlatt_1'][2]**2.)*self.__scale
         self.__b = np.sqrt(self.__poscar['vlatt_2'][0]**2. + self.__poscar['vlatt_2'][1]**2. + self.__poscar['vlatt_2'][2]**2.)*self.__scale
@@ -43,7 +49,10 @@ class CALC(object):
         print self.__cell, self.__scale
         for nion in self.__poscar['natoms']:
             natoms += nion
-        V = np.linalg.det(self.__cell)/natoms
+        if volumemod:
+            V = vol
+        else:
+            V = np.linalg.det(self.__cell)/natoms
         
         return V
     
