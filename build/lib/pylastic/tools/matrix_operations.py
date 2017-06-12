@@ -3,7 +3,8 @@ import numpy as np
 class Matrix(object):
     def __init__(self):
         self.__TM = np.identity(3)
-        return
+        
+        
     
     def C9nmop(self, m,n,o,p):
         S=0.
@@ -64,34 +65,41 @@ class Matrix(object):
     
     def transform_Csystem(self,C6o):
         self.C_tensorToMatrix(C6o)
+        self.__C9n = np.zeros((3,3,3,3))
         C6n = np.zeros((6,6))
         C9n = np.zeros((3,3,3,3))
-        self.C9nmop(0,0,0,0) ;  C6n[0,0] = C9n[0,0,0,0]
-        self.C9nmop(0,0,1,1) ;  C6n[0,1] = C9n[0,0,1,1] ; C6n[1,0] = C6n[0,1] 
-        self.C9nmop(0,0,2,2) ;  C6n[0,2] = C9n[0,0,2,2] ; C6n[2,0] = C6n[0,2]
-        self.C9nmop(0,0,1,2) ;  C6n[0,3] = C9n[0,0,1,2] ; C6n[3,0] = C6n[0,3]
-        self.C9nmop(0,0,0,2) ;  C6n[0,4] = C9n[0,0,0,2] ; C6n[4,0] = C6n[0,4]
-        self.C9nmop(0,0,0,1) ;  C6n[0,5] = C9n[0,0,0,1] ; C6n[5,0] = C6n[0,5]
+        C9n[0,0,0,0] = self.C9nmop(0,0,0,0) ;  C6n[0,0] = C9n[0,0,0,0]
+        C9n[0,0,1,1] = self.C9nmop(0,0,1,1) ;  C6n[0,1] = C9n[0,0,1,1] ; C6n[1,0] = C6n[0,1] 
+        C9n[0,0,2,2] = self.C9nmop(0,0,2,2) ;  C6n[0,2] = C9n[0,0,2,2] ; C6n[2,0] = C6n[0,2]
+        C9n[0,0,1,2] = self.C9nmop(0,0,1,2) ;  C6n[0,3] = C9n[0,0,1,2] ; C6n[3,0] = C6n[0,3]
+        C9n[0,0,0,2] = self.C9nmop(0,0,0,2) ;  C6n[0,4] = C9n[0,0,0,2] ; C6n[4,0] = C6n[0,4]
+        C9n[0,0,0,1] = self.C9nmop(0,0,0,1) ;  C6n[0,5] = C9n[0,0,0,1] ; C6n[5,0] = C6n[0,5]
     
-        self.C9nmop(1,1,1,1) ;  C6n[1,1] = C9n[1,1,1,1]
-        self.C9nmop(1,1,2,2) ;  C6n[1,2] = C9n[1,1,2,2] ; C6n[2,1] = C6n[1,2]
-        self.C9nmop(1,1,1,2) ;  C6n[1,3] = C9n[1,1,1,2] ; C6n[3,1] = C6n[1,3]
-        self.C9nmop(1,1,0,2) ;  C6n[1,4] = C9n[1,1,0,2] ; C6n[4,1] = C6n[1,4]
-        self.C9nmop(1,1,0,1) ;  C6n[1,5] = C9n[1,1,0,1] ; C6n[5,1] = C6n[1,5]
+        C9n[1,1,1,1] = self.C9nmop(1,1,1,1) ;  C6n[1,1] = C9n[1,1,1,1]
+        C9n[1,1,2,2] = self.C9nmop(1,1,2,2) ;  C6n[1,2] = C9n[1,1,2,2] ; C6n[2,1] = C6n[1,2]
+        C9n[1,1,1,2] = self.C9nmop(1,1,1,2) ;  C6n[1,3] = C9n[1,1,1,2] ; C6n[3,1] = C6n[1,3]
+        C9n[1,1,0,2] = self.C9nmop(1,1,0,2) ;  C6n[1,4] = C9n[1,1,0,2] ; C6n[4,1] = C6n[1,4]
+        C9n[1,1,0,1] = self.C9nmop(1,1,0,1) ;  C6n[1,5] = C9n[1,1,0,1] ; C6n[5,1] = C6n[1,5]
     
-        self.C9nmop(2,2,2,2) ;  C6n[2,2] = C9n[2,2,2,2] 
-        self.C9nmop(2,2,1,2) ;  C6n[2,3] = C9n[2,2,1,2] ; C6n[3,2] = C6n[2,3]
-        self.C9nmop(2,2,0,2) ;  C6n[2,4] = C9n[2,2,0,2] ; C6n[4,2] = C6n[2,4]
-        self.C9nmop(2,2,0,1) ;  C6n[2,5] = C9n[2,2,0,1] ; C6n[5,2] = C6n[2,5]
+        C9n[2,2,2,2] = self.C9nmop(2,2,2,2) ;  C6n[2,2] = C9n[2,2,2,2] 
+        C9n[2,2,1,2] = self.C9nmop(2,2,1,2) ;  C6n[2,3] = C9n[2,2,1,2] ; C6n[3,2] = C6n[2,3]
+        C9n[2,2,0,2] = self.C9nmop(2,2,0,2) ;  C6n[2,4] = C9n[2,2,0,2] ; C6n[4,2] = C6n[2,4]
+        C9n[2,2,0,1] = self.C9nmop(2,2,0,1) ;  C6n[2,5] = C9n[2,2,0,1] ; C6n[5,2] = C6n[2,5]
     
-        self.C9nmop(1,2,1,2) ;  C6n[3,3] = C9n[1,2,1,2]
-        self.C9nmop(1,2,0,2) ;  C6n[3,4] = C9n[1,2,0,2] ; C6n[4,3] = C6n[3,4]
-        self.C9nmop(1,2,0,1) ;  C6n[3,5] = C9n[1,2,0,1] ; C6n[5,3] = C6n[3,5]
+        C9n[1,2,1,2] = self.C9nmop(1,2,1,2) ;  C6n[3,3] = C9n[1,2,1,2]
+        C9n[1,2,0,2] = self.C9nmop(1,2,0,2) ;  C6n[3,4] = C9n[1,2,0,2] ; C6n[4,3] = C6n[3,4]
+        C9n[1,2,0,1] = self.C9nmop(1,2,0,1) ;  C6n[3,5] = C9n[1,2,0,1] ; C6n[5,3] = C6n[3,5]
     
-        self.C9nmop(0,2,0,2) ;  C6n[4,4] = C9n[0,2,0,2]
-        self.C9nmop(0,2,0,1) ;  C6n[4,5] = C9n[0,2,0,1] ; C6n[5,4] = C6n[4,5]
+        C9n[0,2,0,2] = self.C9nmop(0,2,0,2) ;  C6n[4,4] = C9n[0,2,0,2]
+        C9n[0,2,0,1] = self.C9nmop(0,2,0,1) ;  C6n[4,5] = C9n[0,2,0,1] ; C6n[5,4] = C6n[4,5]
     
-        self.C9nmop(0,1,0,1) ;  C6n[5,5] = C9n[0,1,0,1]
+        C9n[0,1,0,1] = self.C9nmop(0,1,0,1) ;  C6n[5,5] = C9n[0,1,0,1]
         self.__C6n = C6n
         self.__C9n = C9n
+        return self.__C9n, self.__C6n
+    
+    def get_tensor(self):
         return self.__C9n
+    def get_matrix(self):
+        return self.__C6n
+    
