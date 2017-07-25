@@ -225,16 +225,20 @@ class Energy():
         """Return groundstate energy."""
         return self.__gsenergy
     
-    def set_phenergy(self, ph_file):
+    def set_phenergy(self, ph_file, mod='F_TV'):
         """Read phonon free energy from phonopy output (default filename: F_TV) for temperature T."""
-        g = open(ph_file)
-        lines = g.readlines()
-        phenergy = []
-        T = []
-        for temp in lines:
-            phenergy.append(float(temp.split()[1])/96.47244)
-            T.append(float(temp.split()[0]))
-        g.close()
+        if mod=='F_TV':
+            g = open(ph_file)
+            lines = g.readlines()
+            phenergy = []
+            T = []
+            for temp in lines:
+                phenergy.append(float(temp.split()[1])/96.47244)
+                T.append(float(temp.split()[0]))
+            g.close()
+            
+        
+            
         
         self.__phenergy = phenergy
         self.__T=T

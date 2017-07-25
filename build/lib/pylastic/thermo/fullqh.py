@@ -1,5 +1,6 @@
 import numpy as np
 import pickle
+import yaml
 import json
 import copy
 import os
@@ -33,7 +34,7 @@ class Setup(Structures, Distort, POS):
             atom.deform_volume(eta)
             #self.__structures.append_structure(atom)
             subatom = copy.deepcopy(atom)
-            for etan in np.linspace(-0.05,0.05,21):
+            for etan in np.linspace(-0.05,0.05,5):
 
                 for strains in range(len(subatom.strainList)):
                     subatom = copy.deepcopy(atom)
@@ -43,14 +44,34 @@ class Setup(Structures, Distort, POS):
         self.__structures.write_structures(self.__structures)
         print [struct[1].path for struct in self.__structures.get_structures().items()]
         #return self.__structures
-    
-    def generate_supercells(self):
+    def setup_DFT_Cij(self, etamax, N):
+        self.__structures = Structures(thermo=True)
+        atom = copy.deepcopy(self.__initatom)
+        for eta in np.linspace(-etamax,etamax,N):
+            atom = copy.deepcopy(self.__initatom)
+            atom.deform_volume(eta)
+            #self.__structures.append_structure(atom)
+            subatom = copy.deepcopy(atom)
+            for etan in np.linspace(-0.05,0.05,21):
+
+                for strains in range(len(subatom.strainList)):
+                    subatom = copy.deepcopy(atom)
+                    subatom.distort(eta=etan, strainType_index = strains)
+                    self.__structures.append_structure(subatom)
         
+        self.__structures.write_structures(self.__structures)
+        print [struct[1].path for struct in self.__structures.get_structures().items()]
+    
+    def generate_supercells(self, size=5):
+        #stritems = self.__structures.get_structures().items()
+        #dirnames = []
+        #for i,item in enumerate(stritems):
+        #    if item[0][1] in [-0.05,-0.025,0.0,0.025,0.05]: dirnames.append(item[1].path)
         dirnames = [struct[1].path for struct in self.__structures.get_structures().items()]
         rootdir = os.getcwd()
         for d in dirnames:
             os.chdir(d)
-            os.system('/home/MCL/t.dengg/bin/phonopy-1.7.4/bin/phonopy  -d --dim="5 5 5" -c POSCAR')
+            os.system('~/bin/phonopy-1.11.8.16/scripts/phonopy  -d --dim="{0} {0} {0}" -c POSCAR'.format(size))
             os.system('cp POSCAR POSCAR-p')
             os.system('mv SPOSCAR POSCAR')
             os.system('pwd')
@@ -64,7 +85,10 @@ class Postprocess(ECs):
     def __init__(self):
         super(Postprocess, self).__init__()
         self.__allstructures = None
-        
+    
+    def set_structures(self, struct):
+        self.__allstructures = struct
+    
     def set_energies(self):
         ec = ECs('vasp',True)
         ec.set_structures()
@@ -195,4 +219,36 @@ class Postprocess(ECs):
     
     def interpolate(self):
         return self.__interpolated
+    
+    def calc_freeEnergy(self):
+         
+        f=open('structures.pkl')
+        self.__structures = pickle.load(f)
+        f.close()
+        dirnames = [struct[1].path for struct in self.__structures.get_structures().items()]
+        rootdir = os.getcwd()
+        for structure in self.__structures.get_structures().items():
+            os.chdir(structure[1].path)
+            os.system('cp ../../../mesh.conf .')
+            os.system('pwd')
+            try:
+                os.system('~/bin/phonopy-1.11.8.16/scripts/phonopy --fc vasprun.xml')
+                os.system('~/bin/phonopy-1.11.8.16/scripts/phonopy -t -c POSCAR-p mesh.conf')
+            
+                
+                f=open('thermal_properties.yaml')
+                dic = yaml.load(f)
+                f.close()
+            
+                structure[1].fenergy = [atTemp['free_energy'] for atTemp in dic['thermal_properties']]
+                structure[1].T = [atTemp['temperature'] for atTemp in dic['thermal_properties']]
+            except:
+                ferror = open('errorlog', 'a')
+                ferror.write(os.getcwd()+': An error occurred while parsing thermal_properties.yaml ..........\n')
+                ferror.close()
+                print 'An error occurred while parsing thermal_properties.yaml ..........'
+            os.chdir(rootdir)
+        f=open('structures_new.pkl','w')
+        pickle.dump(self.__structures, f)
+        f.close()
     

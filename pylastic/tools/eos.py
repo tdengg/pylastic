@@ -415,7 +415,10 @@ class Analyze(Birch):
         print a,b,c
         birch.fit()
         plt.plot(V,gsenergy)
-        if verbous: plt.show()
+        if verbous: 
+            plt.xlabel('$V$   ($\AA^3$)')
+            plt.ylabel('$E$   ($eV$)')
+            plt.show()
         self.__a0 = birch.a0[0]
 
         

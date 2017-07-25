@@ -28,7 +28,7 @@ except:
 class ECs(Check, Energy, Stress):
     """Calculation of elastic constants and post-processing."""
     
-    def __init__(self, cod='vasp', thermo=False):
+    def __init__(self, cod='vasp', thermo=False, thmod = 'structures_phonons'):
         if cod == 'emto':
             pars = json.load(open('setup.json'))
             self.__pname = pars['emto']['pnames']['kfcd']
@@ -48,6 +48,7 @@ class ECs(Check, Energy, Stress):
         self.__rms = {}
         self.__workdir = ''
         self.__thermodyn = thermo
+        self.__mod = thmod
         self.__T = 0
         
         self.__funct = 'GGA'
@@ -119,7 +120,7 @@ class ECs(Check, Energy, Stress):
                 else: getData.set_fname(self.__workdir + '%s'%(atoms[1].path.split('/')[-1])+'/' + outfile)
                 print getData.get_fname()
                 getData.set_gsenergy()
-                if self.__thermodyn:
+                if self.__thermodyn and self.__mod!='structures_phonons':
                     outfile_ph = 'F_TV'
                     #getData.set_fname(self.__workdir + '%s/'%atoms[1].path.lstrip('.') + outfile_ph)
                     #getData.T = self.__T
@@ -425,9 +426,10 @@ class ECs(Check, Energy, Stress):
                 CVS.append(ans.get_cvs())
                 
                 a.plot([cvs[1] for cvs in CVS[(n-1)*3+j-1]],[cvs[0] for cvs in CVS[(n-1)*3+j-1]], label=str(fitorder))
-                a.set_title(stype)
+                a.set_title('Distortion %s'%stype)
                 a.set_xlabel('strain')
                 a.set_ylabel('CVS    in eV')
+                a.set_xticks([0.01,0.03,0.05])
                 
                 j+=1
             

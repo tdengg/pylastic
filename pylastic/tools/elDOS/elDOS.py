@@ -30,7 +30,7 @@ class DOS(object):
         integrand = []
         for e,d in zip(self.__energy, self.__D):
             
-            if (e-self.__efermi)/(self.__k_B*T) <= 200.:
+            if (e-self.__efermi)/(self.__k_B*T) <= 50000.:
                 integrand.append(-self.__k_B*T*d*fd(e)*np.log(fd(e))*((1.-fd(e))*(1.-np.log(fd(e)))))
             else:
                 integrand.append(0.)
