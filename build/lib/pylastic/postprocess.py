@@ -357,7 +357,7 @@ class ECs(Check, Energy, Stress):
             elif self.__mthd == 'Stress': 
                 self.__sigma = ans.get_sigma()
                 self.set_ec((self.__etacalc))
-            if mpl: plt.show()
+            #if mpl: plt.show()
     
     def get_rms(self):
         return self.__rms
@@ -557,11 +557,11 @@ class ECs(Check, Energy, Stress):
             #self.search_for_failed()
             atoms = self.get_atomsByStraintype(stype)
             if self.__thermodyn and mod=='F':
-                energy = [i.gsenergy+i.phenergy[-1] for i in atoms]
+                energy = [i.gsenergy+i.phenergy[100] for i in atoms]
             elif self.__thermodyn and mod=='E0':
                 energy = [i.gsenergy for i in atoms]
             elif self.__thermodyn and mod=='Fvib':
-                energy = [i.phenergy[-1] for i in atoms]
+                energy = [i.phenergy[100] for i in atoms]
             else:
                 energy = [i.gsenergy for i in atoms]
             strain = [i.eta for i in atoms]

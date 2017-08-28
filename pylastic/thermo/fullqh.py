@@ -4,6 +4,7 @@ import yaml
 import json
 import copy
 import os
+import time
 
 from pylastic.distort import Distort
 from pylastic.elatoms import ElAtoms, Structures
@@ -137,7 +138,7 @@ class Postprocess(ECs):
             ec.T = T
             ec.set_structures()
             #print ec.get_structures()
-            """
+            ###############################################################################################
             eta=[]
             scale=[]
             gsenergy=[]
@@ -147,7 +148,7 @@ class Postprocess(ECs):
                 scale.append(atom.scale)
                 gsenergy.append(atom.gsenergy)
             print eta,gsenergy
-            a1,b1,c1,d1 = ANALYTICS(eta,gsenergy).phist(50, 100, 0.0000001)
+            a1,b1,c1,d1,f1,f2 = ANALYTICS(eta,gsenergy).phist(50, 100, 0.0000001)
             eta=[]
             scale=[]
             gsenergy=[]
@@ -156,7 +157,7 @@ class Postprocess(ECs):
                 scale.append(atom.scale)
                 gsenergy.append(atom.gsenergy)
             print eta,gsenergy
-            a2,b2,c2,d2 = ANALYTICS(eta,gsenergy).phist(50, 100, 0.0000001)
+            a2,b2,c2,d2,f1,f2 = ANALYTICS(eta,gsenergy).phist(50, 100, 0.0000001)
             eta=[]
             scale=[]
             gsenergy=[]
@@ -165,13 +166,14 @@ class Postprocess(ECs):
                 scale.append(atom.scale)
                 gsenergy.append(atom.gsenergy)
             print eta,gsenergy
-            a3,b3,c3,d3 = ANALYTICS(eta,gsenergy).phist(50, 100, 0.0000001)
+            a3,b3,c3,d3,f1,f2 = ANALYTICS(eta,gsenergy).phist(50, 100, 0.0000001)
             
             ec.fitorder=[a1[1],a2[1],a3[1]]
             ec.etacalc=[str(a1[0]),str(a2[0]),str(a3[0])]
-            """
-            ec.fitorder = [6,6,6]
-            ec.etacalc = ['0.05','0.05','0.04']
+            #################################################################################################
+            #ec.fitorder = [6,6,6]
+            #ec.etacalc = ['0.05','0.05','0.04']
+            #################################################################################################
             ec.set_analytics()
             ecs = ec.get_ec()
             cvs = ec.get_CVS()
@@ -180,13 +182,13 @@ class Postprocess(ECs):
             #ec.plot_cvs('E0')
             #ec.plot_cvs('Fvib')
             
-            #ec.plot_2nd()
-            #ec.plot_2nd('E0')
-            #ec.plot_2nd('Fvib')
+            ec.plot_2nd()
+            ec.plot_2nd('E0')
+            ec.plot_2nd('Fvib')
             
-            #ec.plot_energy()
-            #ec.plot_energy(mod='E0')
-            #ec.plot_energy(mod='Fvib')
+            ec.plot_energy()
+            ec.plot_energy(mod='E0')
+            ec.plot_energy(mod='Fvib')
             
             f=open('ECs.pkl','w')
             pickle.dump(ecs,f)
@@ -233,6 +235,8 @@ class Postprocess(ECs):
             os.system('pwd')
             try:
                 os.system('~/bin/phonopy-1.11.8.16/scripts/phonopy --fc vasprun.xml')
+                
+                time.sleep(1)
                 os.system('~/bin/phonopy-1.11.8.16/scripts/phonopy -t -c POSCAR-p mesh.conf')
             
                 
@@ -243,7 +247,7 @@ class Postprocess(ECs):
                 structure[1].fenergy = [atTemp['free_energy'] for atTemp in dic['thermal_properties']]
                 structure[1].T = [atTemp['temperature'] for atTemp in dic['thermal_properties']]
             except:
-                ferror = open('errorlog', 'a')
+                ferror = open('errorlog', 'w')
                 ferror.write(os.getcwd()+': An error occurred while parsing thermal_properties.yaml ..........\n')
                 ferror.close()
                 print 'An error occurred while parsing thermal_properties.yaml ..........'
