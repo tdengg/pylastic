@@ -235,7 +235,7 @@ class ANALYTICS(object):
         fordr = []
         fetamax = []
         
-        
+        stddev = []
         hist_E2nd=[]
         j=0
         delta=0.
@@ -359,7 +359,8 @@ class ANALYTICS(object):
                     ax2.plot([c[1] for c in CV],[c[0] for c in CV],marker[m],color='y')
                 
                     ax5.plot(strain,energy,marker[m],color='y')
-            
+                    
+                    ax2.set_xticks([0.01,0.02,0.03,0.04,0.05])
                 
                 
             sumC=0.
@@ -371,7 +372,8 @@ class ANALYTICS(object):
                 index+=1
             
             
-            print "Standard deviation of fitorder %s: %s"%(fitorder,stat.tstd(CVN))
+            print "Standard deviation of CVS of fitorder %s: %s"%(fitorder,stat.tstd(CVN))
+            print "Standard deviation of d2E/d(eta)2 of fitorder %s: %s"%(fitorder,stat.tstd(hist_E2nd))
             self.standardev = stat.tstd(CVN)
             CVmin = np.trim_zeros(CVmin)   
             CVstd =  np.trim_zeros(CVstd) 
@@ -384,10 +386,10 @@ class ANALYTICS(object):
             #ax3.plot(range(len(CVmin)),array_var,'--')
             if mpl:
                 ax3.plot([c[1] for c in CV],stability,color=color[m])
-                
-                ax3.plot([c[1] for c in CV],array_CV*array_var,'--',color=color[m])
+                ax3.set_xticks([0.01,0.02,0.03,0.04,0.05])
+                #ax3.plot([c[1] for c in CV],array_CV*array_var,'--',color=color[m])
             
-            
+            stddev.append((fitorder,self.standardev))
             pwCVS.extend(stability)
             
             fordr.extend([fitorder for c in CV])
@@ -474,13 +476,13 @@ class ANALYTICS(object):
         
             ax1.hlines(hist_prediction, 0., max(eta), lw=4., alpha=0.5, color='g')
             ax1.hlines(pw_prediction[0][0], 0., max(eta), lw=4., alpha=0.6, color='r')
-            ax1.hlines(pw_prediction[1][0], 0., max(eta), lw=4., alpha=0.4, color='r')
-            ax1.hlines(pw_prediction[2][0], 0., max(eta), lw=4., alpha=0.2, color='r')
+            #ax1.hlines(pw_prediction[1][0], 0., max(eta), lw=4., alpha=0.4, color='r')
+            #ax1.hlines(pw_prediction[2][0], 0., max(eta), lw=4., alpha=0.2, color='r')
             
             ax4.vlines(hist_prediction, 0., max(hist_vect), lw=4., alpha=0.5, color='g')
             ax4.vlines(pw_prediction[0][0], 0., max(hist_vect), lw=4., alpha=0.6, color='r')
-            ax4.vlines(pw_prediction[1][0], 0., max(hist_vect), lw=4., alpha=0.4, color='r')
-            ax4.vlines(pw_prediction[2][0], 0., max(hist_vect), lw=4., alpha=0.2, color='r')
+            #ax4.vlines(pw_prediction[1][0], 0., max(hist_vect), lw=4., alpha=0.4, color='r')
+            #ax4.vlines(pw_prediction[2][0], 0., max(hist_vect), lw=4., alpha=0.2, color='r')
             
         best_prediction=0.
         for val in pw_prediction:
@@ -495,7 +497,8 @@ class ANALYTICS(object):
             ax1.legend(title='Fitorder')
             #plt.show()
         
-        return (best_eta,best_forder),pw_prediction, hist_prediction, best_prediction, fig, fig2
+        #return (best_eta,best_forder),pw_prediction, hist_prediction, best_prediction, fig, fig2
+        return (best_eta,best_forder),pw_prediction, stddev, best_prediction, fig, fig2
                 
     def make_hist(self, Ndiv, hist_E2nd):
         hist_vect=np.zeros(Ndiv+1)

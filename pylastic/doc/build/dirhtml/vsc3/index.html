@@ -1,0 +1,151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Starting calculations on VSC3 &mdash; pylastic 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="pylastic 0.1 documentation" href="../" />
+    <link rel="next" title="Example script using pylastic" href="../example_setup/" />
+    <link rel="prev" title="Tutorials" href="../tutorial/" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex/" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../example_setup/" title="Example script using pylastic"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../tutorial/" title="Tutorials"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../">pylastic 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="starting-calculations-on-vsc3">
+<h1>Starting calculations on VSC3<a class="headerlink" href="#starting-calculations-on-vsc3" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li>Start with copying your calculation directory to the cluster.</li>
+<li>Change to the root directory of your calculations.</li>
+<li>Generate job submission script named &#8216;run_vasp&#8217;</li>
+</ul>
+<div class="highlight-python"><div class="highlight"><pre>#!/bin/tcsh
+#SBATCH --qos=devel_0128
+#SBATCH --partition=mem_0128
+#SBATCH -N 1
+#SBATCH -J $SLURM_SUBMIT_DIR:t
+#SBATCH --tasks-per-node=16
+#SBATCH -t 00:10:00
+mpirun /home/lv70372/tde/bin/vasp/vasp.5.3.3-collin_DNGZhalf_mkl_vtst_3.0d/vasp
+</pre></div>
+</div>
+<ul class="simple">
+<li>Write shell script named &#8216;run.sh&#8217; to submit all jobs:</li>
+</ul>
+<div class="highlight-python"><div class="highlight"><pre>#!/bin/bash
+#
+
+
+for path in 3*; do
+        cd $path
+        cdir=&quot;$(pwd)&quot;
+
+    cd ${line}
+    cp ../run_vasp .
+    sbatch run_vasp
+
+        cd ..
+done
+</pre></div>
+</div>
+<ul class="simple">
+<li>Start job script</li>
+</ul>
+<div class="highlight-python"><div class="highlight"><pre>./run.sh
+</pre></div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../tutorial/"
+                        title="previous chapter">Tutorials</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../example_setup/"
+                        title="next chapter">Example script using pylastic</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/vsc3.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex/" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../example_setup/" title="Example script using pylastic"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../tutorial/" title="Tutorials"
+             >previous</a> |</li>
+        <li><a href="../">pylastic 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Dengg Thomas.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

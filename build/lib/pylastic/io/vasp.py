@@ -218,7 +218,7 @@ class Energy():
         """Get groundstate energy from vasprun.xml"""
         vasprun = et.parse(self.__fname)
         elem = vasprun.xpath("//scstep/energy[i/@name='hartreedc']/i[@name = 'e_0_energy']")
-        self.__gsenergy = float(elem[1].text)
+        self.__gsenergy = float(elem[-1].text)
         
         
     def get_gsenergy(self):

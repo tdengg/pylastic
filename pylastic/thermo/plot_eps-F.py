@@ -142,11 +142,11 @@ class AnalyzeF(object):
                 	       	if (abs(strain[len(strain)-1]-emax) < 1.e-7):
                 		       	strain.pop()
                 		       	energy.pop()
-                       	ax3.plot(ETA,CVS, '%s'%colors[m] ,label='fitorder: %s'%j)
+                       	ax3.plot(ETA,CVS, '%s'%colors[m] ,label='%s'%j)
                        	if j%2==0:
-                	       	ax4.plot(ETA,DERIV,'%s'%colors[m],label='fitorder: %s'%j)
+                	       	ax4.plot(ETA,DERIV,'%s'%colors[m],label='%s'%j)
 			if j==8:
-                       		ax4.plot(ETA,DERIVx, '%s--'%colors[m],label='fitorder: %s, dx=%s'%(j,delta_x_deriv))
+                       		ax4.plot(ETA,DERIVx, '%s--'%colors[m],label='%s, dx=%s'%(j,delta_x_deriv))
 			m+=1
 		
 		m=0	
@@ -158,25 +158,25 @@ class AnalyzeF(object):
 			ax2.plot(A1,A2, '%s'%colors[m])
 			m+=1
 			
-               	ax3.legend()
+               	ax3.legend(title='Fitorder:')
                	ax3.set_ylabel('CVS')
-               	ax4.legend()
+               	ax4.legend(title='Fitorder:',loc=4)
 		ax4.set_ylabel(r'$d^2E/d\epsilon^2$   $Pa$')
 
                	ax1.plot(eta,F,'o')
 
-               	ax1.plot(polyx,p(polyx), label='fitorder 6')
-               	ax1.plot(polyx,pl(polyx), label='linear fit')
-		ax1.legend()
+               	ax1.plot(polyx,p(polyx), label='6')
+               	ax1.plot(polyx,pl(polyx), label='Linear fit')
+		ax1.legend(title='Fitorder:')
                	#ax2.plot(eta,volume)
 
                	#plt.plot(eps,F1)
                	#plt.plot(eps,F2)
 		ax1.set_title('Vibrational Free Energy')
-		ax3.set_xlabel('lagrangian strain')
-		ax2.set_ylabel(r'CVS($d^2E/d\epsilon^2$)')
-		ax1.set_ylabel('energy    $eV$')
-		ax4.set_xlabel('lagrangian strain')
+		ax3.set_xlabel(r'$\eta_{max}$')
+		ax2.set_ylabel(r'CVS($d^2F_{vib}/d\eta^2$)')
+		ax1.set_ylabel(r'$F_{vib}$    $eV$')
+		ax4.set_xlabel(r'$\eta_{max}$')
               	plt.draw()
 	       
 	def deriv(self, coeff,order):
@@ -339,32 +339,32 @@ class AnalyzeFE(object):
                 	       	if (abs(strain[len(strain)-1]-emax) < 1.e-7):
                 		       	strain.pop()
                 		       	energy.pop()
-                       	ax3.plot(ETA,CVS,'%s'%colors[m], label='fitorder: %s'%j)
+                       	ax3.plot(ETA,CVS,'%s'%colors[m], label='%s'%j)
                        	if j%2==0:
-                	       	ax4.plot(ETA,DERIV,'%s'%colors[m] ,label='fitorder: %s'%j)
+                	       	ax4.plot(ETA,DERIV,'%s'%colors[m] ,label='%s'%j)
 			if j==8:
-                       		ax4.plot(ETA,DERIVx, '%s--'%colors[m],label='fitorder: %s, dx=%s'%(j,delta_x_deriv))
+                       		ax4.plot(ETA,DERIVx, '%s--'%colors[m],label='%s, dx=%s'%(j,delta_x_deriv))
 			m+=1
 			
-               	ax3.legend()
+               	ax3.legend(title='Fitorder:')
                	ax3.set_ylabel('CVS')
-               	ax4.legend()
-		ax4.set_ylabel(r'$d^2E/d\epsilon^2$    $Pa$')
+               	ax4.legend(title='Fitorder:', loc=2)
+		ax4.set_ylabel(r'$d^2F/d\eta^2$    $Pa$')
 
                	ax1.plot(eta,F,'o')
 
-               	ax1.plot(polyx,p(polyx), label='fitorder 6')
-               	ax1.plot(polyx,pl(polyx), label='fitorder 4')
-		ax1.legend()
+               	ax1.plot(polyx,p(polyx), label='6')
+               	ax1.plot(polyx,pl(polyx), label='4')
+		ax1.legend(title='Fitorder:')
                	#ax2.plot(eta,volume)
 	
                	#plt.plot(eps,F1)
                	#plt.plot(eps,F2)
 		ax1.set_title('Free Energy')
-		ax3.set_xlabel('lagrangian strain')
-		ax2.set_ylabel(r'CVS($d^2E/d\epsilon^2$)')
-		ax1.set_ylabel('energy    $eV$')
-		ax4.set_xlabel('lagrangian strain')
+		ax3.set_xlabel('$\eta_{max}$')
+		ax2.set_ylabel(r'CVS($d^2F/d\eta^2$)')
+		ax1.set_ylabel('$F$    $eV$')
+		ax4.set_xlabel('$\eta_{max}$')
               	plt.draw()
 		
 		m=0	
@@ -536,11 +536,11 @@ class AnalyzeFE_seperated_fit(object):
                 	       	if (abs(strain[len(strain)-1]-emax) < 1.e-7):
                 		       	strain.pop()
                 		       	energy.pop()
-                       	ax3.plot(ETA,CVS,'%s'%colors[m], label='fitorder: %s'%j)
+                       	ax3.plot(ETA,CVS,'%s'%colors[m], label='%s'%j)
                        	if j%2==0:
-                	       	ax4.plot(ETA,DERIV,'%s'%colors[m],label='fitorder: %s'%j)
+                	       	ax4.plot(ETA,DERIV,'%s'%colors[m],label='%s'%j)
 			if j==8:
-                       		ax4.plot(ETA,DERIVx, '%s--'%colors[m],label='fitorder: %s, dx=%s'%(j,delta_x_deriv))
+                       		ax4.plot(ETA,DERIVx, '%s--'%colors[m],label='%s, dx=%s'%(j,delta_x_deriv))
 			m+=1
 		
 		m=0	
@@ -552,26 +552,26 @@ class AnalyzeFE_seperated_fit(object):
 			ax2.plot(A1,A2, '%s'%colors[m])
 			m+=1
 
-               	ax3.legend()
+               	ax3.legend(title='Fitorder:')
                	ax3.set_ylabel('CVS')
-               	ax4.legend()
-		ax4.set_ylabel(r'$d^2E/d\epsilon^2$    $Pa$')
+               	ax4.legend(title='Fitorder:', loc=2)
+		ax4.set_ylabel(r'$d^2F/d\epsilon^2$    $Pa$')
 
                	ax1.plot(eta,F,'o')
 
-               	ax1.plot(polyx,p(polyx), label='fitorder 6')
-               	ax1.plot(polyx,pl(polyx), label='fitorder 4')
-		ax1.legend()
+               	ax1.plot(polyx,p(polyx), label='6')
+               	ax1.plot(polyx,pl(polyx), label='4')
+		ax1.legend(title='Fitorder:')
                	#ax2.plot(eta,volume)
 	
                	#plt.plot(eps,F1)
                	#plt.plot(eps,F2)
 		ax1.set_title('Free Energy - 2stage fitting')
-		ax3.set_xlabel('lagrangian strain')
-		ax2.set_ylabel(r'CVS($d^2E/d\epsilon^2$)')
+		ax3.set_xlabel(r'$\eta_{max}$')
+		ax2.set_ylabel(r'CVS($d^2F/d\eta^2$)')
 		
-		ax1.set_ylabel('energy    $eV$')
-		ax4.set_xlabel('lagrangian strain')
+		ax1.set_ylabel('$F$    $eV$')
+		ax4.set_xlabel(r'$\eta_{max}$')
               	plt.draw()
 	       
 	def deriv(self, coeff,order):
@@ -735,11 +735,11 @@ class AnalyzeE(object):
                 	       	if (abs(strain[len(strain)-1]-emax) < 1.e-7):
                 		       	strain.pop()
                 		       	energy.pop()
-                       	ax3.plot(ETA,CVS,'%s'%colors[m], label='fitorder: %s'%j)
+                       	ax3.plot(ETA,CVS,'%s'%colors[m], label='%s'%j)
                        	if j%2==0:
-                	       	ax4.plot(ETA,DERIV,'%s'%colors[m],label='fitorder: %s'%j)
+                	       	ax4.plot(ETA,DERIV,'%s'%colors[m],label='%s'%j)
 			if j==8:
-                       		ax4.plot(ETA,DERIVx, '%s--'%colors[m],label='fitorder: %s, dx=%s'%(j,delta_x_deriv))
+                       		ax4.plot(ETA,DERIVx, '%s--'%colors[m],label='%s, dx=%s'%(j,delta_x_deriv))
 			m+=1
 			
 		
@@ -752,25 +752,25 @@ class AnalyzeE(object):
 			ax2.plot(A1,A2, '%s'%colors[m])
 			m+=1
 		
-               	ax3.legend()
+               	ax3.legend(title='Fitorder:')
 		ax3.set_ylabel('CVS')
-               	ax4.legend()
-		ax4.set_ylabel(r'$d^2E/d\epsilon^2$   $Pa$')
+               	ax4.legend(title='Fitorder:', loc=2)
+		ax4.set_ylabel(r'$d^2U/d\eta^2$   $Pa$')
 
                	ax1.plot(eta,F,'o')
 
                	ax1.plot(polyx,p(polyx), label='fitorder 6')
                	ax1.plot(polyx,pl(polyx), label='fitorder 4')
-		ax1.legend()
+		ax1.legend(title='Fitorder:')
                	#ax2.plot(eta,volume)
 
                	#plt.plot(eps,F1)
                	#plt.plot(eps,F2)
 		ax1.set_title('Total Energy')
-		ax3.set_xlabel('lagrangian strain')
-		ax2.set_ylabel(r'CVS($d^2E/d\epsilon^2$)')
-		ax1.set_ylabel('energy    $eV$')
-		ax4.set_xlabel('lagrangian strain')
+		ax3.set_xlabel(r'$\eta_{max}$')
+		ax2.set_ylabel(r'CVS($d^2U/d\eta^2$)')
+		ax1.set_ylabel('$U$   $eV$')
+		ax4.set_xlabel(r'$\eta_{max}$')
               	plt.draw()
 		
 	       	
