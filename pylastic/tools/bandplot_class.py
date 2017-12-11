@@ -83,7 +83,7 @@ class PlotBand(object):
             xticks = segment_positions
             plt.xticks(xticks, labels_at_ends)
             for v in segment_positions[1:-1]:
-                plt.axvline(x=v, linewidth=0.5, color='k', ls='--')
+                plt.axvline(x=v, linewidth=1, color='k', ls='--')
                 
             self.seg_pos = segment_positions
             

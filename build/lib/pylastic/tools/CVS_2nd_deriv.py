@@ -284,10 +284,10 @@ class ANALYTICS(object):
                     strain.pop()
                     energy.pop()
             if mpl:
-                ax1.plot([c[1] for c in E2nd_0],[c[0] for c in E2nd_0],color=color[m],label='n=%s'%fitorder)
-                ax2.plot([c[1] for c in CV_0],[c[0] for c in CV_0],color=color[m])
+                ax1.plot([c[1] for c in E2nd_0],[c[0] for c in E2nd_0],color=color[m],label='n=%s'%fitorder,lw=3)
+                ax2.plot([c[1] for c in CV_0],[c[0] for c in CV_0],color=color[m],lw=3)
             
-                ax5.plot(strain,energy, color=color[m])
+                ax5.plot(strain,energy, color=color[m],lw=3)
             ###################################################
             CVN=np.zeros((len(eta),Nsample))
             CVmin= np.zeros(len(eta))
@@ -361,7 +361,16 @@ class ANALYTICS(object):
                     ax5.plot(strain,energy,marker[m],color='y')
                     
                     ax2.set_xticks([0.01,0.02,0.03,0.04,0.05])
-                
+                    
+                    ax1.set_xlabel(r'$\eta_{max}$')
+                    ax1.set_ylabel(r'$d^2E/d\eta^2$     (GPa)')
+                    
+                    ax2.set_xlabel(r'$\eta_{max}$')
+                    ax2.set_ylabel(r'CVS')
+                    ax3.set_xlabel(r'$\eta_{max}$')
+                    ax3.set_ylabel(r'p-CVS')
+                    ax4.set_xlabel(r'$d^2E/d\eta^2$    (GPa)')
+                    ax4.set_ylabel(r'density')
                 
             sumC=0.
             index=0
@@ -385,7 +394,7 @@ class ANALYTICS(object):
             #ax3.plot(range(len(CVmin)),array_CV,':')
             #ax3.plot(range(len(CVmin)),array_var,'--')
             if mpl:
-                ax3.plot([c[1] for c in CV],stability,color=color[m])
+                ax3.plot([c[1] for c in CV],stability,color=color[m],lw=3)
                 ax3.set_xticks([0.01,0.02,0.03,0.04,0.05])
                 #ax3.plot([c[1] for c in CV],array_CV*array_var,'--',color=color[m])
             
@@ -449,7 +458,7 @@ class ANALYTICS(object):
         
         x= np.linspace(min(hist_E2nd),max(hist_E2nd),Ndiv+1)
         if mpl:
-            ax4.plot(x, hist_vect)
+            ax4.plot(x, hist_vect,lw=3)
         
         
         #plt.plot(pvol,)
@@ -470,7 +479,7 @@ class ANALYTICS(object):
         dist_x = np.linspace(stat.norm.ppf(0.001, loc=hist_prediction, scale = 0.1),stat.norm.ppf(0.999, loc=hist_prediction, scale = 0.1),100) 
         dist_y = stat.norm.pdf(dist_x, loc=hist_prediction, scale = 0.1)
         if mpl:
-            ax4.plot(dist_x,[y*100. for y in dist_y])
+            ax4.plot(dist_x,[y*100. for y in dist_y],lw=3)
         
         
         

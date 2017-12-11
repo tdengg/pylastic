@@ -65,7 +65,7 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
     '''
     
 
-    def __init__(self, cod='vasp'):
+    def __init__(self, cod='vasp',method='Energy'):
         '''
         Constructor
         '''
@@ -81,7 +81,7 @@ class ElAtoms(Distort, Sgroup, PrettyMatrix, Check):
         self.__verbose = True
         self.__code = cod
         self.__path = os.getcwd()
-        self.__mthd = 'Energy'
+        self.__mthd = method
         self.__enforce_sg = 0
         
     def enforce_sg(self, sgn):
