@@ -80,8 +80,9 @@ class EOS(object):
         #return emin + 2.*b0*v0/(db0-1)**2.*(2.-(5.+3.*db0*(vov-1.)*np.exp(-3.*(db0-1)*(vov-1)/2.)))
         return emin + 9.*b0*v0/xi**2.*(1.+(xi*(1.-vov)-1.)*np.exp(xi*(1.-vov)))
     
-    def fit_vinet(self):
-        self.__par, self.__pcov = curve_fit(self.fvinet, self.__V0,self.__E0, p0=(15.,6.,4.,-13.))
+    def fit_vinet(self, p0=(15.,6.,4.,-13.)):
+        print p0
+        self.__par, self.__pcov = curve_fit(self.fvinet, self.__V0,self.__E0, p0)
         self.__Vequi = self.__par[0]
         self.__B0 = self.__par[1]*self.__vToGPa
         self.__dB0 = self.__par[2]
@@ -89,8 +90,8 @@ class EOS(object):
         self.__gamma_TH = -2./3.+1./2.*(1.+self.__dB0)
         self.__gamma_LT = -1.+1./2.*(1.+self.__dB0)
         
-    def fit_birch(self):
-        self.__par, self.__pcov = curve_fit(self.fbirch, self.__V0,self.__E0, p0=(15.,6.,4.,-13.))
+    def fit_birch(self, p0=(15.,6.,4.,-13.)):
+        self.__par, self.__pcov = curve_fit(self.fbirch, self.__V0,self.__E0, p0)
         self.__Vequi = self.__par[0]
         self.__B0 = self.__par[1]*self.__vToGPa
         self.__dB0 = self.__par[2]

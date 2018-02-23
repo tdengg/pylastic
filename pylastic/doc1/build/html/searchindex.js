@@ -1,0 +1,1 @@
+Search.setIndex({titles:["Welcome to pylastic&#8217;s documentation!"],objects:{},terms:{content:0,page:0,index:0,modul:0,search:0},titleterms:{document:0,tabl:0,welcom:0,pylast:0,indic:0},envversion:43,filenames:["index"],objtypes:{},objnames:{}})

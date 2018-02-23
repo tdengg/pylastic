@@ -35,7 +35,7 @@ class Setup(Structures, Distort, POS):
             atom.deform_volume(eta)
             #self.__structures.append_structure(atom)
             subatom = copy.deepcopy(atom)
-            for etan in np.linspace(-0.05,0.05,5):
+            for etan in np.linspace(-0.05,0.05,9):
 
                 for strains in range(len(subatom.strainList)):
                     subatom = copy.deepcopy(atom)

@@ -35,8 +35,14 @@ class POS(object):
         p_dict["vlatt_1"] = np.array(map(np.float,self.lta()))
         p_dict["vlatt_2"] = np.array(map(np.float,self.lta()))
         p_dict["vlatt_3"] = np.array(map(np.float,self.lta()))
-        p_dict["natoms"] = map(int,self.lta())
         
+        tempstr = self.lta()
+        if tempstr[0].isalpha():
+            p_dict["species"] = tempstr
+            print tempstr
+            p_dict["natoms"] = map(int,self.lta())
+        else:
+            p_dict["natoms"] = map(int,tempstr)
         selective = self.car.readline()
         if selective.split()[0][0] in ['s','S']: 
             p_dict["selective"] = True

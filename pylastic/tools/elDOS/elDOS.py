@@ -48,9 +48,9 @@ class DOS(object):
     
 if __name__ == "__main__":
     dos = DOS()
-    dos.read_DOSCAR("DOSCAR")
+    dos.read_DOSCAR(".")
     dos.plot_DOS()
-    
+    dos.get_eFermi('.')
     dos.free_energy(1000.)
     
     plt.show()

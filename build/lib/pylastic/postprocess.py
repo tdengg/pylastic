@@ -649,7 +649,6 @@ class ECs(Check, Energy, Stress):
                 if type(etacalc)==list:
                     A2=[]
                     for i in range(len(etacalc)):
-                        print self.__A2[i], etacalc[i]
                         A2.append(self.__A2[i][etacalc[i]])
                 else:
                     if not etacalc in self.__A2[0].keys(): raise ValueError('Please coose one of %s'%(self.__A2[0].keys()))
